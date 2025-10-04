@@ -25,17 +25,10 @@ export async function POST(req: NextRequest) {
       finalDescription = transcription.text;
     }
 
-    // Validate: minimum 100 characters for description OR images must be provided
-    if (finalDescription && finalDescription.length < 100) {
-      return NextResponse.json(
-        { error: "Description must be at least 100 characters" },
-        { status: 400 }
-      );
-    }
-
+    // Validate: at least description or images must be provided
     if (!finalDescription && imageFiles.length === 0) {
       return NextResponse.json(
-        { error: "Please provide either a description (min 100 chars) or upload images" },
+        { error: "Please provide a description or upload images" },
         { status: 400 }
       );
     }

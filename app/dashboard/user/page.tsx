@@ -290,14 +290,9 @@ function ReportForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate: minimum 100 characters OR images
-    if (description.length > 0 && description.length < 100) {
-      alert("Description must be at least 100 characters");
-      return;
-    }
-
+    // Validate: at least description or images
     if (!description && images.length === 0) {
-      alert("Please provide either a description (min 100 chars) or upload images");
+      alert("Please provide a description or upload images");
       return;
     }
 
@@ -341,10 +336,10 @@ function ReportForm({
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="block text-sm font-medium text-muted">
-                Description
+                Description (optional)
               </label>
-              <span className={`text-xs ${description.length >= 100 ? 'text-green-400' : 'text-muted'}`}>
-                {description.length}/100 characters {description.length < 100 && '(minimum)'}
+              <span className="text-xs text-muted">
+                {description.length} characters
               </span>
             </div>
             <div className="relative">
