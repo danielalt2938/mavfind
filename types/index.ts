@@ -33,13 +33,42 @@ export type ItemCategory =
   | "card"
   | "clothing"
   | "document"
+  | "jewelry"
+  | "accessory"
+  | "book"
+  | "stationery"
+  | "sports_equipment"
+  | "water_bottle"
+  | "headphones"
+  | "charger"
+  | "wallet"
+  | "glasses"
+  | "umbrella"
+  | "food_container"
+  | "calculator"
+  | "usb_drive"
+  | "textbook"
+  | "notebook"
+  | "art_supplies"
+  | "musical_instrument"
+  | "lab_equipment"
   | "other";
 
 // Item Attributes
 export interface ItemAttributes {
+  genericDescription?: string; // Full description extracted by AI
   brand?: string;
   model?: string;
   color?: string;
+  size?: string;
+  material?: string;
+  pattern?: string;
+  condition?: string;
+  distinguishingFeatures?: string;
+  serialNumber?: string;
+  imeiNumber?: string;
+  licensePlate?: string;
+  additionalDetails?: string;
   [key: string]: string | undefined;
 }
 
