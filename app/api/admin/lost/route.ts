@@ -30,14 +30,21 @@ export async function POST(req: NextRequest) {
     // Extract attributes using AI
     const aiAttributes = await extractAttributesFromDescription(description);
 
-    // Convert AI attributes to ItemAttributes format
-    const attributes = {
+    // Convert AI attributes to ItemAttributes format - remove undefined values
+    const attributes: Record<string, string> = {
       category: aiAttributes.category,
-      brand: aiAttributes.brand,
-      model: aiAttributes.model,
-      color: aiAttributes.color,
-      ...aiAttributes.additionalAttributes,
     };
+
+    if (aiAttributes.brand) attributes.brand = aiAttributes.brand;
+    if (aiAttributes.model) attributes.model = aiAttributes.model;
+    if (aiAttributes.color) attributes.color = aiAttributes.color;
+
+    // Add additional attributes
+    Object.entries(aiAttributes.additionalAttributes || {}).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        attributes[key] = value;
+      }
+    });
 
     // Upload images
     const imageUrls =

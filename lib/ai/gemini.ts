@@ -7,7 +7,7 @@ export async function extractAttributesFromDescription(
   description: string
 ): Promise<AIExtractedAttributes> {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 
     const prompt = `
 You are an AI assistant that extracts structured information from lost and found item descriptions.
@@ -68,7 +68,7 @@ export async function extractAttributesFromImage(
   imageUrl: string
 ): Promise<Partial<AIExtractedAttributes>> {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-pro-vision" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 
     const prompt = `
 Analyze this image of a lost or found item and extract:

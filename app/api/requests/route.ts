@@ -32,24 +32,35 @@ export async function POST(req: NextRequest) {
       finalDescription = transcription.text;
     }
 
-    if (!finalDescription) {
+    // Validate: at least one input (description, audio, or images)
+    if (!finalDescription && imageFiles.length === 0) {
       return NextResponse.json(
-        { error: "Description or audio is required" },
+        { error: "Please provide description, audio, or images" },
         { status: 400 }
       );
     }
 
-    // Extract attributes using AI
-    const aiAttributes = await extractAttributesFromDescription(finalDescription);
+    // Extract attributes using AI (only if description provided)
+    const attributes: Record<string, string> = {};
 
-    // Convert AI attributes to ItemAttributes format
-    const attributes = {
-      category: aiAttributes.category,
-      brand: aiAttributes.brand,
-      model: aiAttributes.model,
-      color: aiAttributes.color,
-      ...aiAttributes.additionalAttributes,
-    };
+    if (finalDescription) {
+      const aiAttributes = await extractAttributesFromDescription(finalDescription);
+      attributes.category = aiAttributes.category;
+
+      if (aiAttributes.brand) attributes.brand = aiAttributes.brand;
+      if (aiAttributes.model) attributes.model = aiAttributes.model;
+      if (aiAttributes.color) attributes.color = aiAttributes.color;
+
+      // Add additional attributes
+      Object.entries(aiAttributes.additionalAttributes || {}).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          attributes[key] = value;
+        }
+      });
+    } else {
+      // No description, just set default category
+      attributes.category = "other";
+    }
 
     // Upload images
     const imageUrls =
@@ -64,7 +75,7 @@ export async function POST(req: NextRequest) {
       locationId,
       status: "submitted",
       attributes,
-      description: finalDescription,
+      description: finalDescription || "",
       images: imageUrls,
       createdAt: now,
       updatedAt: now,

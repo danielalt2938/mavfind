@@ -162,13 +162,22 @@ function ReportForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate: at least one field (description or images) must be provided
+    if (!description && images.length === 0) {
+      alert("Please provide either a description or upload images");
+      return;
+    }
+
     setSubmitting(true);
 
     try {
       const token = await user?.getIdToken();
       const formData = new FormData();
       formData.append("locationId", locationId);
-      formData.append("description", description);
+      if (description) {
+        formData.append("description", description);
+      }
       images.forEach((img) => formData.append("images", img));
 
       const res = await fetch("/api/requests", {
@@ -214,12 +223,11 @@ function ReportForm({
 
           <div>
             <label className="block text-sm font-medium mb-2">
-              Description
+              Description (optional)
             </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              required
               rows={4}
               className="w-full border border-gray-300 rounded-lg px-4 py-2"
               placeholder="Describe the lost item in detail..."
