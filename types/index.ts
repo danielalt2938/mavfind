@@ -24,9 +24,19 @@ export interface LocationDocument {
   locations: Location[];
 }
 
+// Item Categories
+export type ItemCategory =
+  | "electronics"
+  | "vehicle"
+  | "keys"
+  | "bag"
+  | "card"
+  | "clothing"
+  | "document"
+  | "other";
+
 // Item Attributes
 export interface ItemAttributes {
-  category: string;
   brand?: string;
   model?: string;
   color?: string;
@@ -44,12 +54,16 @@ export type RequestStatus =
 
 export interface Request {
   id?: string;
-  ownerUid: string;
-  locationId: string;
-  status: RequestStatus;
-  attributes: ItemAttributes;
+  title: string;
   description: string;
+  category: ItemCategory;
+  subcategory?: string;
+  attributes: ItemAttributes;
   images: string[];
+  locationId: string;
+  geo?: GeoLocation;
+  ownerUid: string;
+  status: RequestStatus;
   createdAt: string;
   updatedAt: string;
 }
@@ -59,12 +73,16 @@ export type LostItemStatus = "found" | "matched" | "claimed" | "archived";
 
 export interface LostItem {
   id?: string;
-  handlerUid: string;
-  locationId: string;
-  status: LostItemStatus;
-  attributes: ItemAttributes;
+  title: string;
   description: string;
+  category: ItemCategory;
+  subcategory?: string;
+  attributes: ItemAttributes;
   images: string[];
+  locationId: string;
+  geo?: GeoLocation;
+  handlerUid: string;
+  status: LostItemStatus;
   createdAt: string;
   updatedAt: string;
 }
@@ -108,12 +126,16 @@ export interface ExtendedSession {
 }
 
 // AI Response Types
-export interface AIExtractedAttributes {
-  category: string;
-  brand?: string;
-  model?: string;
-  color?: string;
-  additionalAttributes?: Record<string, string>;
+export interface AIExtractedData {
+  title: string;
+  category: ItemCategory;
+  subcategory?: string;
+  attributes: {
+    brand?: string;
+    model?: string;
+    color?: string;
+    [key: string]: string | undefined;
+  };
 }
 
 export interface TranscriptionResult {

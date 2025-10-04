@@ -188,14 +188,68 @@ function ReportForm({
   const { user } = useAuth();
   const [description, setDescription] = useState("");
   const [images, setImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const filesArray = Array.from(e.target.files);
+      setImages((prev) => [...prev, ...filesArray]);
+
+      // Generate previews
+      filesArray.forEach((file) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setImagePreviews((prev) => [...prev, reader.result as string]);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setImages((prev) => prev.filter((_, i) => i !== index));
+    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      const chunks: Blob[] = [];
+
+      mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(chunks, { type: "audio/webm" });
+        // TODO: Send to Whisper API for transcription
+        stream.getTracks().forEach((track) => track.stop());
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+
+      setTimeout(() => {
+        mediaRecorder.stop();
+        setIsRecording(false);
+      }, 30000); // Max 30 seconds
+    } catch (error) {
+      console.error("Microphone access denied:", error);
+      alert("Microphone access required for voice input");
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate: at least one field (description or images) must be provided
+    // Validate: minimum 100 characters OR images
+    if (description.length > 0 && description.length < 100) {
+      alert("Description must be at least 100 characters");
+      return;
+    }
+
     if (!description && images.length === 0) {
-      alert("Please provide either a description or upload images");
+      alert("Please provide either a description (min 100 chars) or upload images");
       return;
     }
 
@@ -237,16 +291,43 @@ function ReportForm({
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-muted mb-2">
-              Description (optional)
-            </label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={4}
-              className="input-base"
-              placeholder="Describe what you lost..."
-            />
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium text-muted">
+                Description
+              </label>
+              <span className={`text-xs ${description.length >= 100 ? 'text-green-400' : 'text-muted'}`}>
+                {description.length}/100 characters {description.length < 100 && '(minimum)'}
+              </span>
+            </div>
+            <div className="relative">
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={4}
+                className="input-base pr-12"
+                placeholder="Describe what you lost..."
+              />
+              <button
+                type="button"
+                onClick={startRecording}
+                disabled={isRecording}
+                className={`absolute right-3 top-3 p-2 rounded-lg transition-colors ${
+                  isRecording
+                    ? 'bg-red-500 text-white'
+                    : 'bg-bgElevated hover:bg-utaBlue/20 text-muted hover:text-fg'
+                }`}
+                title="Record description"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clipRule="evenodd" />
+                </svg>
+              </button>
+            </div>
+            {isRecording && (
+              <p className="text-xs text-red-400 mt-2 flex items-center gap-2">
+                <span className="animate-pulse">●</span> Recording...
+              </p>
+            )}
           </div>
 
           <div>
@@ -257,11 +338,32 @@ function ReportForm({
               type="file"
               accept="image/*"
               multiple
-              onChange={(e) =>
-                setImages(e.target.files ? Array.from(e.target.files) : [])
-              }
+              onChange={handleImageChange}
               className="input-base"
             />
+
+            {imagePreviews.length > 0 && (
+              <div className="grid grid-cols-3 gap-4 mt-4">
+                {imagePreviews.map((preview, index) => (
+                  <div key={index} className="relative group">
+                    <img
+                      src={preview}
+                      alt={`Preview ${index + 1}`}
+                      className="w-full h-32 object-cover rounded-lg border border-border"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(index)}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="flex gap-4 pt-4">

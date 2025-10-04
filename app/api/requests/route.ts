@@ -25,33 +25,31 @@ export async function POST(req: NextRequest) {
       finalDescription = transcription.text;
     }
 
-    // Validate: at least one input (description, audio, or images)
-    if (!finalDescription && imageFiles.length === 0) {
+    // Validate: minimum 100 characters for description OR images must be provided
+    if (finalDescription && finalDescription.length < 100) {
       return NextResponse.json(
-        { error: "Please provide description, audio, or images" },
+        { error: "Description must be at least 100 characters" },
         { status: 400 }
       );
     }
 
-    // Extract attributes using AI (only if description provided)
-    const attributes: ItemAttributes = {
-      category: "other", // default
+    if (!finalDescription && imageFiles.length === 0) {
+      return NextResponse.json(
+        { error: "Please provide either a description (min 100 chars) or upload images" },
+        { status: 400 }
+      );
+    }
+
+    // Extract data using AI - this provides proper categorization
+    let aiData = {
+      title: "Item",
+      category: "other" as const,
+      subcategory: undefined as string | undefined,
+      attributes: {} as Record<string, string | undefined>,
     };
 
     if (finalDescription) {
-      const aiAttributes = await extractAttributesFromDescription(finalDescription);
-      attributes.category = aiAttributes.category;
-
-      if (aiAttributes.brand) attributes.brand = aiAttributes.brand;
-      if (aiAttributes.model) attributes.model = aiAttributes.model;
-      if (aiAttributes.color) attributes.color = aiAttributes.color;
-
-      // Add additional attributes
-      Object.entries(aiAttributes.additionalAttributes || {}).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          attributes[key] = value;
-        }
-      });
+      aiData = await extractAttributesFromDescription(finalDescription);
     }
 
     // Upload images
@@ -60,15 +58,18 @@ export async function POST(req: NextRequest) {
         ? await uploadMultipleImages(imageFiles, "requests")
         : [];
 
-    // Create request document
+    // Create request document with AI-extracted data
     const now = new Date().toISOString();
     const requestId = await createRequest({
-      ownerUid: user.uid,
-      locationId: "",  // Location not required for user requests
-      status: "submitted",
-      attributes,
+      title: aiData.title,
       description: finalDescription || "",
+      category: aiData.category,
+      subcategory: aiData.subcategory,
+      attributes: aiData.attributes,
       images: imageUrls,
+      locationId: "",  // Location not required for user requests
+      ownerUid: user.uid,
+      status: "submitted",
       createdAt: now,
       updatedAt: now,
     });

@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
+import { Button, Badge } from "@/components/ui";
 
 export default function InventoryPage() {
   const [items, setItems] = useState([]);
@@ -32,100 +34,117 @@ export default function InventoryPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       {/* Header */}
-      <header className="bg-blue-600 text-white py-4 shadow-lg">
-        <div className="container mx-auto px-4 flex justify-between items-center">
-          <Link href="/" className="text-2xl font-bold">
+      <header className="glass-panel sticky top-0 z-50">
+        <div className="container-custom py-4 flex justify-between items-center">
+          <Link href="/" className="text-xl font-extrabold tracking-tight">
             MavFind
           </Link>
-          <nav className="space-x-4">
-            <Link href="/inventory" className="hover:underline font-semibold">
-              Search Inventory
+          <nav className="flex items-center gap-6 text-sm">
+            <Link href="/inventory" className="text-fg font-medium">
+              Browse
             </Link>
-            <Link href="/dashboard/user" className="hover:underline">
+            <Link href="/dashboard/user" className="text-muted hover:text-fg transition-colors">
               My Reports
+            </Link>
+            <Link href="/auth/signin">
+              <Button variant="ghost" size="sm">Sign In</Button>
             </Link>
           </nav>
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6">Search Lost & Found Inventory</h1>
+      <div className="container-custom section-padding pt-24">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-3">
+            Browse inventory.
+          </h1>
+          <p className="text-lg text-muted mb-8">
+            Search our collection of found items across all locations.
+          </p>
 
-        {/* Search Bar */}
-        <form onSubmit={handleSearch} className="mb-8">
-          <div className="flex gap-4">
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search for items (e.g., iPhone, blue backpack, keys...)"
-              className="flex-1 border border-gray-300 rounded-lg px-4 py-3 text-lg"
-            />
-            <button
-              type="submit"
-              className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition"
-            >
-              Search
-            </button>
-          </div>
-        </form>
+          {/* Search Bar */}
+          <form onSubmit={handleSearch} className="mb-12">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search for items..."
+                className="input-base flex-1 text-lg"
+              />
+              <Button type="submit" size="lg" className="sm:w-auto">
+                Search
+              </Button>
+            </div>
+          </form>
 
-        {/* Results */}
-        {loading ? (
-          <div className="text-center py-12">
-            <div className="text-xl">Searching...</div>
-          </div>
-        ) : items.length === 0 ? (
-          <div className="bg-white rounded-lg shadow p-8 text-center">
-            <p className="text-gray-600">
-              No items found. Try a different search term.
-            </p>
-          </div>
-        ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {items.map((item: any) => (
-              <div key={item.objectID} className="bg-white rounded-lg shadow-lg overflow-hidden">
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h3 className="text-xl font-semibold mb-1">
-                        {item.category}
-                      </h3>
-                      {item.brand && (
-                        <p className="text-sm text-gray-600">{item.brand}</p>
+          {/* Results */}
+          {loading ? (
+            <div className="text-center py-20">
+              <div className="text-lg text-muted">Looking around...</div>
+            </div>
+          ) : items.length === 0 ? (
+            <div className="card-base p-12 text-center">
+              <p className="text-lg text-muted">
+                No matches—yet.
+              </p>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {items.map((item: any, idx: number) => (
+                <motion.div
+                  key={item.objectID}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.05, duration: 0.4 }}
+                >
+                  <div className="card-base p-6 hover-lift h-full bg-[#0C2340]/5 border-utaBlue/10">
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold mb-1 capitalize">
+                          {item.category}
+                        </h3>
+                        {item.brand && (
+                          <p className="text-sm text-muted">{item.brand}</p>
+                        )}
+                      </div>
+                      <Badge variant={item.type === "lost" ? "success" : "warning"}>
+                        {item.type === "lost" ? "Found" : "Reported"}
+                      </Badge>
+                    </div>
+
+                    <p className="text-muted leading-relaxed mb-4 line-clamp-3">
+                      {item.description}
+                    </p>
+
+                    <div className="space-y-1 mb-4">
+                      {item.color && (
+                        <div className="text-sm text-muted">
+                          <span className="text-fg font-medium">Color:</span> {item.color}
+                        </div>
+                      )}
+                      {item.model && (
+                        <div className="text-sm text-muted">
+                          <span className="text-fg font-medium">Model:</span> {item.model}
+                        </div>
                       )}
                     </div>
-                    <span
-                      className={`px-2 py-1 rounded text-xs font-medium ${
-                        item.type === "lost"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-yellow-100 text-yellow-800"
-                      }`}
-                    >
-                      {item.type === "lost" ? "Found" : "Reported"}
-                    </span>
-                  </div>
-                  <p className="text-gray-700 mb-4">{item.description}</p>
-                  {item.color && (
-                    <div className="text-sm text-gray-600">
-                      <span className="font-medium">Color:</span> {item.color}
+
+                    <div className="text-xs text-muted/70 pt-3 border-t border-white/5">
+                      {new Date(item.createdAt).toLocaleDateString()}
                     </div>
-                  )}
-                  {item.model && (
-                    <div className="text-sm text-gray-600">
-                      <span className="font-medium">Model:</span> {item.model}
-                    </div>
-                  )}
-                  <div className="text-xs text-gray-500 mt-4">
-                    {new Date(item.createdAt).toLocaleDateString()}
                   </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </motion.div>
       </div>
     </div>
   );

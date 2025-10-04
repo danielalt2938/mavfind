@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAuthToken } from "@/lib/auth/server";
-import { createLostItem } from "@/lib/firebase/firestore";
+import { createLostItem, getLocations } from "@/lib/firebase/firestore";
 import { uploadMultipleImages } from "@/lib/firebase/storage";
 import { extractAttributesFromDescription } from "@/lib/ai/gemini";
-import { ItemAttributes } from "@/types";
+import { GeoLocation } from "@/types";
 
 export async function POST(req: NextRequest) {
   try {
@@ -28,31 +28,25 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Extract attributes using AI
-    const aiAttributes = await extractAttributesFromDescription(description);
+    // Extract data using AI - this provides proper categorization
+    const aiData = await extractAttributesFromDescription(description);
 
-    if (!aiAttributes.category) {
+    if (!aiData.category) {
       return NextResponse.json(
         { error: "Failed to extract category from description" },
         { status: 400 }
       );
     }
 
-    // Convert AI attributes to ItemAttributes format - remove undefined values
-    const attributes: ItemAttributes = {
-      category: aiAttributes.category,
-    };
-
-    if (aiAttributes.brand) attributes.brand = aiAttributes.brand;
-    if (aiAttributes.model) attributes.model = aiAttributes.model;
-    if (aiAttributes.color) attributes.color = aiAttributes.color;
-
-    // Add additional attributes
-    Object.entries(aiAttributes.additionalAttributes || {}).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        attributes[key] = value;
+    // Get geo coordinates from location
+    let geo: GeoLocation | undefined;
+    const locationsDoc = await getLocations();
+    if (locationsDoc) {
+      const location = locationsDoc.locations.find((loc) => loc.id === locationId);
+      if (location) {
+        geo = location.geo;
       }
-    });
+    }
 
     // Upload images
     const imageUrls =
@@ -60,15 +54,19 @@ export async function POST(req: NextRequest) {
         ? await uploadMultipleImages(imageFiles, "lost")
         : [];
 
-    // Create lost item document
+    // Create lost item document with AI-extracted data
     const now = new Date().toISOString();
     const lostItemId = await createLostItem({
-      handlerUid: user.uid,
-      locationId,
-      status: "found",
-      attributes,
+      title: aiData.title,
       description,
+      category: aiData.category,
+      subcategory: aiData.subcategory,
+      attributes: aiData.attributes,
       images: imageUrls,
+      locationId,
+      geo,
+      handlerUid: user.uid,
+      status: "found",
       createdAt: now,
       updatedAt: now,
     });
