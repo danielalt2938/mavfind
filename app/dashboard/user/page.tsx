@@ -156,7 +156,6 @@ function ReportForm({
 }) {
   const { user } = useAuth();
   const [description, setDescription] = useState("");
-  const [locationId, setLocationId] = useState("");
   const [images, setImages] = useState<File[]>([]);
   const [submitting, setSubmitting] = useState(false);
 
@@ -174,7 +173,6 @@ function ReportForm({
     try {
       const token = await user?.getIdToken();
       const formData = new FormData();
-      formData.append("locationId", locationId);
       if (description) {
         formData.append("description", description);
       }
@@ -207,20 +205,6 @@ function ReportForm({
         <h2 className="text-2xl font-bold mb-4">Report Lost Item</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-2">Location</label>
-            <select
-              value={locationId}
-              onChange={(e) => setLocationId(e.target.value)}
-              required
-              className="w-full border border-gray-300 rounded-lg px-4 py-2"
-            >
-              <option value="">Select a location</option>
-              <option value="loc1">Main Campus</option>
-              <option value="loc2">North Office</option>
-            </select>
-          </div>
-
           <div>
             <label className="block text-sm font-medium mb-2">
               Description (optional)

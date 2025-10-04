@@ -3,6 +3,7 @@ import { verifyAuthToken } from "@/lib/auth/server";
 import { createLostItem } from "@/lib/firebase/firestore";
 import { uploadMultipleImages } from "@/lib/firebase/storage";
 import { extractAttributesFromDescription } from "@/lib/ai/gemini";
+import { ItemAttributes } from "@/types";
 
 export async function POST(req: NextRequest) {
   try {
@@ -30,8 +31,15 @@ export async function POST(req: NextRequest) {
     // Extract attributes using AI
     const aiAttributes = await extractAttributesFromDescription(description);
 
+    if (!aiAttributes.category) {
+      return NextResponse.json(
+        { error: "Failed to extract category from description" },
+        { status: 400 }
+      );
+    }
+
     // Convert AI attributes to ItemAttributes format - remove undefined values
-    const attributes: Record<string, string> = {
+    const attributes: ItemAttributes = {
       category: aiAttributes.category,
     };
 

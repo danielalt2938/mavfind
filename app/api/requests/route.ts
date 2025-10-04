@@ -4,6 +4,7 @@ import { createRequest } from "@/lib/firebase/firestore";
 import { uploadMultipleImages } from "@/lib/firebase/storage";
 import { extractAttributesFromDescription } from "@/lib/ai/gemini";
 import { transcribeAudio } from "@/lib/ai/whisper";
+import { ItemAttributes } from "@/types";
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,17 +14,9 @@ export async function POST(req: NextRequest) {
     }
 
     const formData = await req.formData();
-    const locationId = formData.get("locationId") as string;
     const description = formData.get("description") as string;
     const audioFile = formData.get("audioFile") as File | null;
     const imageFiles = formData.getAll("images") as File[];
-
-    if (!locationId) {
-      return NextResponse.json(
-        { error: "Location ID is required" },
-        { status: 400 }
-      );
-    }
 
     // Transcribe audio if provided
     let finalDescription = description;
@@ -41,7 +34,9 @@ export async function POST(req: NextRequest) {
     }
 
     // Extract attributes using AI (only if description provided)
-    const attributes: Record<string, string> = {};
+    const attributes: ItemAttributes = {
+      category: "other", // default
+    };
 
     if (finalDescription) {
       const aiAttributes = await extractAttributesFromDescription(finalDescription);
@@ -57,9 +52,6 @@ export async function POST(req: NextRequest) {
           attributes[key] = value;
         }
       });
-    } else {
-      // No description, just set default category
-      attributes.category = "other";
     }
 
     // Upload images
@@ -72,7 +64,7 @@ export async function POST(req: NextRequest) {
     const now = new Date().toISOString();
     const requestId = await createRequest({
       ownerUid: user.uid,
-      locationId,
+      locationId: "",  // Location not required for user requests
       status: "submitted",
       attributes,
       description: finalDescription || "",
