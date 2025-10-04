@@ -147,29 +147,29 @@ export default function AdminDashboard() {
     <div className="min-h-screen">
       {/* Header */}
       <header className="glass-panel sticky top-0 z-50 border-b border-utaOrange/20">
-        <div className="container-custom py-4 flex justify-between items-center">
-          <Link href="/" className="text-xl font-extrabold tracking-tight">
+        <div className="container-custom py-5 flex justify-between items-center">
+          <Link href="/" className="text-2xl font-display font-bold tracking-tight hover:text-utaOrange transition-colors">
             MavFind <span className="text-utaOrange">Admin</span>
           </Link>
-          <div className="flex items-center gap-6">
-            <nav className="hidden md:flex items-center gap-6 text-sm">
-              <Link href="/inventory" className="text-muted hover:text-fg transition-colors">
+          <div className="flex items-center gap-8">
+            <nav className="hidden md:flex items-center gap-8">
+              <Link href="/inventory" className="text-base font-medium text-muted hover:text-fg transition-colors">
                 Browse
               </Link>
-              <Link href="/dashboard/admin" className="text-fg font-medium">
+              <Link href="/dashboard/admin" className="text-base font-medium text-fg">
                 Dashboard
               </Link>
             </nav>
-            <div className="flex items-center gap-3">
-              <span className="hidden sm:inline text-sm text-muted">
+            <div className="flex items-center gap-4">
+              <span className="hidden sm:inline text-sm text-muted px-3 py-1.5 rounded-lg bg-white/5">
                 {user?.email}
               </span>
-              <span className="text-xs bg-utaOrange text-white px-2 py-1 rounded-full font-semibold">
+              <span className="text-xs bg-utaOrange text-white px-3 py-1.5 rounded-lg font-bold tracking-wide">
                 ADMIN
               </span>
               <button
                 onClick={() => signOut()}
-                className="text-sm text-muted hover:text-fg transition-colors"
+                className="text-sm font-medium text-muted hover:text-fg transition-colors px-4 py-2 rounded-lg hover:bg-white/5"
               >
                 Sign Out
               </button>

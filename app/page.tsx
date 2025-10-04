@@ -9,17 +9,17 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 glass-panel">
-        <div className="container-custom py-4 flex justify-between items-center">
-          <Link href="/" className="text-xl font-extrabold tracking-tight">
+      <nav className="fixed top-0 left-0 right-0 z-50 glass-panel border-b border-white/5">
+        <div className="container-custom py-5 flex justify-between items-center">
+          <Link href="/" className="text-2xl font-display font-bold tracking-tight hover:text-utaOrange transition-colors">
             MavFind
           </Link>
-          <div className="flex items-center gap-6">
-            <Link href="/inventory" className="text-sm text-muted hover:text-fg transition-colors">
+          <div className="flex items-center gap-8">
+            <Link href="/inventory" className="text-base font-medium text-muted hover:text-fg transition-colors">
               Browse
             </Link>
             <Link href="/auth/signin">
-              <Button variant="ghost" size="sm">Sign In</Button>
+              <Button variant="ghost" size="sm" className="text-base">Sign In</Button>
             </Link>
           </div>
         </div>

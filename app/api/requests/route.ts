@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifyAuthToken } from "@/lib/auth/server";
 import { createRequest } from "@/lib/firebase/firestore";
 import { uploadMultipleImages } from "@/lib/firebase/storage";
-import { extractAttributesFromDescription } from "@/lib/ai/gemini";
+import { extractAttributesFromMultipleSources } from "@/lib/ai/gemini";
 import { transcribeAudio } from "@/lib/ai/whisper";
 import { ItemAttributes } from "@/types";
 
@@ -40,17 +40,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Extract data using AI - this provides proper categorization
-    let aiData = {
-      title: "Item",
-      category: "other" as const,
-      subcategory: undefined as string | undefined,
-      attributes: {} as Record<string, string | undefined>,
-    };
-
-    if (finalDescription) {
-      aiData = await extractAttributesFromDescription(finalDescription);
-    }
+    // Extract data using AI from both description and images
+    const aiData = await extractAttributesFromMultipleSources(
+      finalDescription || undefined,
+      imageFiles.length > 0 ? imageFiles : undefined
+    );
 
     // Upload images
     const imageUrls =

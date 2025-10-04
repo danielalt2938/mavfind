@@ -36,20 +36,20 @@ export default function InventoryPage() {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <header className="glass-panel sticky top-0 z-50">
-        <div className="container-custom py-4 flex justify-between items-center">
-          <Link href="/" className="text-xl font-extrabold tracking-tight">
+      <header className="glass-panel sticky top-0 z-50 border-b border-white/5">
+        <div className="container-custom py-5 flex justify-between items-center">
+          <Link href="/" className="text-2xl font-display font-bold tracking-tight hover:text-utaOrange transition-colors">
             MavFind
           </Link>
-          <nav className="flex items-center gap-6 text-sm">
-            <Link href="/inventory" className="text-fg font-medium">
+          <nav className="flex items-center gap-8">
+            <Link href="/inventory" className="text-base font-medium text-fg">
               Browse
             </Link>
-            <Link href="/dashboard/user" className="text-muted hover:text-fg transition-colors">
+            <Link href="/dashboard/user" className="text-base font-medium text-muted hover:text-fg transition-colors">
               My Reports
             </Link>
             <Link href="/auth/signin">
-              <Button variant="ghost" size="sm">Sign In</Button>
+              <Button variant="ghost" size="sm" className="text-base">Sign In</Button>
             </Link>
           </nav>
         </div>

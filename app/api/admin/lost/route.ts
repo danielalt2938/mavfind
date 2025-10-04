@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifyAuthToken } from "@/lib/auth/server";
 import { createLostItem, getLocations } from "@/lib/firebase/firestore";
 import { uploadMultipleImages } from "@/lib/firebase/storage";
-import { extractAttributesFromDescription } from "@/lib/ai/gemini";
+import { extractAttributesFromMultipleSources } from "@/lib/ai/gemini";
 import { GeoLocation } from "@/types";
 
 export async function POST(req: NextRequest) {
@@ -28,12 +28,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Extract data using AI - this provides proper categorization
-    const aiData = await extractAttributesFromDescription(description);
+    // Extract data using AI from both description and images
+    const aiData = await extractAttributesFromMultipleSources(
+      description,
+      imageFiles.length > 0 ? imageFiles : undefined
+    );
 
     if (!aiData.category) {
       return NextResponse.json(
-        { error: "Failed to extract category from description" },
+        { error: "Failed to extract category from description or images" },
         { status: 400 }
       );
     }

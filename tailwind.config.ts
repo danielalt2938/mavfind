@@ -27,6 +27,13 @@ const config: Config = {
           "Segoe UI",
           "sans-serif",
         ],
+        display: [
+          "Space Grotesk",
+          "Inter",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "sans-serif",
+        ],
       },
       borderRadius: {
         "2xl": "1.25rem",
