@@ -59,20 +59,39 @@ export async function POST(req: NextRequest) {
 
     // Create lost item document with AI-extracted data
     const now = new Date().toISOString();
-    const lostItemId = await createLostItem({
+    const lostItemData: any = {
       title: aiData.title,
       description,
       category: aiData.category,
-      subcategory: aiData.subcategory,
-      attributes: aiData.attributes,
       images: imageUrls,
       locationId,
-      geo,
       handlerUid: user.uid,
       status: "found",
       createdAt: now,
       updatedAt: now,
-    });
+    };
+
+    // Only add optional fields if they have values
+    if (aiData.subcategory) {
+      lostItemData.subcategory = aiData.subcategory;
+    }
+
+    if (geo) {
+      lostItemData.geo = geo;
+    }
+
+    // Filter out undefined values from attributes
+    const filteredAttributes: Record<string, string> = {};
+    if (aiData.attributes) {
+      Object.entries(aiData.attributes).forEach(([key, value]) => {
+        if (value !== undefined) {
+          filteredAttributes[key] = value;
+        }
+      });
+    }
+    lostItemData.attributes = filteredAttributes;
+
+    const lostItemId = await createLostItem(lostItemData);
 
     return NextResponse.json({ success: true, lostItemId }, { status: 201 });
   } catch (error) {

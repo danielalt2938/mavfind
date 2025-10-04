@@ -1,32 +1,35 @@
-import OpenAI from "openai";
 import { TranscriptionResult } from "@/types";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || "dummy-key",
-});
+const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY || "dummy-key";
 
 export async function transcribeAudio(
   audioFile: File
 ): Promise<TranscriptionResult> {
   try {
-    // Convert File to the format OpenAI expects
-    const fileBuffer = await audioFile.arrayBuffer();
-    const blob = new Blob([fileBuffer], { type: audioFile.type });
+    const formData = new FormData();
+    formData.append("audio", audioFile);
+    formData.append("model_id", "scribe_v1"); // ElevenLabs Scribe model
 
-    // Create a File object for OpenAI
-    const file = new File([blob], audioFile.name, { type: audioFile.type });
-
-    const transcription = await openai.audio.transcriptions.create({
-      file: file,
-      model: "whisper-1",
-      language: "en",
+    const response = await fetch("https://api.elevenlabs.io/v1/audio-to-text", {
+      method: "POST",
+      headers: {
+        "xi-api-key": ELEVENLABS_API_KEY,
+      },
+      body: formData,
     });
 
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`ElevenLabs API error: ${error}`);
+    }
+
+    const data = await response.json();
+
     return {
-      text: transcription.text,
+      text: data.text || "",
     };
   } catch (error) {
-    console.error("Error transcribing audio with Whisper:", error);
+    console.error("Error transcribing audio with ElevenLabs:", error);
     throw new Error("Failed to transcribe audio");
   }
 }

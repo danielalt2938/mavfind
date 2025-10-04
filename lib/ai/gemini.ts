@@ -18,7 +18,7 @@ export async function extractAttributesFromDescription(
   description: string
 ): Promise<AIExtractedData> {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const prompt = `
 You are an AI assistant that extracts structured information from lost and found item descriptions.
@@ -203,17 +203,9 @@ export async function extractAttributesFromMultipleSources(
   };
 }
 
-// Helper to convert File to base64
-function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64String = reader.result as string;
-      // Remove data URL prefix (e.g., "data:image/jpeg;base64,")
-      const base64Data = base64String.split(",")[1];
-      resolve(base64Data);
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
+// Helper to convert File to base64 (server-side)
+async function fileToBase64(file: File): Promise<string> {
+  const arrayBuffer = await file.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+  return buffer.toString('base64');
 }

@@ -191,6 +191,7 @@ function ReportForm({
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -228,7 +229,35 @@ function ReportForm({
       mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
       mediaRecorder.onstop = async () => {
         const audioBlob = new Blob(chunks, { type: "audio/webm" });
-        // TODO: Send to Whisper API for transcription
+
+        // Send to Whisper API for transcription
+        setIsTranscribing(true);
+        try {
+          const formData = new FormData();
+          formData.append("audio", audioBlob, "recording.webm");
+
+          const res = await fetch("/api/transcribe", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            // Append transcription to existing description
+            setDescription((prev) => {
+              const separator = prev ? " " : "";
+              return prev + separator + data.text;
+            });
+          } else {
+            alert("Failed to transcribe audio");
+          }
+        } catch (error) {
+          console.error("Transcription error:", error);
+          alert("Error transcribing audio");
+        } finally {
+          setIsTranscribing(false);
+        }
+
         stream.getTracks().forEach((track) => track.stop());
         setIsRecording(false);
       };
@@ -385,6 +414,15 @@ function ReportForm({
                 <p className="text-xs text-center text-muted mt-2">
                   Speak clearly into your microphone
                 </p>
+              </div>
+            )}
+
+            {isTranscribing && (
+              <div className="mt-3 p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl">
+                <div className="flex items-center gap-3">
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-400 border-t-transparent"></div>
+                  <span className="text-sm text-blue-400 font-medium">Transcribing audio...</span>
+                </div>
               </div>
             )}
           </div>

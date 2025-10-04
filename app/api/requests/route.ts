@@ -54,19 +54,35 @@ export async function POST(req: NextRequest) {
 
     // Create request document with AI-extracted data
     const now = new Date().toISOString();
-    const requestId = await createRequest({
+    const requestData: any = {
       title: aiData.title,
       description: finalDescription || "",
       category: aiData.category,
-      subcategory: aiData.subcategory,
-      attributes: aiData.attributes,
       images: imageUrls,
       locationId: "",  // Location not required for user requests
       ownerUid: user.uid,
       status: "submitted",
       createdAt: now,
       updatedAt: now,
-    });
+    };
+
+    // Only add optional fields if they have values
+    if (aiData.subcategory) {
+      requestData.subcategory = aiData.subcategory;
+    }
+
+    // Filter out undefined values from attributes
+    const filteredAttributes: Record<string, string> = {};
+    if (aiData.attributes) {
+      Object.entries(aiData.attributes).forEach(([key, value]) => {
+        if (value !== undefined) {
+          filteredAttributes[key] = value;
+        }
+      });
+    }
+    requestData.attributes = filteredAttributes;
+
+    const requestId = await createRequest(requestData);
 
     return NextResponse.json({ success: true, requestId }, { status: 201 });
   } catch (error) {
