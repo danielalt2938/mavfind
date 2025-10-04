@@ -1,7 +1,7 @@
 import { HTMLAttributes } from "react";
-import { motion } from "framer-motion";
+import { motion, MotionProps } from "framer-motion";
 
-interface CardProps extends HTMLAttributes<HTMLDivElement> {
+interface CardProps extends Omit<HTMLAttributes<HTMLDivElement>, keyof MotionProps> {
   hover?: boolean;
   children: React.ReactNode;
 }
@@ -16,7 +16,7 @@ export function Card({ hover = true, className = "", children, ...props }: CardP
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
       className={`${baseStyles} ${hoverStyles} ${className}`}
-      {...props}
+      {...(props as any)}
     >
       {children}
     </motion.div>
