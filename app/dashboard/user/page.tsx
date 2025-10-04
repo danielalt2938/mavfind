@@ -315,9 +315,11 @@ function ReportForm({
       });
 
       if (res.ok) {
+        // Close modal and refresh immediately - processing happens in background
         onSuccess();
       } else {
-        alert("Error submitting report");
+        const error = await res.json();
+        alert(error.error || "Error submitting report");
       }
     } catch (error) {
       console.error("Error:", error);
@@ -329,7 +331,20 @@ function ReportForm({
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="card-base max-w-2xl w-full p-8 max-h-[90vh] overflow-y-auto">
+      <div className="card-base max-w-2xl w-full p-8 max-h-[90vh] overflow-y-auto relative">
+        {/* Loading Overlay */}
+        {submitting && (
+          <div className="absolute inset-0 bg-bg/95 backdrop-blur-sm rounded-2xl flex items-center justify-center z-50">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-16 w-16 border-4 border-utaOrange border-t-transparent mx-auto mb-6"></div>
+              <h3 className="text-xl font-bold mb-2">Processing your report...</h3>
+              <p className="text-sm text-muted max-w-sm">
+                We're analyzing your submission with AI to categorize and match your item. This may take a moment.
+              </p>
+            </div>
+          </div>
+        )}
+
         <h2 className="text-3xl font-extrabold tracking-tight mb-6">Report an item</h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
