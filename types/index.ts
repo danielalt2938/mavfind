@@ -1,16 +1,9 @@
 // User and Auth Types
 export type UserRole = "user" | "admin";
 
-export interface NotificationPreferences {
-  categories: string[];
-  locations: string[];
-  frequency: "instant" | "daily" | "weekly";
-}
-
 export interface User {
   email: string;
   role: UserRole;
-  notifyPrefs?: NotificationPreferences;
 }
 
 // Location Types
@@ -112,26 +105,6 @@ export interface ExtendedSession {
     role: UserRole;
     selectedLocationId?: string;
   };
-}
-
-// Notification Types
-export interface NotificationEvent {
-  type: "new_lost_item" | "request_status_update" | "admin_alert";
-  recipientEmail: string;
-  data: {
-    itemType?: "request" | "lost";
-    itemId?: string;
-    status?: string;
-    description?: string;
-    locationName?: string;
-  };
-}
-
-export interface EmailQueueJob {
-  id: string;
-  event: NotificationEvent;
-  createdAt: string;
-  status: "pending" | "processing" | "sent" | "failed";
 }
 
 // AI Response Types

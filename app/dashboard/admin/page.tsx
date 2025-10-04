@@ -8,7 +8,16 @@ import Link from "next/link";
 export default function AdminDashboard() {
   const { user, userRole, loading: authLoading } = useAuth();
   const router = useRouter();
+
+  const [selectedLocation, setSelectedLocation] = useState<string>("loc1");
+  const [activeTab, setActiveTab] = useState<"requests" | "inventory">("requests");
   const [showAddItemForm, setShowAddItemForm] = useState(false);
+
+  // Data states
+  const [requests, setRequests] = useState<any[]>([]);
+  const [foundItems, setFoundItems] = useState<any[]>([]);
+  const [stats, setStats] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -18,7 +27,111 @@ export default function AdminDashboard() {
     }
   }, [authLoading, user, userRole, router]);
 
-  if (authLoading) {
+  useEffect(() => {
+    if (user && userRole === "admin" && selectedLocation) {
+      fetchData();
+    }
+  }, [user, userRole, selectedLocation]);
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const token = await user?.getIdToken();
+      const headers = { Authorization: `Bearer ${token}` };
+
+      // Fetch requests, found items, and stats in parallel
+      const [requestsRes, itemsRes, statsRes] = await Promise.all([
+        fetch(`/api/admin/requests?locationId=${selectedLocation}`, { headers }),
+        fetch(`/api/admin/lost/items?locationId=${selectedLocation}`, { headers }),
+        fetch(`/api/admin/stats?locationId=${selectedLocation}`, { headers }),
+      ]);
+
+      const [requestsData, itemsData, statsData] = await Promise.all([
+        requestsRes.json(),
+        itemsRes.json(),
+        statsRes.json(),
+      ]);
+
+      setRequests(requestsData.requests || []);
+      setFoundItems(itemsData.items || []);
+      setStats(statsData.stats || {});
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleApprove = async (requestId: string) => {
+    try {
+      const token = await user?.getIdToken();
+      const res = await fetch("/api/admin/requests/approve", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ requestId }),
+      });
+
+      if (res.ok) {
+        fetchData(); // Refresh data
+      } else {
+        alert("Failed to approve request");
+      }
+    } catch (error) {
+      console.error("Error approving request:", error);
+      alert("Error approving request");
+    }
+  };
+
+  const handleReject = async (requestId: string) => {
+    try {
+      const token = await user?.getIdToken();
+      const res = await fetch("/api/admin/requests/reject", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ requestId }),
+      });
+
+      if (res.ok) {
+        fetchData(); // Refresh data
+      } else {
+        alert("Failed to reject request");
+      }
+    } catch (error) {
+      console.error("Error rejecting request:", error);
+      alert("Error rejecting request");
+    }
+  };
+
+  const handleUpdateItemStatus = async (itemId: string, status: string) => {
+    try {
+      const token = await user?.getIdToken();
+      const res = await fetch("/api/admin/lost/status", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ itemId, status }),
+      });
+
+      if (res.ok) {
+        fetchData(); // Refresh data
+      } else {
+        alert("Failed to update item status");
+      }
+    } catch (error) {
+      console.error("Error updating item status:", error);
+      alert("Error updating item status");
+    }
+  };
+
+  if (authLoading || (user && userRole === "admin" && loading)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-xl">Loading...</div>
@@ -40,7 +153,7 @@ export default function AdminDashboard() {
           </Link>
           <nav className="space-x-4">
             <Link href="/inventory" className="hover:underline">
-              Inventory
+              Public Inventory
             </Link>
             <Link href="/dashboard/admin" className="hover:underline font-semibold">
               Admin Dashboard
@@ -50,71 +163,321 @@ export default function AdminDashboard() {
       </header>
 
       <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+        {/* Location Selector */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium mb-2">Select Your Location:</label>
+          <select
+            value={selectedLocation}
+            onChange={(e) => setSelectedLocation(e.target.value)}
+            className="border border-gray-300 rounded-lg px-4 py-2 w-64"
+          >
+            <option value="loc1">Main Campus</option>
+            <option value="loc2">North Office</option>
+          </select>
+        </div>
+
+        {/* Stats Cards */}
+        {stats && (
+          <div className="grid md:grid-cols-4 gap-4 mb-8">
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-gray-600 text-sm font-medium mb-2">
+                Pending Requests
+              </h3>
+              <p className="text-3xl font-bold text-yellow-600">
+                {stats.pendingRequests}
+              </p>
+            </div>
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-gray-600 text-sm font-medium mb-2">
+                Total Requests
+              </h3>
+              <p className="text-3xl font-bold text-blue-600">
+                {stats.totalRequests}
+              </p>
+            </div>
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-gray-600 text-sm font-medium mb-2">
+                Found Items
+              </h3>
+              <p className="text-3xl font-bold text-green-600">
+                {stats.foundItems}
+              </p>
+            </div>
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-gray-600 text-sm font-medium mb-2">
+                Claimed Items
+              </h3>
+              <p className="text-3xl font-bold text-purple-600">
+                {stats.claimedItems}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Tabs */}
+        <div className="flex gap-4 mb-6">
+          <button
+            onClick={() => setActiveTab("requests")}
+            className={`px-6 py-2 rounded-lg font-medium transition ${
+              activeTab === "requests"
+                ? "bg-purple-600 text-white"
+                : "bg-white text-gray-700 hover:bg-gray-100"
+            }`}
+          >
+            User Requests ({requests.length})
+          </button>
+          <button
+            onClick={() => setActiveTab("inventory")}
+            className={`px-6 py-2 rounded-lg font-medium transition ${
+              activeTab === "inventory"
+                ? "bg-purple-600 text-white"
+                : "bg-white text-gray-700 hover:bg-gray-100"
+            }`}
+          >
+            Found Items ({foundItems.length})
+          </button>
+          <div className="flex-1"></div>
           <button
             onClick={() => setShowAddItemForm(true)}
-            className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition"
+            className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition"
           >
             + Add Found Item
           </button>
         </div>
 
-        {/* Add Item Form Modal */}
-        {showAddItemForm && (
-          <AddFoundItemForm
-            onClose={() => setShowAddItemForm(false)}
-            onSuccess={() => {
-              setShowAddItemForm(false);
-            }}
-          />
-        )}
-
-        {/* Dashboard Stats */}
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-gray-600 text-sm font-medium mb-2">
-              Pending Requests
-            </h3>
-            <p className="text-3xl font-bold">--</p>
-          </div>
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-gray-600 text-sm font-medium mb-2">
-              Found Items
-            </h3>
-            <p className="text-3xl font-bold">--</p>
-          </div>
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-gray-600 text-sm font-medium mb-2">
-              Matched Items
-            </h3>
-            <p className="text-3xl font-bold">--</p>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow p-8">
-          <h2 className="text-xl font-semibold mb-4">Admin Functions</h2>
-          <p className="text-gray-600">
-            Use the "Add Found Item" button to register items that have been
-            found at your location. You can manage requests and match them with
-            found items.
-          </p>
+        {/* Content */}
+        <div className="bg-white rounded-lg shadow">
+          {activeTab === "requests" ? (
+            <RequestsTable
+              requests={requests}
+              onApprove={handleApprove}
+              onReject={handleReject}
+            />
+          ) : (
+            <InventoryTable
+              items={foundItems}
+              onUpdateStatus={handleUpdateItemStatus}
+            />
+          )}
         </div>
       </div>
+
+      {/* Add Item Form Modal */}
+      {showAddItemForm && (
+        <AddFoundItemForm
+          selectedLocation={selectedLocation}
+          onClose={() => setShowAddItemForm(false)}
+          onSuccess={() => {
+            setShowAddItemForm(false);
+            fetchData();
+          }}
+        />
+      )}
     </div>
   );
 }
 
+function RequestsTable({
+  requests,
+  onApprove,
+  onReject,
+}: {
+  requests: any[];
+  onApprove: (id: string) => void;
+  onReject: (id: string) => void;
+}) {
+  if (requests.length === 0) {
+    return (
+      <div className="p-8 text-center text-gray-600">
+        No requests found for this location.
+      </div>
+    );
+  }
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full">
+        <thead className="bg-gray-50 border-b">
+          <tr>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              Date
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              Category
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              Description
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              Status
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              Actions
+            </th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-200">
+          {requests.map((request) => (
+            <tr key={request.id} className="hover:bg-gray-50">
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                {new Date(request.createdAt).toLocaleDateString()}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                {request.attributes.category}
+              </td>
+              <td className="px-6 py-4 text-sm text-gray-700">
+                {request.description.substring(0, 100)}
+                {request.description.length > 100 ? "..." : ""}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <StatusBadge status={request.status} />
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm">
+                {request.status === "submitted" && (
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => onApprove(request.id)}
+                      className="text-green-600 hover:text-green-800 font-medium"
+                    >
+                      Approve
+                    </button>
+                    <button
+                      onClick={() => onReject(request.id)}
+                      className="text-red-600 hover:text-red-800 font-medium"
+                    >
+                      Reject
+                    </button>
+                  </div>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function InventoryTable({
+  items,
+  onUpdateStatus,
+}: {
+  items: any[];
+  onUpdateStatus: (id: string, status: string) => void;
+}) {
+  if (items.length === 0) {
+    return (
+      <div className="p-8 text-center text-gray-600">
+        No found items for this location.
+      </div>
+    );
+  }
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full">
+        <thead className="bg-gray-50 border-b">
+          <tr>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              Date Found
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              Category
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              Description
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              Status
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              Actions
+            </th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-200">
+          {items.map((item) => (
+            <tr key={item.id} className="hover:bg-gray-50">
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                {new Date(item.createdAt).toLocaleDateString()}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                {item.attributes.category}
+              </td>
+              <td className="px-6 py-4 text-sm text-gray-700">
+                {item.description.substring(0, 100)}
+                {item.description.length > 100 ? "..." : ""}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <ItemStatusBadge status={item.status} />
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm">
+                <select
+                  value={item.status}
+                  onChange={(e) => onUpdateStatus(item.id, e.target.value)}
+                  className="border border-gray-300 rounded px-2 py-1 text-sm"
+                >
+                  <option value="found">Found</option>
+                  <option value="claimed">Claimed</option>
+                  <option value="archived">Archived</option>
+                </select>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function StatusBadge({ status }: { status: string }) {
+  const colors: any = {
+    submitted: "bg-yellow-100 text-yellow-800",
+    under_review: "bg-blue-100 text-blue-800",
+    approved: "bg-green-100 text-green-800",
+    rejected: "bg-red-100 text-red-800",
+  };
+
+  return (
+    <span
+      className={`px-3 py-1 rounded-full text-xs font-medium ${
+        colors[status] || "bg-gray-100 text-gray-800"
+      }`}
+    >
+      {status.replace("_", " ")}
+    </span>
+  );
+}
+
+function ItemStatusBadge({ status }: { status: string }) {
+  const colors: any = {
+    found: "bg-green-100 text-green-800",
+    claimed: "bg-purple-100 text-purple-800",
+    archived: "bg-gray-100 text-gray-800",
+  };
+
+  return (
+    <span
+      className={`px-3 py-1 rounded-full text-xs font-medium ${
+        colors[status] || "bg-gray-100 text-gray-800"
+      }`}
+    >
+      {status}
+    </span>
+  );
+}
+
 function AddFoundItemForm({
+  selectedLocation,
   onClose,
   onSuccess,
 }: {
+  selectedLocation: string;
   onClose: () => void;
   onSuccess: () => void;
 }) {
   const { user } = useAuth();
   const [description, setDescription] = useState("");
-  const [locationId, setLocationId] = useState("");
   const [images, setImages] = useState<File[]>([]);
   const [submitting, setSubmitting] = useState(false);
 
@@ -125,7 +488,7 @@ function AddFoundItemForm({
     try {
       const token = await user?.getIdToken();
       const formData = new FormData();
-      formData.append("locationId", locationId);
+      formData.append("locationId", selectedLocation);
       formData.append("description", description);
       images.forEach((img) => formData.append("images", img));
 
@@ -157,17 +520,9 @@ function AddFoundItemForm({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-2">Location</label>
-            <select
-              value={locationId}
-              onChange={(e) => setLocationId(e.target.value)}
-              required
-              className="w-full border border-gray-300 rounded-lg px-4 py-2"
-            >
-              <option value="">Select a location</option>
-              <option value="loc1">Main Campus</option>
-              <option value="loc2">North Office</option>
-            </select>
+            <label className="block text-sm font-medium mb-2">
+              Location: <span className="font-bold">{selectedLocation === "loc1" ? "Main Campus" : "North Office"}</span>
+            </label>
           </div>
 
           <div>

@@ -4,7 +4,6 @@ import {
   Request,
   LostItem,
   LocationDocument,
-  NotificationPreferences,
 } from "@/types";
 
 const COLLECTIONS = {
@@ -12,7 +11,6 @@ const COLLECTIONS = {
   REQUESTS: "requests",
   LOST: "lost",
   INFO: "info",
-  EMAIL_QUEUE: "emailQueue",
 } as const;
 
 // User Operations
@@ -35,22 +33,7 @@ export async function createUser(
     .set({
       email,
       role,
-      notifyPrefs: {
-        categories: [],
-        locations: [],
-        frequency: "instant",
-      },
     });
-}
-
-export async function updateUserNotificationPrefs(
-  uid: string,
-  prefs: NotificationPreferences
-): Promise<void> {
-  const db = getFirestoreDb();
-  await db.collection(COLLECTIONS.USERS).doc(uid).update({
-    notifyPrefs: prefs,
-  });
 }
 
 // Location Operations
@@ -150,43 +133,6 @@ export async function getLocationLostItems(
     id: doc.id,
     ...doc.data(),
   })) as LostItem[];
-}
-
-// Email Queue Operations
-export async function enqueueEmail(event: any): Promise<string> {
-  const db = getFirestoreDb();
-  const docRef = await db.collection(COLLECTIONS.EMAIL_QUEUE).add({
-    event,
-    createdAt: new Date().toISOString(),
-    status: "pending",
-  });
-  return docRef.id;
-}
-
-export async function getPendingEmails(limit: number = 10): Promise<any[]> {
-  const db = getFirestoreDb();
-  const snapshot = await db
-    .collection(COLLECTIONS.EMAIL_QUEUE)
-    .where("status", "==", "pending")
-    .orderBy("createdAt", "asc")
-    .limit(limit)
-    .get();
-
-  return snapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  }));
-}
-
-export async function updateEmailStatus(
-  emailId: string,
-  status: "processing" | "sent" | "failed"
-): Promise<void> {
-  const db = getFirestoreDb();
-  await db.collection(COLLECTIONS.EMAIL_QUEUE).doc(emailId).update({
-    status,
-    updatedAt: new Date().toISOString(),
-  });
 }
 
 // Search - Get all items for indexing

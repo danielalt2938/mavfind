@@ -5,7 +5,6 @@ import { uploadMultipleImages } from "@/lib/firebase/storage";
 import { extractAttributesFromDescription } from "@/lib/ai/gemini";
 import { transcribeAudio } from "@/lib/ai/whisper";
 import { indexItem } from "@/lib/search/algolia";
-import { enqueueEmail } from "@/lib/firebase/firestore";
 
 export async function POST(req: NextRequest) {
   try {
@@ -87,18 +86,6 @@ export async function POST(req: NextRequest) {
       },
       "request"
     );
-
-    // Queue admin notification email
-    await enqueueEmail({
-      type: "admin_alert",
-      recipientEmail: "admin@example.com", // TODO: Get admin emails from location
-      data: {
-        itemType: "request",
-        itemId: requestId,
-        description: finalDescription,
-        locationName: locationId,
-      },
-    });
 
     return NextResponse.json({ success: true, requestId }, { status: 201 });
   } catch (error) {

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAuthToken } from "@/lib/auth/server";
-import { updateUserNotificationPrefs } from "@/lib/firebase/firestore";
-import { NotificationPreferences } from "@/types";
+import { updateLostItemStatus } from "@/lib/firebase/firestore";
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,27 +9,25 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await req.json();
-    const { categories, locations, frequency } = body;
+    if (user.role !== "admin") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
 
-    if (!categories || !locations || !frequency) {
+    const body = await req.json();
+    const { itemId, status } = body;
+
+    if (!itemId || !status) {
       return NextResponse.json(
-        { error: "Missing required fields" },
+        { error: "Item ID and status are required" },
         { status: 400 }
       );
     }
 
-    const prefs: NotificationPreferences = {
-      categories,
-      locations,
-      frequency,
-    };
-
-    await updateUserNotificationPrefs(user.uid, prefs);
+    await updateLostItemStatus(itemId, status);
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
-    console.error("Error updating notification preferences:", error);
+    console.error("Error updating item status:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

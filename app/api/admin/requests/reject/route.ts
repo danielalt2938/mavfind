@@ -1,11 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAuthToken } from "@/lib/auth/server";
-import {
-  updateRequestStatus,
-  getRequest,
-  getUser,
-  enqueueEmail,
-} from "@/lib/firebase/firestore";
+import { updateRequestStatus } from "@/lib/firebase/firestore";
 
 export async function POST(req: NextRequest) {
   try {
@@ -28,29 +23,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Get request to notify the owner
-    const request = await getRequest(requestId);
-    if (!request) {
-      return NextResponse.json({ error: "Request not found" }, { status: 404 });
-    }
-
     // Update status to rejected
     await updateRequestStatus(requestId, "rejected");
-
-    // Get owner email
-    const owner = await getUser(request.ownerUid);
-    if (owner) {
-      await enqueueEmail({
-        type: "request_status_update",
-        recipientEmail: owner.email,
-        data: {
-          itemType: "request",
-          itemId: requestId,
-          status: "rejected",
-          description: request.description,
-        },
-      });
-    }
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {

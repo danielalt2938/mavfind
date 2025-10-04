@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAuthToken } from "@/lib/auth/server";
-import { updateRequestStatus } from "@/lib/firebase/firestore";
+import { getLocationLostItems } from "@/lib/firebase/firestore";
 
-export async function POST(req: NextRequest) {
+export async function GET(req: NextRequest) {
   try {
     const user = await verifyAuthToken(req);
     if (!user) {
@@ -13,22 +13,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const body = await req.json();
-    const { requestId } = body;
+    const { searchParams } = new URL(req.url);
+    const locationId = searchParams.get("locationId");
 
-    if (!requestId) {
+    if (!locationId) {
       return NextResponse.json(
-        { error: "Request ID is required" },
+        { error: "Location ID is required" },
         { status: 400 }
       );
     }
 
-    // Update status to approved
-    await updateRequestStatus(requestId, "approved");
+    const items = await getLocationLostItems(locationId);
 
-    return NextResponse.json({ success: true }, { status: 200 });
+    return NextResponse.json({ items }, { status: 200 });
   } catch (error) {
-    console.error("Error approving request:", error);
+    console.error("Error fetching lost items:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

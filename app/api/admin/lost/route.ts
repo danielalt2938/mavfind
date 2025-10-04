@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAuthToken } from "@/lib/auth/server";
-import { createLostItem, getUser } from "@/lib/firebase/firestore";
+import { createLostItem } from "@/lib/firebase/firestore";
 import { uploadMultipleImages } from "@/lib/firebase/storage";
 import { extractAttributesFromDescription } from "@/lib/ai/gemini";
 import { indexItem } from "@/lib/search/algolia";
-import { enqueueEmail } from "@/lib/firebase/firestore";
-import { getFirestoreDb } from "@/lib/firebase/admin";
 
 export async function POST(req: NextRequest) {
   try {
@@ -76,42 +74,6 @@ export async function POST(req: NextRequest) {
       },
       "lost"
     );
-
-    // Queue notification emails for subscribed users
-    const db = getFirestoreDb();
-    const usersSnapshot = await db.collection("users").get();
-
-    const notificationPromises = usersSnapshot.docs
-      .filter((doc) => {
-        const data = doc.data();
-        const prefs = data.notifyPrefs;
-        if (!prefs) return false;
-
-        // Check if user is subscribed to this category and location
-        const categoryMatch =
-          prefs.categories.length === 0 ||
-          prefs.categories.includes(attributes.category);
-        const locationMatch =
-          prefs.locations.length === 0 ||
-          prefs.locations.includes(locationId);
-
-        return categoryMatch && locationMatch;
-      })
-      .map((doc) => {
-        const data = doc.data();
-        return enqueueEmail({
-          type: "new_lost_item",
-          recipientEmail: data.email,
-          data: {
-            itemType: "lost",
-            itemId: lostItemId,
-            description,
-            locationName: locationId,
-          },
-        });
-      });
-
-    await Promise.all(notificationPromises);
 
     return NextResponse.json({ success: true, lostItemId }, { status: 201 });
   } catch (error) {

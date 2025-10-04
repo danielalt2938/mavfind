@@ -19,7 +19,6 @@
     "@google/generative-ai": "^0.2.1",
     "algoliasearch": "^4.22.0",
     "react-instantsearch": "^7.5.4",
-    "@sendgrid/mail": "^8.1.0",
     "zod": "^3.22.4",
     "openai": "^4.26.0",
     "uuid": "^9.0.1"
