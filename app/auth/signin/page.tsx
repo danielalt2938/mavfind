@@ -5,14 +5,19 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function SignIn() {
-  const { signInWithGoogle, user, loading } = useAuth();
+  const { signInWithGoogle, user, userRole, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (user && !loading) {
-      router.push("/dashboard/user");
+    if (user && !loading && userRole) {
+      // Redirect based on role
+      if (userRole === "admin") {
+        router.push("/dashboard/admin");
+      } else {
+        router.push("/dashboard/user");
+      }
     }
-  }, [user, loading, router]);
+  }, [user, userRole, loading, router]);
 
   const handleGoogleSignIn = async () => {
     try {

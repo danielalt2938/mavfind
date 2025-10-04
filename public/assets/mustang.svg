@@ -1,0 +1,30 @@
+<svg width="400" height="300" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Minimal Mustang Horse Line Art -->
+  <path d="M320 180C320 180 310 160 295 155C280 150 270 145 265 140C260 135 250 120 245 110C240 100 235 85 230 80C225 75 215 70 205 72C195 74 190 80 188 85C186 90 185 100 180 105C175 110 165 115 155 115C145 115 135 110 128 105C121 100 115 90 110 85C105 80 95 75 85 78C75 81 70 90 68 98C66 106 65 120 62 130C59 140 53 155 48 165C43 175 35 185 30 188C25 191 18 192 15 195"
+        stroke="white"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        opacity="0.15"/>
+
+  <!-- Mane -->
+  <path d="M205 72C200 68 195 65 190 63C185 61 180 60 175 62"
+        stroke="white"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        opacity="0.15"/>
+
+  <!-- Legs -->
+  <path d="M265 140L265 200M245 110L245 195M155 115L155 200M128 105L128 195"
+        stroke="white"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        opacity="0.15"/>
+
+  <!-- Tail -->
+  <path d="M30 188C25 195 20 205 18 215C16 225 15 235 14 242"
+        stroke="white"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        opacity="0.15"/>
+</svg>

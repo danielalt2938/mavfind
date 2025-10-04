@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function UserDashboard() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, userRole, loading: authLoading, signOut } = useAuth();
   const router = useRouter();
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -57,14 +57,32 @@ export default function UserDashboard() {
           <Link href="/" className="text-2xl font-bold">
             MavFind
           </Link>
-          <nav className="space-x-4">
-            <Link href="/inventory" className="hover:underline">
-              Search Inventory
-            </Link>
-            <Link href="/dashboard/user" className="hover:underline font-semibold">
-              My Reports
-            </Link>
-          </nav>
+          <div className="flex items-center gap-4">
+            <nav className="space-x-4">
+              <Link href="/inventory" className="hover:underline">
+                Search Inventory
+              </Link>
+              <Link href="/dashboard/user" className="hover:underline font-semibold">
+                My Reports
+              </Link>
+            </nav>
+            <div className="flex items-center gap-3">
+              <span className="text-sm bg-white/20 px-3 py-1 rounded-full">
+                {user?.email}
+              </span>
+              {userRole === "admin" && (
+                <span className="text-xs bg-yellow-400 text-gray-900 px-2 py-1 rounded-full font-semibold">
+                  ADMIN
+                </span>
+              )}
+              <button
+                onClick={() => signOut()}
+                className="text-sm hover:underline"
+              >
+                Sign Out
+              </button>
+            </div>
+          </div>
         </div>
       </header>
 

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function AdminDashboard() {
-  const { user, userRole, loading: authLoading } = useAuth();
+  const { user, userRole, loading: authLoading, signOut } = useAuth();
   const router = useRouter();
 
   const [selectedLocation, setSelectedLocation] = useState<string>("loc1");
@@ -151,14 +151,30 @@ export default function AdminDashboard() {
           <Link href="/" className="text-2xl font-bold">
             MavFind Admin
           </Link>
-          <nav className="space-x-4">
-            <Link href="/inventory" className="hover:underline">
-              Public Inventory
-            </Link>
-            <Link href="/dashboard/admin" className="hover:underline font-semibold">
-              Admin Dashboard
-            </Link>
-          </nav>
+          <div className="flex items-center gap-4">
+            <nav className="space-x-4">
+              <Link href="/inventory" className="hover:underline">
+                Public Inventory
+              </Link>
+              <Link href="/dashboard/admin" className="hover:underline font-semibold">
+                Admin Dashboard
+              </Link>
+            </nav>
+            <div className="flex items-center gap-3">
+              <span className="text-sm bg-white/20 px-3 py-1 rounded-full">
+                {user?.email}
+              </span>
+              <span className="text-xs bg-yellow-400 text-gray-900 px-2 py-1 rounded-full font-semibold">
+                ADMIN
+              </span>
+              <button
+                onClick={() => signOut()}
+                className="text-sm hover:underline"
+              >
+                Sign Out
+              </button>
+            </div>
+          </div>
         </div>
       </header>
 
