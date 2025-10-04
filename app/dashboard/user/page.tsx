@@ -1,32 +1,37 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useAuth } from "@/lib/auth/AuthContext";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function UserDashboard() {
-  const { data: session, status } = useSession();
+  const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showReportForm, setShowReportForm] = useState(false);
 
   useEffect(() => {
-    if (status === "unauthenticated") {
+    if (!authLoading && !user) {
       router.push("/auth/signin");
     }
-  }, [status, router]);
+  }, [authLoading, user, router]);
 
   useEffect(() => {
-    if (session) {
+    if (user) {
       fetchRequests();
     }
-  }, [session]);
+  }, [user]);
 
   const fetchRequests = async () => {
     try {
-      const res = await fetch("/api/requests/mine");
+      const token = await user?.getIdToken();
+      const res = await fetch("/api/requests/mine", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const data = await res.json();
       setRequests(data.requests || []);
     } catch (error) {
@@ -36,7 +41,7 @@ export default function UserDashboard() {
     }
   };
 
-  if (status === "loading" || loading) {
+  if (authLoading || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-xl">Loading...</div>
@@ -149,6 +154,7 @@ function ReportForm({
   onClose: () => void;
   onSuccess: () => void;
 }) {
+  const { user } = useAuth();
   const [description, setDescription] = useState("");
   const [locationId, setLocationId] = useState("");
   const [images, setImages] = useState<File[]>([]);
@@ -159,6 +165,7 @@ function ReportForm({
     setSubmitting(true);
 
     try {
+      const token = await user?.getIdToken();
       const formData = new FormData();
       formData.append("locationId", locationId);
       formData.append("description", description);
@@ -166,6 +173,9 @@ function ReportForm({
 
       const res = await fetch("/api/requests", {
         method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
         body: formData,
       });
 

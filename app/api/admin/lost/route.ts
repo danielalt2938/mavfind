@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth/auth-options";
+import { verifyAuthToken } from "@/lib/auth/server";
 import { createLostItem, getUser } from "@/lib/firebase/firestore";
 import { uploadMultipleImages } from "@/lib/firebase/storage";
 import { extractAttributesFromDescription } from "@/lib/ai/gemini";
@@ -10,12 +9,12 @@ import { getFirestoreDb } from "@/lib/firebase/admin";
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const user = await verifyAuthToken(req);
+    if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    if ((session.user as any).role !== "admin") {
+    if (user.role !== "admin") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
@@ -52,7 +51,7 @@ export async function POST(req: NextRequest) {
     // Create lost item document
     const now = new Date().toISOString();
     const lostItemId = await createLostItem({
-      handlerUid: (session.user as any).uid,
+      handlerUid: user.uid,
       locationId,
       status: "found",
       attributes,
@@ -66,7 +65,7 @@ export async function POST(req: NextRequest) {
     await indexItem(
       {
         id: lostItemId,
-        handlerUid: (session.user as any).uid,
+        handlerUid: user.uid,
         locationId,
         status: "found",
         attributes,

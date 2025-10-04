@@ -1,29 +1,33 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useAuth } from "@/lib/auth/AuthContext";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function AdminDashboard() {
-  const { data: session, status } = useSession();
+  const { user, userRole, loading: authLoading } = useAuth();
   const router = useRouter();
   const [showAddItemForm, setShowAddItemForm] = useState(false);
 
   useEffect(() => {
-    if (status === "unauthenticated") {
+    if (!authLoading && !user) {
       router.push("/auth/signin");
-    } else if (session && (session.user as any).role !== "admin") {
+    } else if (!authLoading && user && userRole !== "admin") {
       router.push("/dashboard/user");
     }
-  }, [status, session, router]);
+  }, [authLoading, user, userRole, router]);
 
-  if (status === "loading") {
+  if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-xl">Loading...</div>
       </div>
     );
+  }
+
+  if (userRole !== "admin") {
+    return null;
   }
 
   return (
@@ -108,6 +112,7 @@ function AddFoundItemForm({
   onClose: () => void;
   onSuccess: () => void;
 }) {
+  const { user } = useAuth();
   const [description, setDescription] = useState("");
   const [locationId, setLocationId] = useState("");
   const [images, setImages] = useState<File[]>([]);
@@ -118,6 +123,7 @@ function AddFoundItemForm({
     setSubmitting(true);
 
     try {
+      const token = await user?.getIdToken();
       const formData = new FormData();
       formData.append("locationId", locationId);
       formData.append("description", description);
@@ -125,6 +131,9 @@ function AddFoundItemForm({
 
       const res = await fetch("/api/admin/lost", {
         method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
         body: formData,
       });
 

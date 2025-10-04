@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth/auth-options";
+import { verifyAuthToken } from "@/lib/auth/server";
 import { updateUserNotificationPrefs } from "@/lib/firebase/firestore";
 import { NotificationPreferences } from "@/types";
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const user = await verifyAuthToken(req);
+    if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -27,7 +26,7 @@ export async function POST(req: NextRequest) {
       frequency,
     };
 
-    await updateUserNotificationPrefs((session.user as any).uid, prefs);
+    await updateUserNotificationPrefs(user.uid, prefs);
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {

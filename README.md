@@ -28,7 +28,7 @@ A comprehensive lost and found platform for managing items across multiple offic
 - **Backend**: Next.js API Routes (Server Actions)
 - **Database**: Firebase Firestore
 - **Storage**: Firebase Storage
-- **Authentication**: NextAuth.js with Google OAuth
+- **Authentication**: Firebase Authentication with Google Sign-In
 - **AI**: Google Gemini API, OpenAI Whisper
 - **Search**: Algolia
 - **Email**: SendGrid
@@ -80,12 +80,11 @@ mavfind/
 ### 1. Prerequisites
 
 - Node.js 18+ and npm
-- Firebase project
+- Firebase project (with Authentication, Firestore, and Storage enabled)
 - Google Cloud account (for Gemini AI)
 - OpenAI account (for Whisper)
 - Algolia account
 - SendGrid account
-- Google OAuth credentials
 
 ### 2. Clone and Install
 
@@ -98,22 +97,33 @@ npm install
 ### 3. Firebase Setup
 
 1. Create a new Firebase project at [Firebase Console](https://console.firebase.google.com)
-2. Enable Firestore Database
-3. Enable Firebase Storage
-4. Generate a service account key:
+
+2. **Enable Firebase Authentication**:
+   - Go to Authentication → Sign-in method
+   - Enable Google sign-in provider
+   - Add your app's domains to authorized domains
+
+3. **Enable Firestore Database**:
+   - Go to Firestore Database
+   - Create database in production mode
+   - Choose a location
+
+4. **Enable Firebase Storage**:
+   - Go to Storage
+   - Get started with default rules
+
+5. **Get Firebase Config** (for client-side):
+   - Go to Project Settings → General
+   - Scroll to "Your apps" section
+   - Add a web app if you haven't
+   - Copy the Firebase configuration values
+
+6. **Generate Service Account Key** (for server-side):
    - Go to Project Settings → Service Accounts
    - Click "Generate New Private Key"
    - Save the JSON file
 
-### 4. Google OAuth Setup
-
-1. Go to [Google Cloud Console](https://console.cloud.google.com)
-2. Create OAuth 2.0 credentials
-3. Add authorized redirect URIs:
-   - `http://localhost:3000/api/auth/callback/google` (development)
-   - `https://your-domain.com/api/auth/callback/google` (production)
-
-### 5. Environment Variables
+### 4. Environment Variables
 
 Copy `.env.example` to `.env` and fill in your credentials:
 
@@ -124,19 +134,19 @@ cp .env.example .env
 Required environment variables:
 
 ```env
-# Firebase
+# Firebase Admin SDK (from service account JSON)
 FIREBASE_PROJECT_ID=your-project-id
 FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
 FIREBASE_CLIENT_EMAIL=firebase-adminsdk@your-project-id.iam.gserviceaccount.com
 FIREBASE_STORAGE_BUCKET=your-project-id.appspot.com
 
-# NextAuth
-NEXTAUTH_URL=http://localhost:3000
-NEXTAUTH_SECRET=generate-with-openssl-rand-base64-32
-
-# Google OAuth
-GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
-GOOGLE_CLIENT_SECRET=your-client-secret
+# Firebase Client SDK (from Firebase web app config)
+NEXT_PUBLIC_FIREBASE_API_KEY=your-firebase-api-key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project-id.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project-id.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your-messaging-sender-id
+NEXT_PUBLIC_FIREBASE_APP_ID=your-app-id
 
 # AI APIs
 GEMINI_API_KEY=your-gemini-api-key

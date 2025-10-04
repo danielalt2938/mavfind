@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth/auth-options";
+import { verifyAuthToken } from "@/lib/auth/server";
 import { createRequest } from "@/lib/firebase/firestore";
 import { uploadMultipleImages } from "@/lib/firebase/storage";
 import { extractAttributesFromDescription } from "@/lib/ai/gemini";
@@ -10,8 +9,8 @@ import { enqueueEmail } from "@/lib/firebase/firestore";
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const user = await verifyAuthToken(req);
+    if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -63,7 +62,7 @@ export async function POST(req: NextRequest) {
     // Create request document
     const now = new Date().toISOString();
     const requestId = await createRequest({
-      ownerUid: (session.user as any).uid,
+      ownerUid: user.uid,
       locationId,
       status: "submitted",
       attributes,
@@ -77,7 +76,7 @@ export async function POST(req: NextRequest) {
     await indexItem(
       {
         id: requestId,
-        ownerUid: (session.user as any).uid,
+        ownerUid: user.uid,
         locationId,
         status: "submitted",
         attributes,
