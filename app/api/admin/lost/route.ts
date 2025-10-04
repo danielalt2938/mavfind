@@ -3,7 +3,6 @@ import { verifyAuthToken } from "@/lib/auth/server";
 import { createLostItem } from "@/lib/firebase/firestore";
 import { uploadMultipleImages } from "@/lib/firebase/storage";
 import { extractAttributesFromDescription } from "@/lib/ai/gemini";
-import { indexItem } from "@/lib/search/algolia";
 
 export async function POST(req: NextRequest) {
   try {
@@ -58,22 +57,6 @@ export async function POST(req: NextRequest) {
       createdAt: now,
       updatedAt: now,
     });
-
-    // Index in Algolia
-    await indexItem(
-      {
-        id: lostItemId,
-        handlerUid: user.uid,
-        locationId,
-        status: "found",
-        attributes,
-        description,
-        images: imageUrls,
-        createdAt: now,
-        updatedAt: now,
-      },
-      "lost"
-    );
 
     return NextResponse.json({ success: true, lostItemId }, { status: 201 });
   } catch (error) {

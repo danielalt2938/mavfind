@@ -4,7 +4,6 @@ import { createRequest } from "@/lib/firebase/firestore";
 import { uploadMultipleImages } from "@/lib/firebase/storage";
 import { extractAttributesFromDescription } from "@/lib/ai/gemini";
 import { transcribeAudio } from "@/lib/ai/whisper";
-import { indexItem } from "@/lib/search/algolia";
 
 export async function POST(req: NextRequest) {
   try {
@@ -70,22 +69,6 @@ export async function POST(req: NextRequest) {
       createdAt: now,
       updatedAt: now,
     });
-
-    // Index in Algolia
-    await indexItem(
-      {
-        id: requestId,
-        ownerUid: user.uid,
-        locationId,
-        status: "submitted",
-        attributes,
-        description: finalDescription,
-        images: imageUrls,
-        createdAt: now,
-        updatedAt: now,
-      },
-      "request"
-    );
 
     return NextResponse.json({ success: true, requestId }, { status: 201 });
   } catch (error) {

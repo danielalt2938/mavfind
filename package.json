@@ -17,7 +17,6 @@
     "@google-cloud/firestore": "^7.1.0",
     "@google-cloud/storage": "^7.7.0",
     "@google/generative-ai": "^0.2.1",
-    "algoliasearch": "^4.22.0",
     "react-instantsearch": "^7.5.4",
     "zod": "^3.22.4",
     "openai": "^4.26.0",
