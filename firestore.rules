@@ -1,0 +1,45 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Location info - public read, server-only write
+    match /info/location {
+      allow read: if true;
+      allow write: if false; // Only server can write
+    }
+
+    // User requests (lost item reports) - public read, server-only write
+    match /requests/{requestId} {
+      allow read: if true;
+      allow write: if false; // Only server can write
+    }
+
+    // Found items (admin-submitted) - public read, server-only write
+    match /lost/{lostId} {
+      allow read: if true;
+      allow write: if false; // Only server can write
+    }
+
+    // Users collection - users can read their own data, server-only write
+    match /users/{userId} {
+      allow read: if isSignedIn() && request.auth.uid == userId;
+      allow write: if false; // Only server can write
+    }
+
+    // Email queue - server-only access
+    match /emailQueue/{emailId} {
+      allow read: if false;
+      allow write: if false;
+    }
+  }
+}
