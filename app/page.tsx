@@ -1,100 +1,174 @@
+"use client";
+
 import Link from "next/link";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui";
+import Image from "next/image";
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Header */}
-      <header className="bg-blue-600 text-white py-4 shadow-lg">
-        <div className="container mx-auto px-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold">MavFind</h1>
-          <nav className="space-x-4">
-            <Link href="/inventory" className="hover:underline">
-              Search Inventory
+    <div className="min-h-screen">
+      {/* Navigation */}
+      <nav className="fixed top-0 left-0 right-0 z-50 glass-panel">
+        <div className="container-custom py-4 flex justify-between items-center">
+          <Link href="/" className="text-xl font-extrabold tracking-tight">
+            MavFind
+          </Link>
+          <div className="flex items-center gap-6">
+            <Link href="/inventory" className="text-sm text-muted hover:text-fg transition-colors">
+              Browse
             </Link>
-            <Link href="/dashboard/user" className="hover:underline">
-              My Reports
+            <Link href="/auth/signin">
+              <Button variant="ghost" size="sm">Sign In</Button>
             </Link>
-            <Link href="/auth/signin" className="hover:underline">
-              Sign In
-            </Link>
-          </nav>
+          </div>
         </div>
-      </header>
+      </nav>
 
       {/* Hero Section */}
-      <main className="flex-1 container mx-auto px-4 py-12">
-        <div className="text-center max-w-3xl mx-auto">
-          <h2 className="text-4xl font-bold mb-6">
-            Lost Something? We're Here to Help.
-          </h2>
-          <p className="text-xl text-gray-600 mb-8">
-            MavFind connects you with lost and found items across all office
-            locations. Report a lost item or search our inventory to find what
-            you're looking for.
+      <section className="min-h-[85vh] grid place-items-center text-center pt-20 section-padding relative overflow-hidden">
+        {/* Background Horse Watermark */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03]">
+          <Image
+            src="/assets/mustang.svg"
+            alt=""
+            width={600}
+            height={450}
+            className="select-none"
+          />
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="relative z-10 container-custom max-w-4xl"
+        >
+          <h1 className="text-6xl md:text-7xl font-extrabold tracking-tight mb-6">
+            Find what's lost.
+          </h1>
+          <p className="text-xl md:text-2xl text-muted max-w-2xl mx-auto mb-12 text-balance">
+            For Mavericks. A faster way to bring belongings home.
           </p>
 
-          <div className="grid md:grid-cols-2 gap-6 mt-12">
-            {/* Report Lost Item */}
-            <div className="bg-white p-8 rounded-lg shadow-lg border border-gray-200">
-              <div className="text-5xl mb-4">🔍</div>
-              <h3 className="text-2xl font-semibold mb-3">Report Lost Item</h3>
-              <p className="text-gray-600 mb-6">
-                Lost something? Let us know and we'll help you track it down.
-              </p>
-              <Link
-                href="/dashboard/user"
-                className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition"
-              >
-                Report Now
-              </Link>
-            </div>
-
-            {/* Search Inventory */}
-            <div className="bg-white p-8 rounded-lg shadow-lg border border-gray-200">
-              <div className="text-5xl mb-4">📦</div>
-              <h3 className="text-2xl font-semibold mb-3">Search Inventory</h3>
-              <p className="text-gray-600 mb-6">
-                Browse found items across all locations to see if we have your
-                item.
-              </p>
-              <Link
-                href="/inventory"
-                className="inline-block bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition"
-              >
-                Search Now
-              </Link>
-            </div>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/dashboard/user">
+              <Button size="lg" className="w-full sm:w-auto">
+                Report an item
+              </Button>
+            </Link>
+            <Link href="/inventory">
+              <Button variant="secondary" size="lg" className="w-full sm:w-auto">
+                See found items
+              </Button>
+            </Link>
           </div>
 
-          {/* Features */}
-          <div className="mt-16 grid md:grid-cols-3 gap-6 text-left">
-            <div className="p-6 bg-gray-50 rounded-lg">
-              <h4 className="font-semibold text-lg mb-2">🤖 AI-Powered</h4>
-              <p className="text-gray-600 text-sm">
-                Our AI automatically categorizes items and extracts details from
-                descriptions.
-              </p>
+          {/* Trust Stats */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4, duration: 0.6 }}
+            className="mt-16 flex flex-col sm:flex-row gap-8 justify-center text-sm text-muted"
+          >
+            <div>
+              <div className="text-2xl font-bold text-fg mb-1">1,200+</div>
+              <div>Items reunited</div>
             </div>
-            <div className="p-6 bg-gray-50 rounded-lg">
-              <h4 className="font-semibold text-lg mb-2">📍 Multi-Location</h4>
-              <p className="text-gray-600 text-sm">
-                Track items across all office locations in one central platform.
-              </p>
+            <div>
+              <div className="text-2xl font-bold text-fg mb-1">&lt;48hrs</div>
+              <div>Average match time</div>
             </div>
-            <div className="p-6 bg-gray-50 rounded-lg">
-              <h4 className="font-semibold text-lg mb-2">📧 Notifications</h4>
-              <p className="text-gray-600 text-sm">
-                Get notified when items matching your preferences are found.
-              </p>
+            <div>
+              <div className="text-2xl font-bold text-fg mb-1">95%</div>
+              <div>Success rate</div>
             </div>
+          </motion.div>
+        </motion.div>
+      </section>
+
+      {/* How It Works */}
+      <section className="section-padding bg-bgElevated">
+        <div className="container-custom max-w-6xl">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-14"
+          >
+            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">
+              Built for campus life.
+            </h2>
+            <p className="text-lg text-muted max-w-2xl mx-auto">
+              Three simple steps to reunite with your belongings.
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                step: "01",
+                title: "Report",
+                desc: "Describe what you lost. Our AI handles the rest.",
+              },
+              {
+                step: "02",
+                title: "Match",
+                desc: "We scan found items and notify you of matches.",
+              },
+              {
+                step: "03",
+                title: "Reunite",
+                desc: "Verify your item and claim it from the office.",
+              },
+            ].map((item, idx) => (
+              <motion.div
+                key={item.step}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.1, duration: 0.5 }}
+                className="card-base p-8 text-center"
+              >
+                <div className="text-5xl font-extrabold text-white/10 mb-4">
+                  {item.step}
+                </div>
+                <h3 className="text-xl md:text-2xl font-bold mb-3">{item.title}</h3>
+                <p className="text-muted leading-relaxed">{item.desc}</p>
+              </motion.div>
+            ))}
           </div>
         </div>
-      </main>
+      </section>
+
+      {/* CTA Section */}
+      <section className="section-padding">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="container-custom max-w-4xl card-base p-12 text-center"
+        >
+          <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-4">
+            You're covered.
+          </h2>
+          <p className="text-lg text-muted mb-8">
+            Join thousands of Mavericks who've found what they thought was lost forever.
+          </p>
+          <Link href="/auth/signin">
+            <Button size="lg">Get started</Button>
+          </Link>
+        </motion.div>
+      </section>
 
       {/* Footer */}
-      <footer className="bg-gray-800 text-white py-6 mt-12">
-        <div className="container mx-auto px-4 text-center">
-          <p>&copy; 2025 MavFind. All rights reserved.</p>
+      <footer className="border-t border-white/10 py-12">
+        <div className="container-custom text-center">
+          <p className="text-sm text-muted">
+            &copy; 2025 MavFind. For the University of Texas at Arlington.
+          </p>
         </div>
       </footer>
     </div>

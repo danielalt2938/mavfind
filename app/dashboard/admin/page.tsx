@@ -144,32 +144,32 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       {/* Header */}
-      <header className="bg-purple-600 text-white py-4 shadow-lg">
-        <div className="container mx-auto px-4 flex justify-between items-center">
-          <Link href="/" className="text-2xl font-bold">
-            MavFind Admin
+      <header className="glass-panel sticky top-0 z-50 border-b border-utaOrange/20">
+        <div className="container-custom py-4 flex justify-between items-center">
+          <Link href="/" className="text-xl font-extrabold tracking-tight">
+            MavFind <span className="text-utaOrange">Admin</span>
           </Link>
-          <div className="flex items-center gap-4">
-            <nav className="space-x-4">
-              <Link href="/inventory" className="hover:underline">
-                Public Inventory
+          <div className="flex items-center gap-6">
+            <nav className="hidden md:flex items-center gap-6 text-sm">
+              <Link href="/inventory" className="text-muted hover:text-fg transition-colors">
+                Browse
               </Link>
-              <Link href="/dashboard/admin" className="hover:underline font-semibold">
-                Admin Dashboard
+              <Link href="/dashboard/admin" className="text-fg font-medium">
+                Dashboard
               </Link>
             </nav>
             <div className="flex items-center gap-3">
-              <span className="text-sm bg-white/20 px-3 py-1 rounded-full">
+              <span className="hidden sm:inline text-sm text-muted">
                 {user?.email}
               </span>
-              <span className="text-xs bg-yellow-400 text-gray-900 px-2 py-1 rounded-full font-semibold">
+              <span className="text-xs bg-utaOrange text-white px-2 py-1 rounded-full font-semibold">
                 ADMIN
               </span>
               <button
                 onClick={() => signOut()}
-                className="text-sm hover:underline"
+                className="text-sm text-muted hover:text-fg transition-colors"
               >
                 Sign Out
               </button>
@@ -178,14 +178,14 @@ export default function AdminDashboard() {
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container-custom section-padding pt-24">
         {/* Location Selector */}
-        <div className="mb-6">
-          <label className="block text-sm font-medium mb-2">Select Your Location:</label>
+        <div className="mb-8">
+          <label className="block text-sm font-medium text-muted mb-3">Active Location</label>
           <select
             value={selectedLocation}
             onChange={(e) => setSelectedLocation(e.target.value)}
-            className="border border-gray-300 rounded-lg px-4 py-2 w-64"
+            className="input-base max-w-xs"
           >
             <option value="loc1">Main Campus</option>
             <option value="loc2">North Office</option>
@@ -213,7 +213,7 @@ export default function AdminDashboard() {
             </div>
             <div className="bg-white rounded-lg shadow p-6">
               <h3 className="text-gray-600 text-sm font-medium mb-2">
-                Found Items
+                Inventory Items
               </h3>
               <p className="text-3xl font-bold text-green-600">
                 {stats.foundItems}
@@ -250,14 +250,14 @@ export default function AdminDashboard() {
                 : "bg-white text-gray-700 hover:bg-gray-100"
             }`}
           >
-            Found Items ({foundItems.length})
+            Inventory ({foundItems.length})
           </button>
           <div className="flex-1"></div>
           <button
             onClick={() => setShowAddItemForm(true)}
             className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition"
           >
-            + Add Found Item
+            + Add to Inventory
           </button>
         </div>
 
@@ -384,7 +384,7 @@ function InventoryTable({
   if (items.length === 0) {
     return (
       <div className="p-8 text-center text-gray-600">
-        No found items for this location.
+        No inventory items for this location.
       </div>
     );
   }
@@ -532,7 +532,7 @@ function AddFoundItemForm({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
-        <h2 className="text-2xl font-bold mb-4">Add Found Item</h2>
+        <h2 className="text-2xl font-bold mb-4">Add Item to Inventory</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -551,7 +551,7 @@ function AddFoundItemForm({
               required
               rows={4}
               className="w-full border border-gray-300 rounded-lg px-4 py-2"
-              placeholder="Describe the found item in detail..."
+              placeholder="Describe the item found..."
             />
           </div>
 
@@ -576,7 +576,7 @@ function AddFoundItemForm({
               disabled={submitting}
               className="flex-1 bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 disabled:bg-gray-400"
             >
-              {submitting ? "Adding..." : "Add Found Item"}
+              {submitting ? "Adding..." : "Add to Inventory"}
             </button>
             <button
               type="button"
