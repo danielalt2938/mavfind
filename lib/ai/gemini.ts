@@ -18,7 +18,7 @@ export async function extractAttributesFromDescription(
   description: string
 ): Promise<AIExtractedData> {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
     const prompt = `
 You are an AI assistant that extracts structured information from lost and found item descriptions.
@@ -93,7 +93,8 @@ export async function extractAttributesFromImage(
   mimeType: string = "image/jpeg"
 ): Promise<Partial<AIExtractedData>> {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    console.log("Starting image analysis with Gemini Vision...");
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
     const prompt = `
 Analyze this image of a lost or found item and extract structured information:
@@ -128,9 +129,13 @@ Be specific and only include information that is clearly visible in the image.
       },
     };
 
+    console.log(
+      `Sending image to Gemini (${mimeType}, ${imageBase64.length} chars base64)`
+    );
     const result = await model.generateContent([prompt, imagePart]);
     const response = await result.response;
     const text = response.text();
+    console.log("Gemini Vision response:", text);
 
     // Extract JSON from the response
     const jsonMatch = text.match(/\{[\s\S]*\}/);
@@ -145,7 +150,7 @@ Be specific and only include information that is clearly visible in the image.
       ? extracted.category
       : undefined;
 
-    return {
+    const result_data = {
       title: extracted.title || undefined,
       category,
       subcategory: extracted.subcategory || undefined,
@@ -155,6 +160,9 @@ Be specific and only include information that is clearly visible in the image.
         color: extracted.attributes?.color || undefined,
       },
     };
+
+    console.log("Parsed image data:", result_data);
+    return result_data;
   } catch (error) {
     console.error("Error extracting attributes from image:", error);
     return {};
@@ -182,16 +190,20 @@ export async function extractAttributesFromMultipleSources(
   // Extract from first image if provided
   if (imageFiles && imageFiles.length > 0) {
     try {
+      console.log(
+        `Processing image for AI analysis: ${imageFiles[0].name}, type: ${imageFiles[0].type}`
+      );
       const file = imageFiles[0];
       const base64 = await fileToBase64(file);
       imageData = await extractAttributesFromImage(base64, file.type);
+      console.log("Image analysis result:", imageData);
     } catch (error) {
       console.error("Error processing image:", error);
     }
   }
 
   // Merge data, prioritizing description but filling in gaps from image
-  return {
+  const result = {
     title: descriptionData.title || imageData.title || "Item",
     category: descriptionData.category || imageData.category || "other",
     subcategory: descriptionData.subcategory || imageData.subcategory,
@@ -201,11 +213,14 @@ export async function extractAttributesFromMultipleSources(
       color: descriptionData.attributes.color || imageData.attributes?.color,
     },
   };
+
+  console.log("Final merged data:", result);
+  return result;
 }
 
 // Helper to convert File to base64 (server-side)
 async function fileToBase64(file: File): Promise<string> {
   const arrayBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
-  return buffer.toString('base64');
+  return buffer.toString("base64");
 }
