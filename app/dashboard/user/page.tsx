@@ -214,6 +214,12 @@ function ReportForm({
   };
 
   const startRecording = async () => {
+    if (isRecording) {
+      // Stop recording if already recording
+      setIsRecording(false);
+      return;
+    }
+
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mediaRecorder = new MediaRecorder(stream);
@@ -224,19 +230,32 @@ function ReportForm({
         const audioBlob = new Blob(chunks, { type: "audio/webm" });
         // TODO: Send to Whisper API for transcription
         stream.getTracks().forEach((track) => track.stop());
+        setIsRecording(false);
       };
 
       mediaRecorder.start();
       setIsRecording(true);
 
+      // Store recorder to allow manual stop
+      (window as any).currentRecorder = mediaRecorder;
+
       setTimeout(() => {
-        mediaRecorder.stop();
-        setIsRecording(false);
+        if (mediaRecorder.state === "recording") {
+          mediaRecorder.stop();
+        }
       }, 30000); // Max 30 seconds
     } catch (error) {
       console.error("Microphone access denied:", error);
       alert("Microphone access required for voice input");
     }
+  };
+
+  const stopRecording = () => {
+    const recorder = (window as any).currentRecorder;
+    if (recorder && recorder.state === "recording") {
+      recorder.stop();
+    }
+    setIsRecording(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -306,27 +325,67 @@ function ReportForm({
                 rows={4}
                 className="input-base pr-12"
                 placeholder="Describe what you lost..."
+                disabled={isRecording}
               />
               <button
                 type="button"
-                onClick={startRecording}
-                disabled={isRecording}
-                className={`absolute right-3 top-3 p-2 rounded-lg transition-colors ${
+                onClick={isRecording ? stopRecording : startRecording}
+                className={`absolute right-3 top-3 p-3 rounded-xl transition-all duration-300 ${
                   isRecording
-                    ? 'bg-red-500 text-white'
-                    : 'bg-bgElevated hover:bg-utaBlue/20 text-muted hover:text-fg'
+                    ? 'bg-red-500 text-white scale-110 shadow-lg shadow-red-500/50'
+                    : 'bg-bgElevated hover:bg-utaBlue/20 text-muted hover:text-fg hover:scale-105'
                 }`}
-                title="Record description"
+                title={isRecording ? "Stop recording" : "Record description"}
               >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clipRule="evenodd" />
-                </svg>
+                {isRecording ? (
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clipRule="evenodd" />
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clipRule="evenodd" />
+                  </svg>
+                )}
               </button>
             </div>
             {isRecording && (
-              <p className="text-xs text-red-400 mt-2 flex items-center gap-2">
-                <span className="animate-pulse">●</span> Recording...
-              </p>
+              <div className="mt-3 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="relative flex items-center justify-center">
+                      <span className="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-red-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                    </div>
+                    <span className="text-sm text-red-400 font-medium">Recording in progress...</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={stopRecording}
+                    className="text-xs text-red-400 hover:text-red-300 transition-colors underline"
+                  >
+                    Stop
+                  </button>
+                </div>
+
+                {/* Audio wave animation */}
+                <div className="flex items-center justify-center gap-1 h-12">
+                  {[...Array(20)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="w-1 bg-red-400 rounded-full animate-pulse"
+                      style={{
+                        height: `${Math.random() * 100}%`,
+                        animationDelay: `${i * 0.05}s`,
+                        animationDuration: `${0.5 + Math.random() * 0.5}s`,
+                      }}
+                    />
+                  ))}
+                </div>
+
+                <p className="text-xs text-center text-muted mt-2">
+                  Speak clearly into your microphone
+                </p>
+              </div>
             )}
           </div>
 

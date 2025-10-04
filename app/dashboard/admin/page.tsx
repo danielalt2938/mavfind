@@ -532,7 +532,7 @@ function AddFoundItemForm({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
-        <h2 className="text-2xl font-bold mb-4">Add Item to Inventory</h2>
+        <h2 className="text-2xl font-bold mb-4">Add a Lost Item</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
