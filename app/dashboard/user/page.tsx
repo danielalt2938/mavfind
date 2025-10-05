@@ -14,10 +14,14 @@ export default function UserDashboard() {
   const [showReportForm, setShowReportForm] = useState(false);
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      router.replace("/auth/signin");
+    if (!authLoading) {
+      if (!user) {
+        router.replace("/auth/signin");
+      } else if (userRole === "admin") {
+        router.replace("/dashboard/admin");
+      }
     }
-  }, [authLoading, user, router]);
+  }, [authLoading, user, userRole, router]);
 
   useEffect(() => {
     if (user) {

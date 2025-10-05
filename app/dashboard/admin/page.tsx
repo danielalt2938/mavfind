@@ -14,6 +14,7 @@ import {
   ClearRefinements
 } from "react-instantsearch";
 import ImageWithLoader from "@/components/ImageWithLoader";
+import { Fragment } from "react";
 
 const searchClient = algoliasearch(
   process.env.NEXT_PUBLIC_ALGOLIA_APP_ID!,
@@ -54,6 +55,31 @@ export default function AdminDashboard() {
   const [foundItems, setFoundItems] = useState<any[]>([]);
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+
+  // Image modal state
+  const [imageModalOpen, setImageModalOpen] = useState(false);
+  const [modalImages, setModalImages] = useState<string[]>([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  const openImageModal = (images: string[], startIndex: number = 0) => {
+    setModalImages(images);
+    setCurrentImageIndex(startIndex);
+    setImageModalOpen(true);
+  };
+
+  const closeImageModal = () => {
+    setImageModalOpen(false);
+    setModalImages([]);
+    setCurrentImageIndex(0);
+  };
+
+  const nextImage = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % modalImages.length);
+  };
+
+  const prevImage = () => {
+    setCurrentImageIndex((prev) => (prev - 1 + modalImages.length) % modalImages.length);
+  };
 
   useEffect(() => {
     if (!authLoading) {
@@ -172,8 +198,16 @@ export default function AdminDashboard() {
   // Show loading during auth check or while fetching data
   if (authLoading || !user || userRole !== "admin" || (user && userRole === "admin" && loading)) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center bg-bg">
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative">
+            {/* Spinner */}
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-border border-t-utaOrange"></div>
+            {/* Inner pulse effect */}
+            <div className="absolute inset-0 animate-pulse rounded-full h-16 w-16 border-4 border-utaOrange/20"></div>
+          </div>
+          <p className="text-sm text-muted font-medium animate-pulse">Loading dashboard...</p>
+        </div>
       </div>
     );
   }
@@ -428,11 +462,12 @@ export default function AdminDashboard() {
                       hit={hit}
                       onApprove={handleApprove}
                       onReject={handleReject}
+                      onImageClick={openImageModal}
                     />
                   )}
                   classNames={{
                     root: "",
-                    list: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6",
+                    list: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4",
                     item: "",
                   }}
                 />
@@ -558,11 +593,12 @@ export default function AdminDashboard() {
                     <InventoryHitComponent
                       hit={hit}
                       onUpdateStatus={handleUpdateItemStatus}
+                      onImageClick={openImageModal}
                     />
                   )}
                   classNames={{
                     root: "",
-                    list: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6",
+                    list: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4",
                     item: "",
                   }}
                 />
@@ -571,6 +607,17 @@ export default function AdminDashboard() {
           )}
         </div>
       </div>
+
+      {/* Image Modal */}
+      {imageModalOpen && (
+        <ImageModal
+          images={modalImages}
+          currentIndex={currentImageIndex}
+          onClose={closeImageModal}
+          onNext={nextImage}
+          onPrev={prevImage}
+        />
+      )}
 
       {/* Add Item Form Modal */}
       {showAddItemForm && (
@@ -592,12 +639,15 @@ function RequestHitComponent({
   hit,
   onApprove,
   onReject,
+  onImageClick,
 }: {
   hit: any;
   onApprove: (id: string) => void;
   onReject: (id: string) => void;
+  onImageClick: (images: string[], index: number) => void;
 }) {
-  const firstImage = hit.images && hit.images.length > 0 ? hit.images[0] : null;
+  const images = hit.images || [];
+  const firstImage = images.length > 0 ? images[0] : null;
   const description = hit.description || hit.genericDescription || "";
   const truncatedDesc = description.length > 100 ? description.substring(0, 100) + "..." : description;
   const timeAgo = getTimeAgo(hit.createdAt);
@@ -605,66 +655,81 @@ function RequestHitComponent({
   return (
     <div className="card-base overflow-hidden hover-lift group">
       {/* Image */}
-      <div className="relative w-full h-48 bg-bgElevated overflow-hidden">
+      <div
+        className="relative w-full h-36 bg-bgElevated overflow-hidden cursor-pointer"
+        onClick={() => images.length > 0 && onImageClick(images, 0)}
+      >
         {firstImage ? (
-          <ImageWithLoader
+          <img
             src={firstImage}
             alt={hit.title || "Request image"}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center border-b border-border">
-            <svg className="w-16 h-16 text-muted/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-12 h-12 text-muted/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
           </div>
         )}
-        {/* Status Badge Overlay */}
-        <div className="absolute top-3 right-3">
+        {/* Status Badge & Image Count */}
+        <div className="absolute top-2 right-2 flex items-center gap-2">
           <StatusBadge status={hit.status} />
         </div>
+        {images.length > 1 && (
+          <div className="absolute bottom-2 right-2 px-2 py-1 rounded-lg bg-black/60 backdrop-blur-sm text-white text-xs font-semibold flex items-center gap-1">
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            {images.length}
+          </div>
+        )}
       </div>
 
       {/* Content */}
-      <div className="p-5 space-y-3">
+      <div className="p-3 space-y-2">
         {/* Title */}
-        <h3 className="font-bold text-lg line-clamp-2 min-h-[3.5rem]">
-          {hit.title || "Untitled Request"}
-        </h3>
+        <div>
+          <label className="text-[10px] uppercase tracking-wider font-bold text-muted/70 mb-0.5 block">Title</label>
+          <h3 className="font-semibold text-sm line-clamp-2 min-h-[2.5rem]">
+            {hit.title || "Untitled Request"}
+          </h3>
+        </div>
 
         {/* Description */}
-        <p className="text-sm text-muted line-clamp-3 min-h-[4rem]">
-          {truncatedDesc || "No description provided"}
-        </p>
+        <div>
+          <label className="text-[10px] uppercase tracking-wider font-bold text-muted/70 mb-0.5 block">Description</label>
+          <p className="text-xs text-muted line-clamp-2 min-h-[2.25rem]">
+            {truncatedDesc || "No description"}
+          </p>
+        </div>
 
         {/* Category & Time */}
-        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-border">
-          <span className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-utaOrange/10 text-utaOrange font-semibold capitalize">
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-            </svg>
-            {hit.category || hit.attributes?.category || "Unknown"}
-          </span>
-          <span className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-white/5 text-muted font-medium">
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            {timeAgo}
-          </span>
+        <div className="pt-2 border-t border-border space-y-1.5">
+          <div className="flex items-center justify-between">
+            <label className="text-[10px] uppercase tracking-wider font-bold text-muted/70">Category</label>
+            <span className="text-xs px-2 py-0.5 rounded-md bg-utaOrange/10 text-utaOrange font-semibold capitalize">
+              {hit.category || hit.attributes?.category || "Unknown"}
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <label className="text-[10px] uppercase tracking-wider font-bold text-muted/70">Added</label>
+            <span className="text-xs text-muted font-medium">{timeAgo}</span>
+          </div>
         </div>
 
         {/* Actions */}
         {hit.status === "submitted" && (
-          <div className="flex gap-2 pt-2">
+          <div className="flex gap-1.5 pt-2">
             <button
               onClick={() => onApprove(hit.objectID)}
-              className="flex-1 px-4 py-2.5 rounded-xl bg-green-500/10 text-green-600 hover:bg-green-500 hover:text-white font-semibold transition-all text-sm"
+              className="flex-1 px-3 py-1.5 rounded-lg bg-green-500/10 text-green-600 hover:bg-green-500 hover:text-white font-semibold transition-all text-xs"
             >
               Approve
             </button>
             <button
               onClick={() => onReject(hit.objectID)}
-              className="flex-1 px-4 py-2.5 rounded-xl bg-red-500/10 text-red-600 hover:bg-red-500 hover:text-white font-semibold transition-all text-sm"
+              className="flex-1 px-3 py-1.5 rounded-lg bg-red-500/10 text-red-600 hover:bg-red-500 hover:text-white font-semibold transition-all text-xs"
             >
               Reject
             </button>
@@ -678,11 +743,14 @@ function RequestHitComponent({
 function InventoryHitComponent({
   hit,
   onUpdateStatus,
+  onImageClick,
 }: {
   hit: any;
   onUpdateStatus: (id: string, status: string) => void;
+  onImageClick: (images: string[], index: number) => void;
 }) {
-  const firstImage = hit.images && hit.images.length > 0 ? hit.images[0] : null;
+  const images = hit.images || [];
+  const firstImage = images.length > 0 ? images[0] : null;
   const description = hit.description || hit.genericDescription || "";
   const truncatedDesc = description.length > 100 ? description.substring(0, 100) + "..." : description;
   const timeAgo = getTimeAgo(hit.createdAt);
@@ -690,61 +758,76 @@ function InventoryHitComponent({
   return (
     <div className="card-base overflow-hidden hover-lift group">
       {/* Image */}
-      <div className="relative w-full h-48 bg-bgElevated overflow-hidden">
+      <div
+        className="relative w-full h-36 bg-bgElevated overflow-hidden cursor-pointer"
+        onClick={() => images.length > 0 && onImageClick(images, 0)}
+      >
         {firstImage ? (
-          <ImageWithLoader
+          <img
             src={firstImage}
             alt={hit.title || "Item image"}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center border-b border-border">
-            <svg className="w-16 h-16 text-muted/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-12 h-12 text-muted/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
           </div>
         )}
-        {/* Status Badge Overlay */}
-        <div className="absolute top-3 right-3">
+        {/* Status Badge & Image Count */}
+        <div className="absolute top-2 right-2 flex items-center gap-2">
           <ItemStatusBadge status={hit.status} />
         </div>
+        {images.length > 1 && (
+          <div className="absolute bottom-2 right-2 px-2 py-1 rounded-lg bg-black/60 backdrop-blur-sm text-white text-xs font-semibold flex items-center gap-1">
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            {images.length}
+          </div>
+        )}
       </div>
 
       {/* Content */}
-      <div className="p-5 space-y-3">
+      <div className="p-3 space-y-2">
         {/* Title */}
-        <h3 className="font-bold text-lg line-clamp-2 min-h-[3.5rem]">
-          {hit.title || "Untitled Item"}
-        </h3>
+        <div>
+          <label className="text-[10px] uppercase tracking-wider font-bold text-muted/70 mb-0.5 block">Title</label>
+          <h3 className="font-semibold text-sm line-clamp-2 min-h-[2.5rem]">
+            {hit.title || "Untitled Item"}
+          </h3>
+        </div>
 
         {/* Description */}
-        <p className="text-sm text-muted line-clamp-3 min-h-[4rem]">
-          {truncatedDesc || "No description provided"}
-        </p>
+        <div>
+          <label className="text-[10px] uppercase tracking-wider font-bold text-muted/70 mb-0.5 block">Description</label>
+          <p className="text-xs text-muted line-clamp-2 min-h-[2.25rem]">
+            {truncatedDesc || "No description"}
+          </p>
+        </div>
 
         {/* Category & Time */}
-        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-border">
-          <span className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-utaOrange/10 text-utaOrange font-semibold capitalize">
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-            </svg>
-            {hit.category || hit.attributes?.category || "Unknown"}
-          </span>
-          <span className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-white/5 text-muted font-medium">
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            {timeAgo}
-          </span>
+        <div className="pt-2 border-t border-border space-y-1.5">
+          <div className="flex items-center justify-between">
+            <label className="text-[10px] uppercase tracking-wider font-bold text-muted/70">Category</label>
+            <span className="text-xs px-2 py-0.5 rounded-md bg-utaOrange/10 text-utaOrange font-semibold capitalize">
+              {hit.category || hit.attributes?.category || "Unknown"}
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <label className="text-[10px] uppercase tracking-wider font-bold text-muted/70">Added</label>
+            <span className="text-xs text-muted font-medium">{timeAgo}</span>
+          </div>
         </div>
 
         {/* Status Update */}
         <div className="pt-2">
-          <label className="block text-xs font-semibold text-muted mb-2 uppercase tracking-wider">Update Status</label>
+          <label className="text-[10px] uppercase tracking-wider font-bold text-muted/70 mb-1.5 block">Status</label>
           <select
             value={hit.status}
             onChange={(e) => onUpdateStatus(hit.objectID, e.target.value)}
-            className="input-base w-full py-2.5 px-4 text-sm font-medium"
+            className="input-base w-full py-1.5 px-3 text-xs font-medium"
           >
             <option value="found">Found</option>
             <option value="claimed">Claimed</option>
@@ -790,6 +873,152 @@ function ItemStatusBadge({ status }: { status: string }) {
     >
       {status}
     </span>
+  );
+}
+
+// Image Modal Component
+function ImageModal({
+  images,
+  currentIndex,
+  onClose,
+  onNext,
+  onPrev,
+}: {
+  images: string[];
+  currentIndex: number;
+  onClose: () => void;
+  onNext: () => void;
+  onPrev: () => void;
+}) {
+  // Close on Escape key
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, [onClose]);
+
+  // Arrow key navigation
+  useEffect(() => {
+    const handleArrow = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") onPrev();
+      if (e.key === "ArrowRight") onNext();
+    };
+    window.addEventListener("keydown", handleArrow);
+    return () => window.removeEventListener("keydown", handleArrow);
+  }, [onNext, onPrev]);
+
+  return (
+    <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex items-center justify-center">
+      {/* Close Button */}
+      <button
+        onClick={onClose}
+        className="fixed top-4 right-4 z-[110] p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all hover:scale-110"
+        aria-label="Close"
+      >
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+      {/* Image Counter */}
+      {images.length > 1 && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[110] px-4 py-2 rounded-full bg-white/10 backdrop-blur-md text-white text-sm font-semibold">
+          {currentIndex + 1} / {images.length}
+        </div>
+      )}
+
+      {/* Previous Button */}
+      {images.length > 1 && (
+        <button
+          onClick={onPrev}
+          className="fixed left-4 top-1/2 -translate-y-1/2 z-[110] p-4 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all hover:scale-110 hidden md:flex items-center justify-center"
+          aria-label="Previous image"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+      )}
+
+      {/* Next Button */}
+      {images.length > 1 && (
+        <button
+          onClick={onNext}
+          className="fixed right-4 top-1/2 -translate-y-1/2 z-[110] p-4 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all hover:scale-110 hidden md:flex items-center justify-center"
+          aria-label="Next image"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      )}
+
+      {/* Image Container */}
+      <div
+        className="relative w-full h-full flex items-center justify-center p-4 md:p-8"
+        onClick={onClose}
+      >
+        <img
+          src={images[currentIndex]}
+          alt={`Image ${currentIndex + 1}`}
+          className="max-w-full max-h-full object-contain"
+          onClick={(e) => e.stopPropagation()}
+        />
+      </div>
+
+      {/* Mobile Navigation Buttons */}
+      {images.length > 1 && (
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[110] flex gap-3 md:hidden">
+          <button
+            onClick={onPrev}
+            className="p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all"
+            aria-label="Previous image"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <button
+            onClick={onNext}
+            className="p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all"
+            aria-label="Next image"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+      )}
+
+      {/* Thumbnails (optional, for more than 2 images) */}
+      {images.length > 2 && (
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[110] hidden md:flex gap-2 max-w-xl overflow-x-auto p-2 rounded-xl bg-black/50 backdrop-blur-md">
+          {images.map((img, idx) => (
+            <button
+              key={idx}
+              onClick={(e) => {
+                e.stopPropagation();
+                const diff = idx - currentIndex;
+                if (diff > 0) {
+                  for (let i = 0; i < diff; i++) onNext();
+                } else if (diff < 0) {
+                  for (let i = 0; i < Math.abs(diff); i++) onPrev();
+                }
+              }}
+              className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
+                idx === currentIndex
+                  ? "border-utaOrange scale-110"
+                  : "border-white/20 hover:border-white/40 opacity-60 hover:opacity-100"
+              }`}
+            >
+              <img src={img} alt={`Thumbnail ${idx + 1}`} className="w-full h-full object-cover" />
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
