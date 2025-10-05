@@ -297,10 +297,8 @@ export default function UserDashboard() {
                                 <span className="text-muted">Loading matches...</span>
                               ) : matchCounts[request.id] === 0 ? (
                                 "No matches yet"
-                              ) : matchCounts[request.id] === 1 ? (
-                                "1 potential match found"
                               ) : (
-                                `${matchCounts[request.id]} potential matches found`
+                                "Potential matches found"
                               )}
                             </p>
                             {matchCounts[request.id] > 0 && (
