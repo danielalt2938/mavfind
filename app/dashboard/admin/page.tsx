@@ -1374,6 +1374,21 @@ function AddFoundItemForm({
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Helpful Tips */}
+          <div className="p-4 bg-utaOrange/10 border border-utaOrange/20 rounded-xl">
+            <div className="flex items-start gap-3">
+              <svg className="w-5 h-5 text-utaOrange flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+              </svg>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-fg mb-2">Add detailed information!</p>
+                <p className="text-xs text-muted leading-relaxed">
+                  The more specific you are, the better our AI can match this item to its owner. Include: <span className="text-fg font-medium">brand, color, size, model, unique features</span> (scratches, stickers, contents).
+                </p>
+              </div>
+            </div>
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-muted mb-3">
               Office Location <span className="text-utaOrange">*</span>
@@ -1403,7 +1418,7 @@ function AddFoundItemForm({
                 required
                 rows={4}
                 className="input-base w-full pr-14"
-                placeholder="Describe the found item in detail..."
+                placeholder="e.g., Black Hydro Flask water bottle, 32oz, with a UTA Engineering sticker and several scratches on the bottom..."
                 disabled={isRecording}
               />
               <button

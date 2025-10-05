@@ -114,6 +114,9 @@ export async function POST(req: NextRequest) {
 
     // Filter out undefined values from attributes
     const filteredAttributes: Record<string, string> = {};
+    filteredAttributes.genericDescription = finalDescription;
+
+    // if ai already has a generic description, use that instead of the final description
     if (aiData.attributes) {
       Object.entries(aiData.attributes).forEach(([key, value]) => {
         if (value !== undefined) {
