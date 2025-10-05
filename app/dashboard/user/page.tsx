@@ -14,7 +14,7 @@ export default function UserDashboard() {
 
   useEffect(() => {
     if (!authLoading && !user) {
-      router.push("/auth/signin");
+      router.replace("/auth/signin");
     }
   }, [authLoading, user, router]);
 
@@ -41,7 +41,8 @@ export default function UserDashboard() {
     }
   };
 
-  if (authLoading || loading) {
+  // Show loading during auth check or if user is not authenticated
+  if (authLoading || !user || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-xl">Loading...</div>

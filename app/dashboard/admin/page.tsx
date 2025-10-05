@@ -20,10 +20,12 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      router.push("/auth/signin");
-    } else if (!authLoading && user && userRole !== "admin") {
-      router.push("/dashboard/user");
+    if (!authLoading) {
+      if (!user) {
+        router.replace("/auth/signin");
+      } else if (userRole !== "admin") {
+        router.replace("/dashboard/user");
+      }
     }
   }, [authLoading, user, userRole, router]);
 
@@ -131,16 +133,13 @@ export default function AdminDashboard() {
     }
   };
 
-  if (authLoading || (user && userRole === "admin" && loading)) {
+  // Show loading during auth check or while fetching data
+  if (authLoading || !user || userRole !== "admin" || (user && userRole === "admin" && loading)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-xl">Loading...</div>
       </div>
     );
-  }
-
-  if (userRole !== "admin") {
-    return null;
   }
 
   return (
