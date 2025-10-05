@@ -112,10 +112,11 @@ export async function matchRequest(
 
   let vectorQueryResults: QueryDocumentSnapshot[];
   try {
-    // Create VectorQuery with COSINE distance
+    // Create VectorQuery with COSINE distance and distance result field
     const vectorQuery = query.findNearest('embedding', requestEmbedding as any, {
       limit,
       distanceMeasure: 'COSINE',
+      distanceResultField: 'vector_distance',
     } as any);
 
     const vectorSnap = await vectorQuery.get();
@@ -136,19 +137,20 @@ export async function matchRequest(
   }
 
   // 4. Process results and calculate confidence
-  // Note: Distance is available via internal Firestore metadata
   const matches: MatchResult[] = vectorQueryResults
     .map((doc, index) => {
-      // Try to get distance from document metadata
-      // In newer Firestore SDK, distance might be in _delegate or snapshot metadata
-      const distance = 0; // Default distance if not available
+      // Get actual distance from the vector search result
+      const distance = doc.get('vector_distance') || 0;
 
-      // Apply distance threshold manually since API doesn't support it
+      // Apply distance threshold manually
       if (distance > distanceThreshold) {
+        console.info(`Filtering out match ${doc.id} with distance ${distance} > threshold ${distanceThreshold}`);
         return null;
       }
 
       const confidence = distanceToConfidence(distance);
+
+      console.info(`Match found: ${doc.id}, distance: ${distance}, confidence: ${confidence.toFixed(3)}`);
 
       return {
         lostId: doc.id,
