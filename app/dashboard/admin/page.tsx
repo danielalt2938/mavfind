@@ -46,7 +46,8 @@ export default function AdminDashboard() {
   const { user, userRole, loading: authLoading, signOut } = useAuth();
   const router = useRouter();
 
-  const [selectedLocation, setSelectedLocation] = useState<string>("university_center");
+  const [selectedLocation, setSelectedLocation] =
+    useState<string>("university_center");
   const [activeTab, setActiveTab] = useState<"requests" | "inventory">(
     "requests"
   );
@@ -786,9 +787,9 @@ function RequestHitComponent({
           </div>
         )}
         {/* Status Badge & Image Count */}
-        <div className="absolute top-2 right-2 flex items-center gap-2">
+        {/* <div className="absolute top-2 right-2 flex items-center gap-2">
           <StatusBadge status={hit.status} />
-        </div>
+        </div> */}
         {images.length > 1 && (
           <div className="absolute bottom-2 right-2 px-2 py-1 rounded-lg bg-black/60 backdrop-blur-sm text-white text-xs font-semibold flex items-center gap-1">
             <svg
@@ -861,14 +862,28 @@ function RequestHitComponent({
         <div className="pt-2">
           <button
             onClick={() => {
-              if (confirm("Are you sure you want to delete this request? This action cannot be undone.")) {
+              if (
+                confirm(
+                  "Are you sure you want to delete this request? This action cannot be undone."
+                )
+              ) {
                 onDelete(hit.objectID);
               }
             }}
             className="w-full py-2 px-3 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-500 text-xs font-semibold transition-colors flex items-center justify-center gap-2"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+              />
             </svg>
             Delete
           </button>
@@ -983,7 +998,7 @@ function InventoryHitComponent({
         </div>
 
         {/* Status Update */}
-        <div className="pt-2">
+        {/* <div className="pt-2">
           <label className="text-[10px] uppercase tracking-wider font-bold text-muted/70 mb-1.5 block">
             Status
           </label>
@@ -996,20 +1011,34 @@ function InventoryHitComponent({
             <option value="claimed">Claimed</option>
             <option value="archived">Archived</option>
           </select>
-        </div>
+        </div> */}
 
         {/* Delete Button */}
         <div className="pt-2">
           <button
             onClick={() => {
-              if (confirm("Are you sure you want to delete this item? This action cannot be undone.")) {
+              if (
+                confirm(
+                  "Are you sure you want to delete this item? This action cannot be undone."
+                )
+              ) {
                 onDelete(hit.objectID);
               }
             }}
             className="w-full py-2 px-3 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-500 text-xs font-semibold transition-colors flex items-center justify-center gap-2"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+              />
             </svg>
             Delete
           </button>
@@ -1459,13 +1488,28 @@ function AddFoundItemForm({
           {/* Helpful Tips */}
           <div className="p-4 bg-utaOrange/10 border border-utaOrange/20 rounded-xl">
             <div className="flex items-start gap-3">
-              <svg className="w-5 h-5 text-utaOrange flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+              <svg
+                className="w-5 h-5 text-utaOrange flex-shrink-0 mt-0.5"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                  clipRule="evenodd"
+                />
               </svg>
               <div className="flex-1">
-                <p className="text-sm font-semibold text-fg mb-2">Add detailed information!</p>
+                <p className="text-sm font-semibold text-fg mb-2">
+                  Add detailed information!
+                </p>
                 <p className="text-xs text-muted leading-relaxed">
-                  The more specific you are, the better our AI can match this item to its owner. Include: <span className="text-fg font-medium">brand, color, size, model, unique features</span> (scratches, stickers, contents).
+                  The more specific you are, the better our AI can match this
+                  item to its owner. Include:{" "}
+                  <span className="text-fg font-medium">
+                    brand, color, size, model, unique features
+                  </span>{" "}
+                  (scratches, stickers, contents).
                 </p>
               </div>
             </div>
