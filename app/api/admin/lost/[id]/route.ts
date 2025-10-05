@@ -4,7 +4,7 @@ import { deleteLostItem } from "@/lib/firebase/firestore";
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await verifyAuthToken(req);
@@ -16,7 +16,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const lostItemId = params.id;
+    const { id: lostItemId } = await params;
 
     await deleteLostItem(lostItemId);
 

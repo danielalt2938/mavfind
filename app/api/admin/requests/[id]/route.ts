@@ -4,7 +4,7 @@ import { deleteRequest } from "@/lib/firebase/firestore";
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await verifyAuthToken(req);
@@ -16,7 +16,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const requestId = params.id;
+    const { id: requestId } = await params;
 
     await deleteRequest(requestId);
 
