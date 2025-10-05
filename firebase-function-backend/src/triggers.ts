@@ -39,7 +39,7 @@ export const onRequestCreated = onDocumentCreated(
  * Firestore trigger that runs matching when a new lost item is created
  *
  * Triggers on: lost/{lostId}
- * Action: Automatically matches all active requests against the new lost item
+ * Action: Automatically matches all requests against the new lost item
  */
 export const onLostItemCreated = onDocumentCreated(
   {
@@ -54,13 +54,11 @@ export const onLostItemCreated = onDocumentCreated(
     console.info(`New lost item created: ${lostId}, triggering matching for all requests...`);
 
     try {
-      // Get all active requests
+      // Get all requests
       const { db } = await import('./db.js');
-      const requestsSnapshot = await db.collection('requests')
-        .where('status', '==', 'active')
-        .get();
+      const requestsSnapshot = await db.collection('requests').get();
 
-      console.info(`Found ${requestsSnapshot.size} active requests to match`);
+      console.info(`Found ${requestsSnapshot.size} requests to match`);
 
       // Match each request (the matchRequest function will consider the new lost item)
       const matchPromises = requestsSnapshot.docs.map(async (requestDoc) => {
