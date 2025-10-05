@@ -148,7 +148,7 @@ export default function Home() {
                 Report Lost Item
               </Button>
             </Link>
-            <Link href="/inventory">
+            {/* <Link href="/inventory">
               <Button
                 variant="secondary"
                 size="lg"
@@ -156,7 +156,7 @@ export default function Home() {
               >
                 Browse Found Items
               </Button>
-            </Link>
+            </Link> */}
           </div>
 
           {/* Trust Stats */}
@@ -167,15 +167,21 @@ export default function Home() {
             className="mt-16 flex flex-col sm:flex-row gap-8 justify-center text-sm text-muted"
           >
             <div>
-              <div className="text-lg font-semibold text-fg mb-1">Thousands</div>
+              <div className="text-lg font-semibold text-fg mb-1">
+                Thousands
+              </div>
               <div>of items reunited</div>
             </div>
             <div>
-              <div className="text-lg font-semibold text-fg mb-1">Lightning fast</div>
+              <div className="text-lg font-semibold text-fg mb-1">
+                Lightning fast
+              </div>
               <div>match times</div>
             </div>
             <div>
-              <div className="text-lg font-semibold text-fg mb-1">Remarkably high</div>
+              <div className="text-lg font-semibold text-fg mb-1">
+                Remarkably high
+              </div>
               <div>success rate</div>
             </div>
           </motion.div>
