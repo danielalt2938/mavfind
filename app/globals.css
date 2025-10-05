@@ -6,8 +6,8 @@
 @tailwind utilities;
 
 :root {
-  --bg: #0B0B0C;
-  --bg-elevated: #131316;
+  --bg: #0C2340;
+  --bg-elevated: #15304f;
   --fg: #FFFFFF;
   --muted: #9CA3AF;
   --border: #1F2937;
@@ -91,4 +91,13 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* Algolia Highlight Styles */
+.ais-Highlight-highlighted {
+  background-color: #F15A22;
+  color: #FFFFFF;
+  font-weight: 600;
+  padding: 0 2px;
+  border-radius: 2px;
 }
