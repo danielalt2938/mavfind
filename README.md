@@ -1,350 +1,416 @@
-# MavFind - Lost & Found Web Application
+# MavFind - AI-Powered Lost & Found Platform
 
-A comprehensive lost and found platform for managing items across multiple office locations. Built with Next.js 15, Firebase, AI-powered categorization, and smart search capabilities.
+A comprehensive lost and found platform for UTA campus with AI-powered matching, voice input, vector search, and multi-location support. Built with Next.js 15, Firebase, Google Gemini AI, and Firestore Vector Search.
 
-## Features
+## ✨ Key Features
 
-### For Users
-- 🔍 **Report Lost Items** - Submit detailed reports with descriptions and images
-- 🎤 **Speech-to-Text** - Use voice input to describe lost items via OpenAI Whisper
-- 📦 **Search Inventory** - Browse all found items using Algolia's smart search
-- 📧 **Email Notifications** - Get notified when items matching your preferences are found
-- 📊 **Track Status** - Monitor the status of your lost item reports
+### 🎯 AI-Powered Smart Matching
+- **Vector Embeddings** - Uses Firestore Vector Search with COSINE similarity to find matching items
+- **Automatic Categorization** - Google Gemini AI extracts attributes (brand, color, model, etc.) from descriptions and images
+- **Confidence Scoring** - Shows match confidence percentage (90-96% for top matches)
+- **Multi-Source Analysis** - Analyzes both text descriptions AND images for better accuracy
+- **HEIC/HEIF Support** - Automatically converts Apple photos to JPEG for processing
 
-### For Admins
-- ➕ **Add Found Items** - Register items found at your location
-- ✅ **Manage Requests** - Approve, reject, or match lost item reports
-- 🏢 **Multi-Location** - Choose and manage items for specific office locations
-- 📬 **Notifications** - Receive alerts about new lost item reports
+### 👤 For Users
+- 📝 **Report Lost Items** - Submit detailed reports with text or voice descriptions
+- 🎤 **Voice Input** - OpenAI Whisper transcribes voice recordings to text
+- 📸 **Image Upload** - Upload multiple photos (JPG, PNG, HEIC, HEIF)
+- 🔍 **View Matches** - See AI-matched found items with confidence scores
+- 📍 **Pickup Locations** - Clear directions on where to claim matched items
+- 🗑️ **Delete Requests** - Users can delete their own requests
+- 🚨 **Sensitive Item Warnings** - Alerts for credit cards, wallets, phones to contact UTA Police
+- 🏷️ **Category Badges** - Visual organization by item type
 
-### AI-Powered Features
-- 🤖 **Auto-Categorization** - Google Gemini AI automatically extracts attributes from descriptions
-- 🎯 **Smart Search** - Algolia-powered search across all items
-- 🗣️ **Voice Input** - OpenAI Whisper transcribes audio descriptions
+### 👨‍💼 For Admins
+- ➕ **Add Found Items** - Register items with required images and descriptions
+- 🔎 **Dual Search Tabs** - Separate Algolia search for Requests and Lost Inventory
+- ✅ **Approve/Reject Requests** - Review and moderate user submissions
+- 🗑️ **Delete Items** - Remove both lost items and user requests
+- 🎙️ **Voice Descriptions** - Record item descriptions with built-in voice recorder
+- 🏢 **Multi-Location Support** - Manage items at University Center and Central Library
+- 📊 **Real-time Dashboard** - View all items and requests in card grid layout
+- 🔒 **Admin-Only Inventory** - Public inventory page restricted to administrators
 
-## Tech Stack
+### 🤖 Advanced AI Features
+- **Google Gemini Vision** - Analyzes images to extract item attributes
+- **Text Embeddings** - Vertex AI text-embedding-005 for semantic search
+- **Generic Descriptions** - AI generates searchable descriptions for better matching
+- **Fallback Handling** - Graceful degradation if AI services fail
+- **Multimodal Input** - Combines text + images for maximum accuracy
 
-- **Frontend**: Next.js 15 (App Router), React 19, Tailwind CSS
-- **Backend**: Next.js API Routes (Server Actions)
-- **Database**: Firebase Firestore
+### 🔊 Voice AI Integration (Ready for ElevenLabs)
+- **Voice Search API** - `/api/voice/search` endpoint for conversational AI
+- **Phone Call Support** - Users can call to describe lost items
+- **Real-time Matching** - Voice → Text → Vector Search → Spoken Results
+- **Location Formatting** - Speaks pickup locations naturally
+- **Multi-language Ready** - Supports future language expansion
+
+### 🔍 Search & Discovery
+- **Algolia InstantSearch** - Lightning-fast search with typo tolerance
+- **Vector Search** - Semantic similarity matching via Firestore
+- **Dual Index System** - Separate indexes for requests and inventory
+- **Category Filtering** - Browse by electronics, bags, cards, etc.
+- **Time-based Sorting** - Most recent items first
+- **Image Previews** - See items before viewing details
+
+### 🎨 User Experience
+- **Responsive Design** - Mobile, tablet, and desktop optimized
+- **Dark Theme** - UTA-branded color scheme (Orange & Blue)
+- **Framer Motion** - Smooth animations and transitions
+- **Card Layouts** - 5 cards per row on desktop, responsive grid
+- **Loading States** - Skeleton screens and spinners
+- **Modal Details** - Full-screen item details with image galleries
+- **Status Badges** - Visual indicators for request status
+
+### 🔐 Security & Privacy
+- **Firebase Authentication** - Google Sign-In only
+- **Role-Based Access** - User and Admin roles
+- **Server-Side Validation** - All writes through secure API routes
+- **Ownership Checks** - Users can only delete their own items
+- **Admin Verification** - Token-based admin authorization
+- **Sensitive Item Protection** - Warns users about credit cards/wallets/phones
+
+## 🛠️ Tech Stack
+
+### Frontend
+- **Framework**: Next.js 15 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **Animations**: Framer Motion
+- **Search**: Algolia InstantSearch React
+- **Image Processing**: heic-convert, heic2any
+
+### Backend
+- **Runtime**: Next.js API Routes
+- **Database**: Firebase Firestore (with Vector Search)
 - **Storage**: Firebase Storage
-- **Authentication**: Firebase Authentication with Google Sign-In
-- **AI**: Google Gemini API, OpenAI Whisper
-- **Search**: Algolia
-- **Email**: SendGrid
-- **Hosting**: Vercel
+- **Authentication**: Firebase Auth (Google OAuth)
+- **Functions**: Firebase Cloud Functions (matching system)
 
-## Project Structure
+### AI & ML
+- **Vision AI**: Google Gemini Vision (gemini-1.5-flash)
+- **Embeddings**: Vertex AI text-embedding-005
+- **Speech-to-Text**: OpenAI Whisper
+- **Vector Search**: Firestore Native Vector Search (COSINE)
+
+### Infrastructure
+- **Hosting**: Vercel
+- **Search**: Algolia
+- **Voice AI Ready**: ElevenLabs Conversational AI
+
+## 📁 Project Structure
 
 ```
 mavfind/
 ├── app/
-│   ├── api/                    # API routes
-│   │   ├── admin/              # Admin endpoints
-│   │   │   ├── lost/           # Add found items
-│   │   │   ├── requests/       # Manage user requests
-│   │   │   └── session/        # Admin session management
-│   │   ├── auth/               # NextAuth configuration
-│   │   ├── inventory/          # Search inventory
-│   │   ├── notify/             # Notification preferences
-│   │   ├── queues/             # Background job queues
-│   │   └── requests/           # User lost item reports
-│   ├── auth/                   # Authentication pages
-│   ├── dashboard/              # User and admin dashboards
-│   ├── inventory/              # Public inventory search
-│   ├── layout.tsx              # Root layout
-│   └── page.tsx                # Home page
-├── components/
-│   ├── admin/                  # Admin components
-│   ├── shared/                 # Shared components
-│   └── user/                   # User components
+│   ├── api/
+│   │   ├── admin/
+│   │   │   ├── lost/[id]/route.ts      # Delete lost items
+│   │   │   ├── lost/route.ts           # Add found items
+│   │   │   ├── lost/status/route.ts    # Update item status
+│   │   │   └── requests/
+│   │   │       ├── [id]/route.ts       # Delete requests
+│   │   │       ├── approve/route.ts    # Approve requests
+│   │   │       └── reject/route.ts     # Reject requests
+│   │   ├── auth/
+│   │   │   └── user-role/route.ts      # Get user role
+│   │   ├── inventory/route.ts          # Search inventory (Algolia)
+│   │   ├── requests/
+│   │   │   ├── [id]/
+│   │   │   │   ├── delete/route.ts     # User delete request
+│   │   │   │   └── matches/route.ts    # Get AI matches
+│   │   │   ├── mine/route.ts           # User's requests
+│   │   │   └── route.ts                # Create request
+│   │   ├── transcribe/route.ts         # Whisper STT
+│   │   └── voice/
+│   │       └── search/route.ts         # Voice AI search
+│   ├── auth/signin/page.tsx            # Sign-in page
+│   ├── dashboard/
+│   │   ├── admin/page.tsx              # Admin dashboard
+│   │   └── user/
+│   │       ├── page.tsx                # User dashboard
+│   │       └── requests/[id]/page.tsx  # Match details
+│   ├── inventory/page.tsx              # Public inventory (admin-only)
+│   └── page.tsx                        # Landing page
+├── components/ui/                      # Reusable UI components
 ├── lib/
-│   ├── ai/                     # AI integrations
-│   │   ├── gemini.ts           # Google Gemini
-│   │   └── whisper.ts          # OpenAI Whisper
-│   ├── auth/                   # Auth configuration
-│   ├── email/                  # Email notifications
-│   ├── firebase/               # Firebase utilities
-│   │   ├── admin.ts            # Firebase Admin SDK
-│   │   ├── firestore.ts        # Firestore operations
-│   │   └── storage.ts          # File storage
-│   └── search/                 # Algolia search
-├── types/                      # TypeScript types
-├── firestore.rules             # Firestore security rules
-├── .env.example                # Environment variables template
-└── vercel.json                 # Vercel deployment config
+│   ├── ai/
+│   │   ├── gemini.ts                   # Gemini vision & text
+│   │   └── whisper.ts                  # OpenAI Whisper
+│   ├── auth/
+│   │   ├── AuthContext.tsx             # Auth provider
+│   │   └── server.ts                   # Server auth utils
+│   ├── firebase/
+│   │   ├── admin.ts                    # Firebase Admin SDK
+│   │   ├── config.ts                   # Client config
+│   │   ├── firestore.ts                # CRUD operations
+│   │   └── storage.ts                  # File uploads
+│   └── search/algolia.ts               # Algolia client
+├── firebase-function-backend/
+│   └── src/
+│       ├── ai.ts                       # Vertex AI embeddings
+│       ├── indexers.ts                 # Embedding generation
+│       ├── matchRequest.ts             # Vector search matching
+│       └── triggers.ts                 # Firestore triggers
+└── types/index.ts                      # TypeScript types
 ```
 
-## Setup Instructions
+## 🚀 Setup Instructions
 
-### 1. Prerequisites
+### Prerequisites
 
-- Node.js 18+ and npm
-- Firebase project (with Authentication, Firestore, and Storage enabled)
-- Google Cloud account (for Gemini AI)
-- OpenAI account (for Whisper)
+- Node.js 18+
+- Firebase project with Blaze plan (for Vector Search)
+- Google Cloud project (for Gemini & Vertex AI)
+- OpenAI API key
 - Algolia account
-- SendGrid account
+- Vercel account (for deployment)
 
-### 2. Clone and Install
+### 1. Clone Repository
 
 ```bash
-git clone <your-repo-url>
+git clone <your-repo>
 cd mavfind
 npm install
 ```
 
-### 3. Firebase Setup
+### 2. Firebase Setup
 
-1. Create a new Firebase project at [Firebase Console](https://console.firebase.google.com)
+1. **Create Firebase Project** at [console.firebase.google.com](https://console.firebase.google.com)
+2. **Enable Services**:
+   - Authentication → Google Sign-In
+   - Firestore Database (Production mode)
+   - Storage
+3. **Get Credentials**:
+   - Web app config (for client)
+   - Service account JSON (for admin)
 
-2. **Enable Firebase Authentication**:
-   - Go to Authentication → Sign-in method
-   - Enable Google sign-in provider
-   - Add your app's domains to authorized domains
+### 3. Google Cloud Setup
 
-3. **Enable Firestore Database**:
-   - Go to Firestore Database
-   - Create database in production mode
-   - Choose a location
-
-4. **Enable Firebase Storage**:
-   - Go to Storage
-   - Get started with default rules
-
-5. **Get Firebase Config** (for client-side):
-   - Go to Project Settings → General
-   - Scroll to "Your apps" section
-   - Add a web app if you haven't
-   - Copy the Firebase configuration values
-
-6. **Generate Service Account Key** (for server-side):
-   - Go to Project Settings → Service Accounts
-   - Click "Generate New Private Key"
-   - Save the JSON file
+1. **Enable APIs** in Google Cloud Console:
+   - Vertex AI API
+   - Generative Language API
+2. **Get API Key** for Gemini
 
 ### 4. Environment Variables
 
-Copy `.env.example` to `.env` and fill in your credentials:
-
-```bash
-cp .env.example .env
-```
-
-Required environment variables:
+Copy `.env.example` to `.env.local`:
 
 ```env
-# Firebase Admin SDK (from service account JSON)
-FIREBASE_PROJECT_ID=your-project-id
+# Firebase Client
+NEXT_PUBLIC_FIREBASE_API_KEY=
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
+NEXT_PUBLIC_FIREBASE_APP_ID=
+
+# Firebase Admin
+FIREBASE_PROJECT_ID=
 FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
-FIREBASE_CLIENT_EMAIL=firebase-adminsdk@your-project-id.iam.gserviceaccount.com
-FIREBASE_STORAGE_BUCKET=your-project-id.appspot.com
+FIREBASE_CLIENT_EMAIL=
+FIREBASE_STORAGE_BUCKET=
 
-# Firebase Client SDK (from Firebase web app config)
-NEXT_PUBLIC_FIREBASE_API_KEY=your-firebase-api-key
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project-id.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project-id.appspot.com
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your-messaging-sender-id
-NEXT_PUBLIC_FIREBASE_APP_ID=your-app-id
-
-# AI APIs
-GEMINI_API_KEY=your-gemini-api-key
-OPENAI_API_KEY=your-openai-api-key
+# AI
+GEMINI_API_KEY=
+OPENAI_API_KEY=
 
 # Algolia
-NEXT_PUBLIC_ALGOLIA_APP_ID=your-app-id
-NEXT_PUBLIC_ALGOLIA_SEARCH_API_KEY=your-search-key
-ALGOLIA_ADMIN_API_KEY=your-admin-key
-ALGOLIA_INDEX_NAME=mavfind_items
-
-# SendGrid
-SENDGRID_API_KEY=your-sendgrid-api-key
-SENDGRID_FROM_EMAIL=noreply@yourdomain.com
-
-# Cron (for Vercel)
-CRON_SECRET=generate-random-secret
+NEXT_PUBLIC_ALGOLIA_APP_ID=
+NEXT_PUBLIC_ALGOLIA_SEARCH_API_KEY=
+NEXT_PUBLIC_ALGOLIA_INDEX_NAME_REQUESTS=mavfind_requests
+NEXT_PUBLIC_ALGOLIA_INDEX_NAME_INVENTORY=mavfind_lost_items
 ```
 
-### 6. Firestore Data Initialization
+### 5. Firestore Vector Index Setup
 
-Create initial location data in Firestore:
-
-1. Go to Firebase Console → Firestore Database
-2. Create a collection named `info`
-3. Create a document with ID `location`
-4. Add the following data:
-
-```json
-{
-  "locations": [
-    {
-      "id": "loc1",
-      "name": "Main Campus",
-      "address": "123 Main St",
-      "geo": { "lat": 32.1, "lng": -97.1 },
-      "isActive": true
-    },
-    {
-      "id": "loc2",
-      "name": "North Office",
-      "address": "456 North Ave",
-      "geo": { "lat": 32.3, "lng": -97.2 },
-      "isActive": true
-    }
-  ]
-}
-```
-
-### 7. Deploy Firestore Security Rules
+Create vector index for embeddings:
 
 ```bash
-firebase deploy --only firestore:rules
+gcloud firestore indexes composite create \
+  --collection-group=lost \
+  --query-scope=COLLECTION \
+  --field-config field-path=embedding,vector-config='{"dimension":"768","flat": "{}"}' \
+  --project=your-project-id
 ```
 
-Or manually copy the rules from `firestore.rules` to your Firebase Console.
+### 6. Deploy Firebase Functions
 
-### 8. Algolia Index Setup
+```bash
+cd firebase-function-backend
+npm install
+npm run deploy
+```
 
-1. Create an index named `mavfind_items` in Algolia
-2. The search settings will be configured automatically when items are indexed
-
-### 9. Run Development Server
+### 7. Run Development Server
 
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open [http://localhost:3000](http://localhost:3000)
 
-## Deployment
+## 📊 Data Models
 
-### Deploy to Vercel
-
-1. Install Vercel CLI:
-```bash
-npm i -g vercel
+### Request (Lost Item Report)
+```typescript
+{
+  id: string
+  title: string
+  description: string
+  category: ItemCategory
+  subcategory?: string
+  genericDescription: string
+  attributes: ItemAttributes
+  images: string[]
+  locationId: string
+  ownerUid: string
+  status: "submitted" | "approved" | "matched" | "claimed"
+  embedding?: number[]  // 768-dim vector
+  embeddingDim?: number
+  createdAt: string
+  updatedAt: string
+}
 ```
 
-2. Deploy:
+### LostItem (Found Item)
+```typescript
+{
+  id: string
+  title: string
+  description: string
+  category: ItemCategory
+  subcategory?: string
+  genericDescription: string
+  attributes: ItemAttributes
+  images: string[]
+  locationId: string
+  handlerUid: string
+  status: "found" | "claimed" | "archived"
+  embedding?: number[]  // 768-dim vector
+  embeddingDim?: number
+  createdAt: string
+  updatedAt: string
+}
+```
+
+### Match
+```typescript
+{
+  lostId: string
+  distance: number       // COSINE distance (0-2)
+  confidence: number     // Percentage (0-100)
+  rank: number
+  status: string
+  createdAt: string
+}
+```
+
+## 🔄 AI Matching Pipeline
+
+1. **User submits request** with description/images
+2. **Gemini extracts attributes** from text + images
+3. **Generate embedding** from genericDescription (768-dim)
+4. **Store in Firestore** with embedding field
+5. **Firebase trigger** runs matching against all lost items
+6. **Vector search** finds top 3 similar items (COSINE < 0.6)
+7. **Save matches** to subcollection with confidence scores
+8. **User views matches** sorted by confidence
+
+## 🎙️ Voice AI Setup (Optional)
+
+### ElevenLabs Integration
+
+1. Create agent at [elevenlabs.io](https://elevenlabs.io)
+2. Configure webhook: `https://yourdomain.com/api/voice/search`
+3. System prompt:
+```
+You are MavFind assistant. Ask what they lost.
+When they describe it, call the webhook.
+Read results back clearly with location and confidence.
+Offer to send details via SMS.
+```
+
+## 🛡️ Security Rules
+
+Firestore rules ensure:
+- Users can only read/delete their own requests
+- Admins can access all data
+- All writes through server APIs
+- No client-side mutations
+
+## 📱 User Roles
+
+### Creating Admins
+
+1. User signs in with Google
+2. Go to Firestore → `users` collection
+3. Find user by UID
+4. Change `role: "user"` to `role: "admin"`
+
+## 🚀 Deployment
+
+### Vercel Deployment
+
 ```bash
 vercel
 ```
 
-3. Add environment variables in Vercel dashboard
+Add all environment variables in Vercel dashboard.
 
-4. The cron job for email notifications will run automatically every 5 minutes
-
-### Environment Variables in Production
-
-Make sure to add all environment variables from `.env` to your Vercel project settings.
-
-## API Endpoints
-
-### User Endpoints
-- `POST /api/requests` - Create lost item report
-- `GET /api/requests/mine` - Get user's reports
-- `GET /api/inventory` - Search inventory
-- `POST /api/notify/subscribe` - Update notification preferences
-
-### Admin Endpoints
-- `POST /api/admin/session/location` - Set admin location
-- `POST /api/admin/lost` - Add found item
-- `POST /api/admin/requests/approve` - Approve request
-- `POST /api/admin/requests/reject` - Reject request
-- `POST /api/admin/requests/match` - Match request with found item
-
-### Background Jobs
-- `POST /api/queues/notifications/enqueue` - Enqueue notification
-- `POST /api/queues/notifications/dispatch` - Process notification queue (cron)
-
-## User Roles
-
-### Creating Admin Users
-
-By default, new users are created with the `user` role. To make a user an admin:
-
-1. Go to Firestore Console
-2. Navigate to `users` collection
-3. Find the user document (by UID)
-4. Change `role` from `"user"` to `"admin"`
-
-## Development
-
-### Running Tests
+### Firebase Functions
 
 ```bash
-npm test
+cd firebase-function-backend
+npm run deploy
 ```
 
-### Build for Production
-
-```bash
-npm run build
-```
-
-### Type Checking
-
-```bash
-npx tsc --noEmit
-```
-
-## Architecture Decisions
-
-### Server-Only Writes
-All Firestore writes happen through Next.js server functions. This ensures:
-- Security: Users can't bypass business logic
-- Validation: All data is validated server-side
-- Consistency: Centralized data processing
-
-### AI Integration
-- **Gemini AI**: Extracts structured attributes from natural language descriptions
-- **Whisper**: Converts voice input to text for accessibility
-
-### Search Strategy
-- **Algolia**: Provides fast, typo-tolerant search across all items
-- Items are automatically indexed when created
-- Real-time search with filters for category and location
-
-### Notification System
-- Uses a queue-based approach for reliability
-- Cron job processes pending emails every 5 minutes
-- Supports user preferences for targeted notifications
-
-## Troubleshooting
+## 🐛 Troubleshooting
 
 ### Common Issues
 
-1. **Firebase Authentication Errors**
-   - Verify your service account credentials are correct
-   - Check that private key includes `\n` characters properly escaped
+**Vector Search Not Working**
+- Check Firestore vector index is created
+- Verify embeddings are 768 dimensions
+- Ensure Firebase Blaze plan is active
 
-2. **Algolia Search Not Working**
-   - Ensure items are being indexed (check Algolia dashboard)
-   - Verify API keys are correct
-   - Run index configuration: `configureIndexSettings()`
+**AI Extraction Fails**
+- Verify Gemini API key is valid
+- Check image format (HEIC conversion working?)
+- Review console logs for errors
 
-3. **Email Notifications Not Sending**
-   - Check SendGrid API key
-   - Verify CRON_SECRET is set correctly
-   - Check Vercel cron logs
+**Matches Always 93%**
+- This means `distanceResultField` isn't working
+- Synthetic distances are being used as fallback
+- Update Firebase SDK or adjust formula
 
-4. **OAuth Login Fails**
-   - Verify redirect URIs in Google Console
-   - Check NEXTAUTH_URL matches your domain
-   - Ensure NEXTAUTH_SECRET is set
+**Voice Search Errors**
+- Check `/api/voice/search` endpoint
+- Verify Vertex AI credentials
+- Test embedding generation
 
-## Contributing
+## 📈 Future Enhancements
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+- [ ] SMS notifications via Twilio
+- [ ] Multi-language support
+- [ ] Mobile app (React Native)
+- [ ] QR code item tagging
+- [ ] Analytics dashboard
+- [ ] Email notifications for matches
+- [ ] Batch import for admins
 
-## License
+## 📄 License
 
-MIT License - See LICENSE file for details
+MIT License - Built for UTA Mavericks
 
-## Support
+## 🙏 Credits
 
-For issues and questions, please open an issue on GitHub.
+- **AI**: Google Gemini, OpenAI Whisper, Vertex AI
+- **Search**: Algolia
+- **Backend**: Firebase
+- **Hosting**: Vercel
+- **Design**: Tailwind CSS, Framer Motion
+
+---
+
+**For UTA Mavericks, By UTA Mavericks** 🔶🔷

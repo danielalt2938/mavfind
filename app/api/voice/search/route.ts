@@ -20,9 +20,7 @@ export async function POST(req: NextRequest) {
 
     // 2. Import Firebase functions to search
     const { getFirestoreDb } = await import("@/lib/firebase/admin");
-    const { embedGenericDescription } = await import(
-      "@/firebase-function-backend/src/ai"
-    );
+    const { embedGenericDescription } = await import("@/lib/ai/embeddings");
 
     const db = getFirestoreDb();
     const genericDesc =

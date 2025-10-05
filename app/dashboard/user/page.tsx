@@ -5,11 +5,12 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import ImageWithLoader from "@/components/ImageWithLoader";
+import { Request } from "@/types";
 
 export default function UserDashboard() {
   const { user, userRole, loading: authLoading, signOut } = useAuth();
   const router = useRouter();
-  const [requests, setRequests] = useState([]);
+  const [requests, setRequests] = useState<Request[]>([]);
   const [loading, setLoading] = useState(true);
   const [showReportForm, setShowReportForm] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
