@@ -4,6 +4,7 @@ import { useAuth } from "@/lib/auth/AuthContext";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import ImageWithLoader from "@/components/ImageWithLoader";
 
 export default function UserDashboard() {
   const { user, userRole, loading: authLoading, signOut } = useAuth();
@@ -527,29 +528,14 @@ function ReportForm({
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                   {imagePreviews.map((preview, index) => (
-                    <div key={index} className="relative group aspect-square">
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-xl z-10" />
-                      <img
-                        src={preview}
-                        alt={`Preview ${index + 1}`}
-                        className="w-full h-full object-cover rounded-xl border-2 border-border hover:border-utaOrange/50 transition-all"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removeImage(index)}
-                        className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-2 shadow-lg opacity-0 group-hover:opacity-100 transition-all hover:scale-110 z-20"
-                        title="Remove image"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </button>
-                      <div className="absolute bottom-2 left-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                        <div className="text-xs text-white font-medium bg-black/50 backdrop-blur-sm px-2 py-1 rounded">
-                          Image {index + 1}
-                        </div>
-                      </div>
-                    </div>
+                    <ImageWithLoader
+                      key={index}
+                      src={preview}
+                      alt={`Preview ${index + 1}`}
+                      onRemove={() => removeImage(index)}
+                      showRemoveButton={true}
+                      label={`Image ${index + 1}`}
+                    />
                   ))}
                 </div>
               </div>
