@@ -13,6 +13,33 @@ const COLLECTIONS = {
   INFO: "info",
 } as const;
 
+// Helper function to remove undefined values from an object
+function removeUndefined<T extends Record<string, any>>(obj: T): Partial<T> {
+  const result: any = {};
+
+  for (const [key, value] of Object.entries(obj)) {
+    if (value === undefined) {
+      continue;
+    }
+
+    if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
+      const cleaned = removeUndefined(value);
+      if (Object.keys(cleaned).length > 0) {
+        result[key] = cleaned;
+      }
+    } else if (Array.isArray(value)) {
+      const cleanedArray = value.filter(item => item !== undefined);
+      if (cleanedArray.length > 0) {
+        result[key] = cleanedArray;
+      }
+    } else {
+      result[key] = value;
+    }
+  }
+
+  return result;
+}
+
 // User Operations
 export async function getUser(uid: string): Promise<User | null> {
   const db = getFirestoreDb();
@@ -49,7 +76,8 @@ export async function createRequest(
   request: Omit<Request, "id">
 ): Promise<string> {
   const db = getFirestoreDb();
-  const docRef = await db.collection(COLLECTIONS.REQUESTS).add(request);
+  const cleanedRequest = removeUndefined(request as any);
+  const docRef = await db.collection(COLLECTIONS.REQUESTS).add(cleanedRequest);
   return docRef.id;
 }
 
@@ -97,7 +125,8 @@ export async function createLostItem(
   lostItem: Omit<LostItem, "id">
 ): Promise<string> {
   const db = getFirestoreDb();
-  const docRef = await db.collection(COLLECTIONS.LOST).add(lostItem);
+  const cleanedLostItem = removeUndefined(lostItem as any);
+  const docRef = await db.collection(COLLECTIONS.LOST).add(cleanedLostItem);
   return docRef.id;
 }
 

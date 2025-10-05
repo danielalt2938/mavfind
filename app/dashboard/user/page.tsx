@@ -5,7 +5,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import ImageWithLoader from "@/components/ImageWithLoader";
-import RequestMatches from "@/components/RequestMatches";
 
 export default function UserDashboard() {
   const { user, userRole, loading: authLoading, signOut } = useAuth();
@@ -14,6 +13,7 @@ export default function UserDashboard() {
   const [loading, setLoading] = useState(true);
   const [showReportForm, setShowReportForm] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [matchCounts, setMatchCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
     if (!authLoading) {
@@ -40,7 +40,27 @@ export default function UserDashboard() {
         },
       });
       const data = await res.json();
-      setRequests(data.requests || []);
+      const fetchedRequests = data.requests || [];
+      setRequests(fetchedRequests);
+
+      // Fetch match counts for each request
+      const counts: Record<string, number> = {};
+      for (const request of fetchedRequests) {
+        try {
+          const matchRes = await fetch(`/api/requests/${request.id}/matches`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          if (matchRes.ok) {
+            const matchData = await matchRes.json();
+            counts[request.id] = matchData.matches?.length || 0;
+          }
+        } catch (err) {
+          console.error(`Error fetching matches for ${request.id}:`, err);
+        }
+      }
+      setMatchCounts(counts);
     } catch (error) {
       console.error("Error fetching requests:", error);
     } finally {
@@ -261,11 +281,43 @@ export default function UserDashboard() {
                       })} CST
                     </div>
 
-                    {/* Matches Section */}
-                    <RequestMatches 
-                      requestId={request.id} 
-                      className="mt-4 pt-4 border-t border-white/5" 
-                    />
+                    {/* Matches Button */}
+                    <Link
+                      href={`/dashboard/user/requests/${request.id}`}
+                      className="block mt-4 pt-4 border-t border-white/5"
+                    >
+                      <div className="flex items-center justify-between p-4 bg-bgElevated hover:bg-white/5 rounded-xl transition-all group">
+                        <div className="flex items-center gap-3">
+                          <svg className="w-5 h-5 text-utaOrange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                          </svg>
+                          <div>
+                            <p className="text-sm font-semibold text-fg">
+                              {matchCounts[request.id] === undefined ? (
+                                <span className="text-muted">Loading matches...</span>
+                              ) : matchCounts[request.id] === 0 ? (
+                                "No matches yet"
+                              ) : matchCounts[request.id] === 1 ? (
+                                "1 potential match found"
+                              ) : (
+                                `${matchCounts[request.id]} potential matches found`
+                              )}
+                            </p>
+                            {matchCounts[request.id] > 0 && (
+                              <p className="text-xs text-muted mt-1">Click to view details</p>
+                            )}
+                          </div>
+                        </div>
+                        <svg
+                          className="w-5 h-5 text-muted group-hover:text-fg group-hover:translate-x-1 transition-all"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </div>
+                    </Link>
                   </div>
                 </div>
               );
