@@ -14,22 +14,17 @@ export async function GET(req: NextRequest) {
     }
 
     const { searchParams } = new URL(req.url);
-    const locationId = searchParams.get("locationId");
     const status = searchParams.get("status");
 
     const db = getFirestoreDb();
     let query = db.collection("requests");
-
-    // Filter by location if provided
-    if (locationId) {
-      query = query.where("locationId", "==", locationId) as any;
-    }
 
     // Filter by status if provided
     if (status) {
       query = query.where("status", "==", status) as any;
     }
 
+    // Fetch all requests regardless of location
     const snapshot = await query.orderBy("createdAt", "desc").get();
 
     const requests = snapshot.docs.map((doc) => ({
