@@ -46,24 +46,16 @@ export default function AdminDashboard() {
   const { user, userRole, loading: authLoading, signOut } = useAuth();
   const router = useRouter();
 
-  const [selectedLocation, setSelectedLocation] =
-    useState<string>("university_center");
   const [activeTab, setActiveTab] = useState<"requests" | "inventory">(
     "requests"
   );
   const [showAddItemForm, setShowAddItemForm] = useState(false);
-
-  // Data states
-  const [requests, setRequests] = useState<any[]>([]);
-  const [foundItems, setFoundItems] = useState<any[]>([]);
-  const [stats, setStats] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Image modal state
   const [imageModalOpen, setImageModalOpen] = useState(false);
   const [modalImages, setModalImages] = useState<string[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const openImageModal = (images: string[], startIndex: number = 0) => {
     setModalImages(images);
@@ -97,41 +89,6 @@ export default function AdminDashboard() {
     }
   }, [authLoading, user, userRole, router]);
 
-  useEffect(() => {
-    if (user && userRole === "admin" && selectedLocation) {
-      fetchData();
-    }
-  }, [user, userRole, selectedLocation]);
-
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const token = await user?.getIdToken();
-      const headers = { Authorization: `Bearer ${token}` };
-
-      // Fetch requests, found items, and stats in parallel
-      const [requestsRes, itemsRes, statsRes] = await Promise.all([
-        fetch(`/api/admin/requests`, { headers }), // Fetch all requests
-        fetch(`/api/admin/lost/items`, { headers }), // Fetch all inventory items
-        fetch(`/api/admin/stats?locationId=${selectedLocation}`, { headers }),
-      ]);
-
-      const [requestsData, itemsData, statsData] = await Promise.all([
-        requestsRes.json(),
-        itemsRes.json(),
-        statsRes.json(),
-      ]);
-
-      setRequests(requestsData.requests || []);
-      setFoundItems(itemsData.items || []);
-      setStats(statsData.stats || {});
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleApprove = async (requestId: string) => {
     try {
       const token = await user?.getIdToken();
@@ -145,7 +102,8 @@ export default function AdminDashboard() {
       });
 
       if (res.ok) {
-        fetchData(); // Refresh data
+        // Item will be updated in Algolia, page will auto-refresh
+        window.location.reload();
       } else {
         alert("Failed to approve request");
       }
@@ -168,7 +126,7 @@ export default function AdminDashboard() {
       });
 
       if (res.ok) {
-        fetchData(); // Refresh data
+        window.location.reload();
       } else {
         alert("Failed to reject request");
       }
@@ -191,7 +149,7 @@ export default function AdminDashboard() {
       });
 
       if (res.ok) {
-        fetchData(); // Refresh data
+        window.location.reload();
       } else {
         alert("Failed to update item status");
       }
@@ -201,13 +159,8 @@ export default function AdminDashboard() {
     }
   };
 
-  // Show loading during auth check or while fetching data
-  if (
-    authLoading ||
-    !user ||
-    userRole !== "admin" ||
-    (user && userRole === "admin" && loading)
-  ) {
+  // Show loading during auth check
+  if (authLoading || !user || userRole !== "admin") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-bg">
         <div className="flex flex-col items-center gap-4">
@@ -348,7 +301,7 @@ export default function AdminDashboard() {
       </header>
 
       <div className="container-custom pt-24 md:pt-32 pb-20 px-4 md:px-6">
-        {/* Page Title & Location */}
+        {/* Page Title */}
         <div className="mb-8 md:mb-12">
           <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-2 md:mb-3">
             Admin Dashboard
@@ -358,20 +311,7 @@ export default function AdminDashboard() {
             reclaim their belongings.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-            <div className="flex-1 max-w-xs">
-              <label className="block text-sm font-medium text-muted mb-2">
-                Location
-              </label>
-              <select
-                value={selectedLocation}
-                onChange={(e) => setSelectedLocation(e.target.value)}
-                className="input-base w-full"
-              >
-                <option value="university_center">University Center</option>
-                <option value="central_library">Central Library</option>
-              </select>
-            </div>
+          <div className="flex justify-end">
             <button
               onClick={() => setShowAddItemForm(true)}
               className="btn-primary px-6 py-3 rounded-2xl whitespace-nowrap"
@@ -392,7 +332,6 @@ export default function AdminDashboard() {
             }`}
           >
             Requests
-            <span className="ml-2 opacity-60">({requests.length})</span>
           </button>
           <button
             onClick={() => setActiveTab("inventory")}
@@ -403,7 +342,6 @@ export default function AdminDashboard() {
             }`}
           >
             Inventory
-            <span className="ml-2 opacity-60">({foundItems.length})</span>
           </button>
         </div>
 

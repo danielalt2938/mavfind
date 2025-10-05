@@ -283,6 +283,14 @@ function InventoryHit({ hit }: { hit: any }) {
 
       {/* Content Section */}
       <div className="p-6">
+        {hit.category && (
+          <div className="mb-3">
+            <Badge variant="default" className="capitalize">
+              {hit.category}
+            </Badge>
+          </div>
+        )}
+
         <p className="text-muted leading-relaxed mb-4">
           {hit.genericDescription
             ? (hit.genericDescription.length > 70
