@@ -5,7 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Button, Badge } from "@/components/ui";
 import { useAuth } from "@/lib/auth/AuthContext";
-import algoliasearch from "algoliasearch/lite";
+import { liteClient as algoliasearch } from "algoliasearch/lite";
 import {
   InstantSearch,
   SearchBox,
@@ -72,7 +72,7 @@ export default function InventoryPage() {
           <div className="hidden md:flex items-center gap-6">
             <nav className="flex items-center gap-6">
               <Link href="/inventory" className="text-base font-medium text-fg">
-                Browse
+                Browse Items
               </Link>
               <Link
                 href="/dashboard/user"
@@ -147,7 +147,7 @@ export default function InventoryPage() {
                 className="block text-sm font-medium text-fg py-2"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Browse
+                Browse Items
               </Link>
               <Link
                 href="/dashboard/user"
@@ -192,10 +192,10 @@ export default function InventoryPage() {
           transition={{ duration: 0.5 }}
         >
           <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-3">
-            Browse inventory.
+            Found Items
           </h1>
           <p className="text-lg text-muted mb-8">
-            Search our collection of found items across all locations.
+            Browse through all items found across campus. See something that's yours?
           </p>
 
           <InstantSearch
@@ -296,7 +296,12 @@ function InventoryHit({ hit }: { hit: any }) {
           </div>
         </div>
 
-        <p className="text-muted leading-relaxed mb-4 line-clamp-3">
+        <p className="text-muted leading-relaxed mb-4" style={{
+          display: '-webkit-box',
+          WebkitLineClamp: 3,
+          WebkitBoxOrient: 'vertical',
+          overflow: 'hidden'
+        }}>
           <Highlight attribute="genericDescription" hit={hit} />
         </p>
 

@@ -30,7 +30,7 @@ export default function Home() {
                 href="/inventory"
                 className="text-base font-medium text-muted hover:text-fg transition-colors"
               >
-                Browse
+                Browse Items
               </Link>
             </nav>
             {user ? (
@@ -99,7 +99,7 @@ export default function Home() {
                 className="block text-sm font-medium text-muted hover:text-fg transition-colors py-2"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Browse
+                Browse Items
               </Link>
               {user ? (
                 <div className="pt-4 border-t border-border space-y-3">
@@ -159,7 +159,7 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/dashboard/user">
               <Button size="lg" className="w-full sm:w-auto">
-                Report an item
+                Report Lost Item
               </Button>
             </Link>
             <Link href="/inventory">
@@ -168,7 +168,7 @@ export default function Home() {
                 size="lg"
                 className="w-full sm:w-auto"
               >
-                See found items
+                Browse Found Items
               </Button>
             </Link>
           </div>
@@ -219,17 +219,17 @@ export default function Home() {
               {
                 step: "01",
                 title: "Report",
-                desc: "Describe what you lost. Our AI handles the rest.",
+                desc: "Tell us what you lost. Our AI finds potential matches automatically.",
               },
               {
                 step: "02",
                 title: "Match",
-                desc: "We scan found items and notify you of matches.",
+                desc: "We instantly scan all found items and show you potential matches.",
               },
               {
                 step: "03",
                 title: "Reunite",
-                desc: "Verify your item and claim it from the office.",
+                desc: "Review matches, verify your item, and claim it from lost & found.",
               },
             ].map((item, idx) => (
               <motion.div

@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import ImageWithLoader from "@/components/ImageWithLoader";
+import RequestMatches from "@/components/RequestMatches";
 
 export default function UserDashboard() {
   const { user, userRole, loading: authLoading, signOut } = useAuth();
@@ -153,9 +154,9 @@ export default function UserDashboard() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
           <div>
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight mb-2">
-              My Lost Items
+              My Reports
             </h1>
-            <p className="text-sm md:text-base text-muted">Track your submissions and get notified when matches are found</p>
+            <p className="text-sm md:text-base text-muted">Track your lost items and see potential matches we've found</p>
           </div>
           <button
             onClick={() => setShowReportForm(true)}
@@ -234,18 +235,37 @@ export default function UserDashboard() {
                     <div className="flex justify-between items-start mb-4">
                       <div className="flex-1">
                         <h3 className="text-xl font-bold mb-2 capitalize">
-                          {request.subcategory || "Uncategorized"}
+                          {request.attributes?.subcategory || request.attributes?.category || "Uncategorized"}
                         </h3>
                       </div>
                     </div>
 
-                    <p className="text-muted leading-relaxed mb-4 line-clamp-3">
-                      { request.genericDescription ||request.description || "No description"}
+                    <p className="text-muted leading-relaxed mb-4" style={{
+                      display: '-webkit-box',
+                      WebkitLineClamp: 3,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden'
+                    }}>
+                      {request.attributes?.genericDescription || request.description || "No description"}
                     </p>
 
-                    <div className="text-xs text-muted/70 pt-3 border-t border-white/5">
-                      {new Date(request.createdAt).toLocaleDateString()}
+                    <div className="text-xs text-muted/70 mb-4 pt-3 border-t border-white/5">
+                      Reported {new Date(request.createdAt).toLocaleString('en-US', {
+                        timeZone: 'America/Chicago',
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true
+                      })} CST
                     </div>
+
+                    {/* Matches Section */}
+                    <RequestMatches 
+                      requestId={request.id} 
+                      className="mt-4 pt-4 border-t border-white/5" 
+                    />
                   </div>
                 </div>
               );
@@ -473,13 +493,13 @@ function ReportForm({
               <div className="animate-spin rounded-full h-16 w-16 border-4 border-utaOrange border-t-transparent mx-auto mb-6"></div>
               <h3 className="text-xl font-bold mb-2">Processing your report...</h3>
               <p className="text-sm text-muted max-w-sm">
-                We're analyzing your submission with AI to categorize and match your item. This may take a moment.
+                We're analyzing your item with AI and searching for potential matches. This may take a moment.
               </p>
             </div>
           </div>
         )}
 
-        <h2 className="text-3xl font-extrabold tracking-tight mb-6">Report an item</h2>
+        <h2 className="text-3xl font-extrabold tracking-tight mb-6">Report Lost Item</h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>

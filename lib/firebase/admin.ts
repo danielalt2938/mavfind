@@ -1,10 +1,12 @@
 import { initializeApp, getApps, cert, App } from "firebase-admin/app";
 import { getFirestore, Firestore } from "firebase-admin/firestore";
 import { getStorage, Storage } from "firebase-admin/storage";
+import { getAuth, Auth } from "firebase-admin/auth";
 
 let app: App;
 let db: Firestore;
 let storage: Storage;
+let auth: Auth;
 
 export function initializeFirebaseAdmin() {
   if (getApps().length === 0) {
@@ -22,8 +24,9 @@ export function initializeFirebaseAdmin() {
 
   db = getFirestore(app);
   storage = getStorage(app);
+  auth = getAuth(app);
 
-  return { app, db, storage };
+  return { app, db, storage, auth };
 }
 
 export function getFirestoreDb(): Firestore {
@@ -41,3 +44,16 @@ export function getFirebaseStorage(): Storage {
   }
   return storage;
 }
+
+export function getFirebaseAuth(): Auth {
+  if (!auth) {
+    const { auth: authInstance } = initializeFirebaseAdmin();
+    return authInstance;
+  }
+  return auth;
+}
+
+// Convenience exports
+export const adminDb = getFirestoreDb();
+export const adminAuth = getFirebaseAuth();
+export const adminStorage = getFirebaseStorage();
