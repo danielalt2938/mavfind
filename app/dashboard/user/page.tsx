@@ -12,6 +12,7 @@ export default function UserDashboard() {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showReportForm, setShowReportForm] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     if (!authLoading) {
@@ -49,8 +50,16 @@ export default function UserDashboard() {
   // Show loading during auth check or if user is not authenticated
   if (authLoading || !user || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center bg-bg">
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative">
+            {/* Spinner */}
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-border border-t-utaOrange"></div>
+            {/* Inner pulse effect */}
+            <div className="absolute inset-0 animate-pulse rounded-full h-16 w-16 border-4 border-utaOrange/20"></div>
+          </div>
+          <p className="text-sm text-muted font-medium animate-pulse">Loading your reports...</p>
+        </div>
       </div>
     );
   }
@@ -59,52 +68,100 @@ export default function UserDashboard() {
     <div className="min-h-screen">
       {/* Header */}
       <header className="glass-panel sticky top-0 z-50 border-b border-white/5">
-        <div className="container-custom py-5 flex justify-between items-center">
-          <Link href="/" className="text-2xl font-display font-bold tracking-tight hover:text-utaOrange transition-colors">
+        <div className="container-custom py-4 flex justify-between items-center">
+          <Link href="/" className="text-xl md:text-2xl font-display font-bold tracking-tight hover:text-utaOrange transition-colors">
             MavFind
           </Link>
-          <div className="flex items-center gap-8">
-            <nav className="hidden md:flex items-center gap-8">
-              <Link href="/inventory" className="text-base font-medium text-muted hover:text-fg transition-colors">
-                Browse
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center gap-6">
+            <nav className="flex items-center gap-6">
+              <Link href="/inventory" className="text-sm font-medium text-muted hover:text-fg transition-colors">
+                Browse Items
               </Link>
-              <Link href="/dashboard/user" className="text-base font-medium text-fg">
+              <Link href="/dashboard/user" className="text-sm font-medium text-fg">
                 My Reports
               </Link>
             </nav>
-            <div className="flex items-center gap-4">
-              <span className="hidden sm:inline text-sm text-muted px-3 py-1.5 rounded-lg bg-white/5">
+            <div className="flex items-center gap-3 pl-6 border-l border-border">
+              <span className="text-xs text-muted">
                 {user?.email}
               </span>
-              {userRole === "admin" && (
-                <span className="text-xs bg-utaOrange text-white px-3 py-1.5 rounded-lg font-bold tracking-wide">
-                  ADMIN
-                </span>
-              )}
               <button
                 onClick={() => signOut()}
-                className="text-sm font-medium text-muted hover:text-fg transition-colors px-4 py-2 rounded-lg hover:bg-white/5"
+                className="text-sm font-medium text-muted hover:text-fg transition-colors px-3 py-1.5 rounded-lg hover:bg-white/5"
               >
                 Sign Out
               </button>
             </div>
           </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden p-2 rounded-lg hover:bg-white/5 transition-colors"
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            )}
+          </button>
         </div>
+
+        {/* Mobile Menu Drawer */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-border">
+            <div className="container-custom py-4 space-y-4">
+              <Link
+                href="/inventory"
+                className="block text-sm font-medium text-muted hover:text-fg transition-colors py-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Browse Items
+              </Link>
+              <Link
+                href="/dashboard/user"
+                className="block text-sm font-medium text-fg py-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                My Reports
+              </Link>
+              <div className="pt-4 border-t border-border space-y-3">
+                <span className="text-xs text-muted block truncate">{user?.email}</span>
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    signOut();
+                  }}
+                  className="w-full text-left text-sm font-medium text-muted hover:text-fg transition-colors py-2 px-3 rounded-lg hover:bg-white/5"
+                >
+                  Sign Out
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </header>
 
-      <div className="container-custom section-padding pt-24">
+      <div className="container-custom section-padding pt-20 md:pt-24">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
           <div>
-            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-2">
-              You're covered.
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight mb-2">
+              My Lost Items
             </h1>
-            <p className="text-muted">Track your reported items</p>
+            <p className="text-sm md:text-base text-muted">Track your submissions and get notified when matches are found</p>
           </div>
           <button
             onClick={() => setShowReportForm(true)}
-            className="btn-primary px-6 py-3 rounded-2xl"
+            className="btn-primary px-6 py-3 rounded-2xl whitespace-nowrap"
           >
-            + Report an item
+            + Report Lost Item
           </button>
         </div>
 
@@ -122,12 +179,18 @@ export default function UserDashboard() {
         {/* Requests List */}
         {requests.length === 0 ? (
           <div className="card-base p-12 text-center">
-            <p className="text-lg text-muted mb-6">Quiet for now. That's good.</p>
+            <div className="mb-6">
+              <svg className="w-16 h-16 mx-auto mb-4 text-muted/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <p className="text-lg font-semibold mb-2">No reports yet</p>
+              <p className="text-sm text-muted">Lost something? Report it and we'll help you find it.</p>
+            </div>
             <button
               onClick={() => setShowReportForm(true)}
-              className="btn-secondary"
+              className="btn-primary px-6 py-3 rounded-2xl"
             >
-              Report your first item
+              Report Your First Item
             </button>
           </div>
         ) : (

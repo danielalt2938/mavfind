@@ -60,6 +60,7 @@ export default function AdminDashboard() {
   const [imageModalOpen, setImageModalOpen] = useState(false);
   const [modalImages, setModalImages] = useState<string[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const openImageModal = (images: string[], startIndex: number = 0) => {
     setModalImages(images);
@@ -216,45 +217,103 @@ export default function AdminDashboard() {
     <div className="min-h-screen">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 glass-panel border-b border-white/5">
-        <div className="container-custom py-5 flex justify-between items-center">
-          <Link href="/" className="text-2xl font-display font-bold tracking-tight hover:text-utaOrange transition-colors">
+        <div className="container-custom py-4 flex justify-between items-center">
+          <Link href="/" className="text-xl md:text-2xl font-display font-bold tracking-tight hover:text-utaOrange transition-colors">
             MavFind
           </Link>
-          <div className="flex items-center gap-4 md:gap-8">
-            <nav className="hidden md:flex items-center gap-8">
-              <Link href="/inventory" className="text-base font-medium text-muted hover:text-fg transition-colors">
-                Browse
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center gap-6">
+            <nav className="flex items-center gap-6">
+              <Link href="/inventory" className="text-sm font-medium text-muted hover:text-fg transition-colors">
+                Browse Items
               </Link>
-              <Link href="/dashboard/admin" className="text-base font-medium text-fg">
-                Dashboard
+              <Link href="/dashboard/admin" className="text-sm font-medium text-fg">
+                Admin Panel
               </Link>
             </nav>
-            <div className="flex items-center gap-3">
-              <span className="hidden sm:inline text-sm text-muted">
+            <div className="flex items-center gap-3 pl-6 border-l border-border">
+              <span className="text-xs text-muted">
                 {user?.email}
               </span>
-              <span className="text-xs bg-utaOrange text-white px-2.5 py-1 rounded-md font-semibold">
+              <span className="text-xs bg-utaOrange text-white px-2.5 py-1 rounded-md font-bold">
                 ADMIN
               </span>
               <button
                 onClick={() => signOut()}
-                className="text-sm font-medium text-muted hover:text-fg transition-colors"
+                className="text-sm font-medium text-muted hover:text-fg transition-colors px-3 py-1.5 rounded-lg hover:bg-white/5"
               >
                 Sign Out
               </button>
             </div>
           </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden p-2 rounded-lg hover:bg-white/5 transition-colors"
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            )}
+          </button>
         </div>
+
+        {/* Mobile Menu Drawer */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-border">
+            <div className="container-custom py-4 space-y-4">
+              <Link
+                href="/inventory"
+                className="block text-sm font-medium text-muted hover:text-fg transition-colors py-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Browse Items
+              </Link>
+              <Link
+                href="/dashboard/admin"
+                className="block text-sm font-medium text-fg py-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Admin Panel
+              </Link>
+              <div className="pt-4 border-t border-border space-y-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs bg-utaOrange text-white px-2.5 py-1 rounded-md font-bold">
+                    ADMIN
+                  </span>
+                  <span className="text-xs text-muted truncate">{user?.email}</span>
+                </div>
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    signOut();
+                  }}
+                  className="w-full text-left text-sm font-medium text-muted hover:text-fg transition-colors py-2 px-3 rounded-lg hover:bg-white/5"
+                >
+                  Sign Out
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </header>
 
-      <div className="container-custom pt-32 pb-20 px-4 md:px-6">
+      <div className="container-custom pt-24 md:pt-32 pb-20 px-4 md:px-6">
         {/* Page Title & Location */}
-        <div className="mb-12">
-          <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight mb-3">
-            Dashboard.
+        <div className="mb-8 md:mb-12">
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-2 md:mb-3">
+            Admin Dashboard
           </h1>
-          <p className="text-xl text-muted mb-8">
-            Manage lost items. Help Mavericks reconnect.
+          <p className="text-base md:text-xl text-muted mb-6 md:mb-8">
+            Manage lost & found inventory, review submissions, and help students reclaim their belongings.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">

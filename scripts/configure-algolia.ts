@@ -4,9 +4,6 @@
  */
 
 import algoliasearch from 'algoliasearch';
-import * as dotenv from 'dotenv';
-
-dotenv.config({ path: '.env' });
 
 const ALGOLIA_APP_ID = process.env.NEXT_PUBLIC_ALGOLIA_APP_ID;
 const ALGOLIA_ADMIN_API_KEY = process.env.ALGOLIA_ADMIN_API_KEY; // You need to add this to .env
