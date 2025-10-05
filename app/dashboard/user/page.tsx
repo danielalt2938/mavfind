@@ -194,23 +194,62 @@ export default function UserDashboard() {
             </button>
           </div>
         ) : (
-          <div className="grid gap-4">
-            {requests.map((request: any) => (
-              <div key={request.id} className="card-base p-6 hover-lift">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-xl font-bold mb-2 capitalize">
-                      {request.attributes.category}
-                    </h3>
-                    <p className="text-muted leading-relaxed">{request.description}</p>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {requests.map((request: any) => {
+              const images = request.images || [];
+              const firstImage = images.length > 0 ? images[0] : null;
+
+              return (
+                <div key={request.id} className="card-base overflow-hidden hover-lift h-full">
+                  {/* Image Section - Always shown */}
+                  <div className="relative w-full h-48 bg-bgElevated overflow-hidden">
+                    {firstImage ? (
+                      <img
+                        src={firstImage}
+                        alt={request.attributes?.category || "Request image"}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center border-b border-border">
+                        <svg className="w-16 h-16 text-muted/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                    )}
+                    <div className="absolute top-2 right-2">
+                      <StatusBadge status={request.status} />
+                    </div>
+                    {images.length > 1 && (
+                      <div className="absolute bottom-2 right-2 px-2 py-1 rounded-lg bg-black/60 backdrop-blur-sm text-white text-xs font-semibold flex items-center gap-1">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        {images.length}
+                      </div>
+                    )}
                   </div>
-                  <StatusBadge status={request.status} />
+
+                  {/* Content Section */}
+                  <div className="p-6">
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold mb-2 capitalize">
+                          {request.attributes?.category || "Uncategorized"}
+                        </h3>
+                      </div>
+                    </div>
+
+                    <p className="text-muted leading-relaxed mb-4 line-clamp-3">
+                      {request.description || request.genericDescription || "No description"}
+                    </p>
+
+                    <div className="text-xs text-muted/70 pt-3 border-t border-white/5">
+                      {new Date(request.createdAt).toLocaleDateString()}
+                    </div>
+                  </div>
                 </div>
-                <div className="text-sm text-muted">
-                  {new Date(request.createdAt).toLocaleDateString()}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

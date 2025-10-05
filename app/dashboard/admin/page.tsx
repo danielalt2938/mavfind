@@ -381,46 +381,6 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Stats Cards */}
-        {stats && (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
-            <div className="card-base p-6 hover-lift">
-              <div className="text-sm font-medium text-muted mb-2">Pending</div>
-              <div className="text-4xl font-bold tracking-tight mb-1">
-                {stats.pendingRequests}
-              </div>
-              <div className="text-xs text-muted">Awaiting review</div>
-            </div>
-            <div className="card-base p-6 hover-lift">
-              <div className="text-sm font-medium text-muted mb-2">
-                Requests
-              </div>
-              <div className="text-4xl font-bold tracking-tight mb-1">
-                {stats.totalRequests}
-              </div>
-              <div className="text-xs text-muted">Total submissions</div>
-            </div>
-            <div className="card-base p-6 hover-lift">
-              <div className="text-sm font-medium text-muted mb-2">
-                Inventory
-              </div>
-              <div className="text-4xl font-bold tracking-tight mb-1">
-                {stats.foundItems}
-              </div>
-              <div className="text-xs text-muted">Items in stock</div>
-            </div>
-            <div className="card-base p-6 hover-lift">
-              <div className="text-sm font-medium text-muted mb-2">
-                Reunited
-              </div>
-              <div className="text-4xl font-bold tracking-tight mb-1">
-                {stats.claimedItems}
-              </div>
-              <div className="text-xs text-muted">Successfully claimed</div>
-            </div>
-          </div>
-        )}
-
         {/* Tabs */}
         <div className="flex flex-col sm:flex-row gap-3 mb-6">
           <button

@@ -16,14 +16,20 @@ export default function Home() {
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 glass-panel border-b border-white/5">
         <div className="container-custom py-4 flex justify-between items-center">
-          <Link href="/" className="text-xl md:text-2xl font-display font-bold tracking-tight hover:text-utaOrange transition-colors">
+          <Link
+            href="/"
+            className="text-xl md:text-2xl font-display font-bold tracking-tight hover:text-utaOrange transition-colors"
+          >
             MavFind
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-6">
             <nav className="flex items-center gap-6">
-              <Link href="/inventory" className="text-base font-medium text-muted hover:text-fg transition-colors">
+              <Link
+                href="/inventory"
+                className="text-base font-medium text-muted hover:text-fg transition-colors"
+              >
                 Browse
               </Link>
             </nav>
@@ -39,7 +45,9 @@ export default function Home() {
               </div>
             ) : (
               <Link href="/auth/signin" className="pl-6 border-l border-border">
-                <Button variant="ghost" size="sm" className="text-base">Sign In</Button>
+                <Button variant="ghost" size="sm" className="text-base">
+                  Sign In
+                </Button>
               </Link>
             )}
           </div>
@@ -51,12 +59,32 @@ export default function Home() {
             aria-label="Toggle menu"
           >
             {mobileMenuOpen ? (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             ) : (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               </svg>
             )}
           </button>
@@ -75,7 +103,9 @@ export default function Home() {
               </Link>
               {user ? (
                 <div className="pt-4 border-t border-border space-y-3">
-                  <span className="text-xs text-muted block truncate">{user.email}</span>
+                  <span className="text-xs text-muted block truncate">
+                    {user.email}
+                  </span>
                   <button
                     onClick={() => {
                       setMobileMenuOpen(false);
@@ -119,7 +149,7 @@ export default function Home() {
           transition={{ duration: 0.6, ease: "easeOut" }}
           className="relative z-10 container-custom max-w-4xl"
         >
-          <h1 className="text-6xl md:text-7xl font-extrabold tracking-tight mb-6">
+          <h1 className="text-6xl md:text-7xl font-extrabold tracking-tight mb-6 md:mt-20">
             Find what's lost.
           </h1>
           <p className="text-xl md:text-2xl text-muted max-w-2xl mx-auto mb-12 text-balance">
@@ -133,7 +163,11 @@ export default function Home() {
               </Button>
             </Link>
             <Link href="/inventory">
-              <Button variant="secondary" size="lg" className="w-full sm:w-auto">
+              <Button
+                variant="secondary"
+                size="lg"
+                className="w-full sm:w-auto"
+              >
                 See found items
               </Button>
             </Link>
@@ -209,7 +243,9 @@ export default function Home() {
                 <div className="text-5xl font-extrabold text-white/10 mb-4">
                   {item.step}
                 </div>
-                <h3 className="text-xl md:text-2xl font-bold mb-3">{item.title}</h3>
+                <h3 className="text-xl md:text-2xl font-bold mb-3">
+                  {item.title}
+                </h3>
                 <p className="text-muted leading-relaxed">{item.desc}</p>
               </motion.div>
             ))}
@@ -230,7 +266,8 @@ export default function Home() {
             You're covered.
           </h2>
           <p className="text-lg text-muted mb-8">
-            Join thousands of Mavericks who've found what they thought was lost forever.
+            Join thousands of Mavericks who've found what they thought was lost
+            forever.
           </p>
           <Link href="/auth/signin">
             <Button size="lg">Get started</Button>
