@@ -26,6 +26,7 @@ interface Match {
     };
     images?: string[];
     createdAt: string;
+    locationId?: string;
     campus?: string;
     building?: string;
     room?: string;
@@ -63,6 +64,22 @@ export default function RequestMatchesPage() {
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
+
+  // Helper function to format location ID to display name
+  const formatLocationName = (locationId?: string) => {
+    if (!locationId) return "Not specified";
+
+    const locationMap: Record<string, string> = {
+      university_center: "University Center",
+      central_library: "Central Library",
+      student_union: "Student Union",
+      // Add more locations as needed
+    };
+
+    return locationMap[locationId] || locationId.split('_').map(word =>
+      word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
+  };
 
   useEffect(() => {
     if (!authLoading) {
@@ -350,6 +367,20 @@ function BestMatchCard({
   match: Match;
   onViewDetails: () => void;
 }) {
+  const formatLocationName = (locationId?: string) => {
+    if (!locationId) return "Not specified";
+
+    const locationMap: Record<string, string> = {
+      university_center: "University Center",
+      central_library: "Central Library",
+      student_union: "Student Union",
+    };
+
+    return locationMap[locationId] || locationId.split('_').map(word =>
+      word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
+  };
+
   const getConfidenceLevel = (confidence: number) => {
     if (confidence >= 0.9)
       return {
@@ -505,13 +536,7 @@ function BestMatchCard({
               <div>
                 <span className="text-sm font-medium text-muted">Location:</span>
                 <p className="text-fg font-medium">
-                  {[
-                    match.lostItem.campus,
-                    match.lostItem.building,
-                    match.lostItem.room,
-                  ]
-                    .filter(Boolean)
-                    .join(", ") || "Not specified"}
+                  {formatLocationName(match.lostItem.locationId)}
                 </p>
               </div>
               <div>
@@ -656,6 +681,20 @@ function MatchDetailsModal({
   match: Match;
   onClose: () => void;
 }) {
+  const formatLocationName = (locationId?: string) => {
+    if (!locationId) return "Not specified";
+
+    const locationMap: Record<string, string> = {
+      university_center: "University Center",
+      central_library: "Central Library",
+      student_union: "Student Union",
+    };
+
+    return locationMap[locationId] || locationId.split('_').map(word =>
+      word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
+  };
+
   const getConfidenceLevel = (confidence: number) => {
     if (confidence >= 0.9)
       return {
@@ -866,15 +905,7 @@ function MatchDetailsModal({
                   <div>
                     <span className="text-sm font-medium text-muted">Location:</span>
                     <p className="text-fg font-medium">
-                      {[
-                        match.lostItem.campus,
-                        match.lostItem.building,
-                        match.lostItem.room,
-                      ]
-                        .filter(Boolean)
-                        .join(", ") ||
-                        match.lostItem.location ||
-                        "Contact for location details"}
+                      {formatLocationName(match.lostItem.locationId)}
                     </p>
                   </div>
 
