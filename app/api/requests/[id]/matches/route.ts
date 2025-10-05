@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { adminAuth, adminDb } from "@/lib/firebase/admin";
+import { getFirebaseAuth, getFirestoreDb } from "@/lib/firebase/admin";
 
 export async function GET(
   request: NextRequest,
@@ -12,13 +12,16 @@ export async function GET(
     }
 
     const token = authHeader.split("Bearer ")[1];
-    const decodedToken = await adminAuth.verifyIdToken(token);
+    const auth = getFirebaseAuth();
+    const db = getFirestoreDb();
+    
+    const decodedToken = await auth.verifyIdToken(token);
     const userId = decodedToken.uid;
 
     const { id: requestId } = await params;
 
     // Verify the request belongs to the user
-    const requestDoc = await adminDb.collection("requests").doc(requestId).get();
+    const requestDoc = await db.collection("requests").doc(requestId).get();
     if (!requestDoc.exists) {
       return NextResponse.json({ error: "Request not found" }, { status: 404 });
     }
@@ -29,7 +32,7 @@ export async function GET(
     }
 
     // Fetch matches for this request
-    const matchesSnapshot = await adminDb
+    const matchesSnapshot = await db
       .collection("requests")
       .doc(requestId)
       .collection("matches")

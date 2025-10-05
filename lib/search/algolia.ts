@@ -5,8 +5,6 @@ const client = algoliasearch(
   process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_API_KEY!
 );
 
-const index = client.initIndex(process.env.ALGOLIA_INDEX_NAME!);
-
 interface SearchParams {
   query: string;
   category?: string;
@@ -41,6 +39,13 @@ export async function searchInventory({
     searchParams.filters = filters.join(" AND ");
   }
 
-  const results = await index.search(query, searchParams);
+  const results = await client.searchSingleIndex({
+    indexName: process.env.ALGOLIA_INDEX_NAME!,
+    searchParams: {
+      query,
+      ...searchParams,
+    },
+  });
+  
   return results;
 }

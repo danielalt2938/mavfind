@@ -53,7 +53,30 @@ export function getFirebaseAuth(): Auth {
   return auth;
 }
 
-// Convenience exports
-export const adminDb = getFirestoreDb();
-export const adminAuth = getFirebaseAuth();
-export const adminStorage = getFirebaseStorage();
+// Convenience exports - initialize lazily to avoid build-time issues
+export const adminDb = (() => {
+  try {
+    return getFirestoreDb();
+  } catch (error) {
+    console.warn('Firebase admin not initialized during build');
+    return null as any;
+  }
+})();
+
+export const adminAuth = (() => {
+  try {
+    return getFirebaseAuth();
+  } catch (error) {
+    console.warn('Firebase admin auth not initialized during build');
+    return null as any;
+  }
+})();
+
+export const adminStorage = (() => {
+  try {
+    return getFirebaseStorage();
+  } catch (error) {
+    console.warn('Firebase admin storage not initialized during build');
+    return null as any;
+  }
+})();
