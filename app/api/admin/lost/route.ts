@@ -80,17 +80,27 @@ export async function POST(req: NextRequest) {
       lostItemData.geo = geo;
     }
 
+    // Add genericDescription if available
+    if (aiData.genericDescription) {
+      lostItemData.genericDescription = aiData.genericDescription;
+    }
+
     // Filter out undefined values from attributes
     const filteredAttributes: Record<string, string> = {};
     if (aiData.attributes) {
       Object.entries(aiData.attributes).forEach(([key, value]) => {
-        if (value !== undefined) {
+        if (value !== undefined && value !== null) {
           filteredAttributes[key] = value;
         }
       });
     }
+
+    // Add genericDescription to attributes if not already there
+    if (aiData.genericDescription && !filteredAttributes.genericDescription) {
+      filteredAttributes.genericDescription = aiData.genericDescription;
+    }
+
     lostItemData.attributes = filteredAttributes;
-    lostItemData.genericDescription = filteredAttributes.genericDescription;
 
 
     const lostItemId = await createLostItem(lostItemData);

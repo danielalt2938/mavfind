@@ -46,6 +46,7 @@ export default function AdminDashboard() {
   const { user, userRole, loading: authLoading, signOut } = useAuth();
   const router = useRouter();
 
+  const [selectedLocation, setSelectedLocation] = useState<string>("university_center");
   const [activeTab, setActiveTab] = useState<"requests" | "inventory">(
     "requests"
   );
