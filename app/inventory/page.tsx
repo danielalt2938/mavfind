@@ -316,7 +316,15 @@ function InventoryHit({ hit }: { hit: any }) {
         </div>
 
         <div className="text-xs text-muted/70 pt-3 border-t border-white/5">
-          {new Date(hit.createdAt).toLocaleDateString()}
+          {new Date(hit.createdAt).toLocaleString('en-US', {
+            timeZone: 'America/Chicago',
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+          })} CST
         </div>
       </div>
     </motion.div>

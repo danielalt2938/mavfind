@@ -74,6 +74,7 @@ export async function POST(req: NextRequest) {
       });
     }
     requestData.attributes = filteredAttributes;
+    requestData.genericDescription = filteredAttributes.genericDescription;
 
     const requestId = await createRequest(requestData);
 

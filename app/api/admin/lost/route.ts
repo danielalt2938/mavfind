@@ -90,6 +90,8 @@ export async function POST(req: NextRequest) {
       });
     }
     lostItemData.attributes = filteredAttributes;
+    lostItemData.genericDescription = filteredAttributes.genericDescription;
+
 
     const lostItemId = await createLostItem(lostItemData);
 
