@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Button, Badge } from "@/components/ui";
+import { useAuth } from "@/lib/auth/AuthContext";
 import algoliasearch from "algoliasearch/lite";
 import {
   InstantSearch,
@@ -19,6 +20,7 @@ const searchClient = algoliasearch(
 );
 
 export default function InventoryPage() {
+  const { user, signOut } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -31,17 +33,31 @@ export default function InventoryPage() {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-8">
-            <Link href="/inventory" className="text-base font-medium text-fg">
-              Browse
-            </Link>
-            <Link href="/dashboard/user" className="text-base font-medium text-muted hover:text-fg transition-colors">
-              My Reports
-            </Link>
-            <Link href="/auth/signin">
-              <Button variant="ghost" size="sm" className="text-base">Sign In</Button>
-            </Link>
-          </nav>
+          <div className="hidden md:flex items-center gap-6">
+            <nav className="flex items-center gap-6">
+              <Link href="/inventory" className="text-base font-medium text-fg">
+                Browse
+              </Link>
+              <Link href="/dashboard/user" className="text-base font-medium text-muted hover:text-fg transition-colors">
+                My Reports
+              </Link>
+            </nav>
+            {user ? (
+              <div className="flex items-center gap-3 pl-6 border-l border-border">
+                <span className="text-xs text-muted">{user.email}</span>
+                <button
+                  onClick={() => signOut()}
+                  className="text-sm font-medium text-muted hover:text-fg transition-colors px-3 py-1.5 rounded-lg hover:bg-white/5"
+                >
+                  Sign Out
+                </button>
+              </div>
+            ) : (
+              <Link href="/auth/signin" className="pl-6 border-l border-border">
+                <Button variant="ghost" size="sm" className="text-base">Sign In</Button>
+              </Link>
+            )}
+          </div>
 
           {/* Mobile Menu Button */}
           <button
@@ -79,13 +95,28 @@ export default function InventoryPage() {
               >
                 My Reports
               </Link>
-              <Link
-                href="/auth/signin"
-                className="block text-sm font-medium text-muted hover:text-fg transition-colors py-2"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Sign In
-              </Link>
+              {user ? (
+                <div className="pt-4 border-t border-border space-y-3">
+                  <span className="text-xs text-muted block truncate">{user.email}</span>
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      signOut();
+                    }}
+                    className="w-full text-left text-sm font-medium text-muted hover:text-fg transition-colors py-2 px-3 rounded-lg hover:bg-white/5"
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              ) : (
+                <Link
+                  href="/auth/signin"
+                  className="block text-sm font-medium text-muted hover:text-fg transition-colors py-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Sign In
+                </Link>
+              )}
             </div>
           </div>
         )}

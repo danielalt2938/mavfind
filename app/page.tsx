@@ -1,28 +1,103 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui";
+import { useAuth } from "@/lib/auth/AuthContext";
 import Image from "next/image";
 
 export default function Home() {
+  const { user, signOut } = useAuth();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
     <div className="min-h-screen">
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 glass-panel border-b border-white/5">
-        <div className="container-custom py-5 flex justify-between items-center">
-          <Link href="/" className="text-2xl font-display font-bold tracking-tight hover:text-utaOrange transition-colors">
+        <div className="container-custom py-4 flex justify-between items-center">
+          <Link href="/" className="text-xl md:text-2xl font-display font-bold tracking-tight hover:text-utaOrange transition-colors">
             MavFind
           </Link>
-          <div className="flex items-center gap-8">
-            <Link href="/inventory" className="text-base font-medium text-muted hover:text-fg transition-colors">
-              Browse
-            </Link>
-            <Link href="/auth/signin">
-              <Button variant="ghost" size="sm" className="text-base">Sign In</Button>
-            </Link>
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center gap-6">
+            <nav className="flex items-center gap-6">
+              <Link href="/inventory" className="text-base font-medium text-muted hover:text-fg transition-colors">
+                Browse
+              </Link>
+            </nav>
+            {user ? (
+              <div className="flex items-center gap-3 pl-6 border-l border-border">
+                <span className="text-xs text-muted">{user.email}</span>
+                <button
+                  onClick={() => signOut()}
+                  className="text-sm font-medium text-muted hover:text-fg transition-colors px-3 py-1.5 rounded-lg hover:bg-white/5"
+                >
+                  Sign Out
+                </button>
+              </div>
+            ) : (
+              <Link href="/auth/signin" className="pl-6 border-l border-border">
+                <Button variant="ghost" size="sm" className="text-base">Sign In</Button>
+              </Link>
+            )}
           </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden p-2 rounded-lg hover:bg-white/5 transition-colors"
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            )}
+          </button>
         </div>
+
+        {/* Mobile Menu Drawer */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-border">
+            <div className="container-custom py-4 space-y-4">
+              <Link
+                href="/inventory"
+                className="block text-sm font-medium text-muted hover:text-fg transition-colors py-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Browse
+              </Link>
+              {user ? (
+                <div className="pt-4 border-t border-border space-y-3">
+                  <span className="text-xs text-muted block truncate">{user.email}</span>
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      signOut();
+                    }}
+                    className="w-full text-left text-sm font-medium text-muted hover:text-fg transition-colors py-2 px-3 rounded-lg hover:bg-white/5"
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              ) : (
+                <Link
+                  href="/auth/signin"
+                  className="block text-sm font-medium text-muted hover:text-fg transition-colors py-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Sign In
+                </Link>
+              )}
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* Hero Section */}
