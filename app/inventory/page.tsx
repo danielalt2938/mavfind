@@ -20,15 +20,51 @@ const searchClient = algoliasearch(
 );
 
 export default function InventoryPage() {
-  const { user, signOut } = useAuth();
+  const { user, loading, signOut } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Show loading while checking auth
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-bg">
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-border border-t-utaOrange"></div>
+            <div className="absolute inset-0 animate-pulse rounded-full h-16 w-16 border-4 border-utaOrange/20"></div>
+          </div>
+          <p className="text-sm text-muted font-medium animate-pulse">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Redirect to sign in if not authenticated
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-bg">
+        <div className="card-base p-12 text-center max-w-md">
+          <svg className="w-16 h-16 mx-auto mb-4 text-muted/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+          <h2 className="text-2xl font-bold mb-2">Sign In Required</h2>
+          <p className="text-muted mb-6">You need to be signed in to browse the inventory.</p>
+          <Link href="/auth/signin">
+            <Button size="lg">Sign In</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen">
       {/* Header */}
       <header className="glass-panel sticky top-0 z-50 border-b border-white/5">
         <div className="container-custom py-4 flex justify-between items-center">
-          <Link href="/" className="text-xl md:text-2xl font-display font-bold tracking-tight hover:text-utaOrange transition-colors">
+          <Link
+            href="/"
+            className="text-xl md:text-2xl font-display font-bold tracking-tight hover:text-utaOrange transition-colors"
+          >
             MavFind
           </Link>
 
@@ -38,7 +74,10 @@ export default function InventoryPage() {
               <Link href="/inventory" className="text-base font-medium text-fg">
                 Browse
               </Link>
-              <Link href="/dashboard/user" className="text-base font-medium text-muted hover:text-fg transition-colors">
+              <Link
+                href="/dashboard/user"
+                className="text-base font-medium text-muted hover:text-fg transition-colors"
+              >
                 My Reports
               </Link>
             </nav>
@@ -54,7 +93,9 @@ export default function InventoryPage() {
               </div>
             ) : (
               <Link href="/auth/signin" className="pl-6 border-l border-border">
-                <Button variant="ghost" size="sm" className="text-base">Sign In</Button>
+                <Button variant="ghost" size="sm" className="text-base">
+                  Sign In
+                </Button>
               </Link>
             )}
           </div>
@@ -66,12 +107,32 @@ export default function InventoryPage() {
             aria-label="Toggle menu"
           >
             {mobileMenuOpen ? (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             ) : (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               </svg>
             )}
           </button>
@@ -97,7 +158,9 @@ export default function InventoryPage() {
               </Link>
               {user ? (
                 <div className="pt-4 border-t border-border space-y-3">
-                  <span className="text-xs text-muted block truncate">{user.email}</span>
+                  <span className="text-xs text-muted block truncate">
+                    {user.email}
+                  </span>
                   <button
                     onClick={() => {
                       setMobileMenuOpen(false);
@@ -137,7 +200,10 @@ export default function InventoryPage() {
 
           <InstantSearch
             searchClient={searchClient}
-            indexName={process.env.NEXT_PUBLIC_ALGOLIA_INDEX_NAME_INVENTORY || "mavfind_lost_items"}
+            indexName={
+              process.env.NEXT_PUBLIC_ALGOLIA_INDEX_NAME_INVENTORY ||
+              "mavfind_lost_items"
+            }
           >
             {/* Search Bar */}
             <div className="mb-12">
@@ -193,8 +259,18 @@ function InventoryHit({ hit }: { hit: any }) {
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center border-b border-border">
-            <svg className="w-16 h-16 text-muted/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            <svg
+              className="w-16 h-16 text-muted/30"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
             </svg>
           </div>
         )}
@@ -221,7 +297,7 @@ function InventoryHit({ hit }: { hit: any }) {
         </div>
 
         <p className="text-muted leading-relaxed mb-4 line-clamp-3">
-          <Highlight attribute="description" hit={hit} />
+          <Highlight attribute="genericDescription" hit={hit} />
         </p>
 
         <div className="space-y-1 mb-4">

@@ -149,7 +149,7 @@ export default function Home() {
           transition={{ duration: 0.6, ease: "easeOut" }}
           className="relative z-10 container-custom max-w-4xl"
         >
-          <h1 className="text-6xl md:text-7xl font-extrabold tracking-tight mb-6 md:mt-20">
+          <h1 className="text-6xl md:text-7xl font-extrabold tracking-tight mb-6 sm :mt-20">
             Find what's lost.
           </h1>
           <p className="text-xl md:text-2xl text-muted max-w-2xl mx-auto mb-12 text-balance">

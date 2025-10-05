@@ -200,6 +200,8 @@ Respond ONLY with valid JSON in this exact structure:
       title: extracted.title || "Item",
       category,
       subcategory: extracted.subcategory || undefined,
+      // @ts-expect-error
+      genericDescription: extracted.attributes?.genericDescription || undefined,
       attributes: {
         genericDescription:
           extracted.attributes?.genericDescription || undefined,
