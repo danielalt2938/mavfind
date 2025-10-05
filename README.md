@@ -1,10 +1,16 @@
+<div align="center">
+  <img src="https://media.discordapp.net/attachments/1424096725186121820/1424412525201461278/MAV.png?ex=68e3db0a&is=68e2898a&hm=753c3c19cd325564aeda0aca622b61c49370feed480f15830963002b7981afc9&=&format=webp&quality=lossless&width=1000&height=1000" alt="MavFind Logo" width="120" height="120">
+
 # MavFind - AI-Powered Lost & Found Platform
 
 A comprehensive lost and found platform for UTA campus with AI-powered matching, voice input, vector search, and multi-location support. Built with Next.js 15, Firebase, Google Gemini AI, and Firestore Vector Search.
 
+</div>
+
 ## ✨ Key Features
 
 ### 🎯 AI-Powered Smart Matching
+
 - **Vector Embeddings** - Uses Firestore Vector Search with COSINE similarity to find matching items
 - **Automatic Categorization** - Google Gemini AI extracts attributes (brand, color, model, etc.) from descriptions and images
 - **Confidence Scoring** - Shows match confidence percentage (90-96% for top matches)
@@ -12,6 +18,7 @@ A comprehensive lost and found platform for UTA campus with AI-powered matching,
 - **HEIC/HEIF Support** - Automatically converts Apple photos to JPEG for processing
 
 ### 👤 For Users
+
 - 📝 **Report Lost Items** - Submit detailed reports with text or voice descriptions
 - 🎤 **Voice Input** - OpenAI Whisper transcribes voice recordings to text
 - 📸 **Image Upload** - Upload multiple photos (JPG, PNG, HEIC, HEIF)
@@ -22,6 +29,7 @@ A comprehensive lost and found platform for UTA campus with AI-powered matching,
 - 🏷️ **Category Badges** - Visual organization by item type
 
 ### 👨‍💼 For Admins
+
 - ➕ **Add Found Items** - Register items with required images and descriptions
 - 🔎 **Dual Search Tabs** - Separate Algolia search for Requests and Lost Inventory
 - ✅ **Approve/Reject Requests** - Review and moderate user submissions
@@ -32,6 +40,7 @@ A comprehensive lost and found platform for UTA campus with AI-powered matching,
 - 🔒 **Admin-Only Inventory** - Public inventory page restricted to administrators
 
 ### 🤖 Advanced AI Features
+
 - **Google Gemini Vision** - Analyzes images to extract item attributes
 - **Text Embeddings** - Vertex AI text-embedding-005 for semantic search
 - **Generic Descriptions** - AI generates searchable descriptions for better matching
@@ -39,6 +48,7 @@ A comprehensive lost and found platform for UTA campus with AI-powered matching,
 - **Multimodal Input** - Combines text + images for maximum accuracy
 
 ### 🔊 Voice AI Integration (Ready for ElevenLabs)
+
 - **Voice Search API** - `/api/voice/search` endpoint for conversational AI
 - **Phone Call Support** - Users can call to describe lost items
 - **Real-time Matching** - Voice → Text → Vector Search → Spoken Results
@@ -46,6 +56,7 @@ A comprehensive lost and found platform for UTA campus with AI-powered matching,
 - **Multi-language Ready** - Supports future language expansion
 
 ### 🔍 Search & Discovery
+
 - **Algolia InstantSearch** - Lightning-fast search with typo tolerance
 - **Vector Search** - Semantic similarity matching via Firestore
 - **Dual Index System** - Separate indexes for requests and inventory
@@ -54,6 +65,7 @@ A comprehensive lost and found platform for UTA campus with AI-powered matching,
 - **Image Previews** - See items before viewing details
 
 ### 🎨 User Experience
+
 - **Responsive Design** - Mobile, tablet, and desktop optimized
 - **Dark Theme** - UTA-branded color scheme (Orange & Blue)
 - **Framer Motion** - Smooth animations and transitions
@@ -63,6 +75,7 @@ A comprehensive lost and found platform for UTA campus with AI-powered matching,
 - **Status Badges** - Visual indicators for request status
 
 ### 🔐 Security & Privacy
+
 - **Firebase Authentication** - Google Sign-In only
 - **Role-Based Access** - User and Admin roles
 - **Server-Side Validation** - All writes through secure API routes
@@ -73,6 +86,7 @@ A comprehensive lost and found platform for UTA campus with AI-powered matching,
 ## 🛠️ Tech Stack
 
 ### Frontend
+
 - **Framework**: Next.js 15 (App Router)
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
@@ -81,6 +95,7 @@ A comprehensive lost and found platform for UTA campus with AI-powered matching,
 - **Image Processing**: heic-convert, heic2any
 
 ### Backend
+
 - **Runtime**: Next.js API Routes
 - **Database**: Firebase Firestore (with Vector Search)
 - **Storage**: Firebase Storage
@@ -88,12 +103,14 @@ A comprehensive lost and found platform for UTA campus with AI-powered matching,
 - **Functions**: Firebase Cloud Functions (matching system)
 
 ### AI & ML
+
 - **Vision AI**: Google Gemini Vision (gemini-1.5-flash)
 - **Embeddings**: Vertex AI text-embedding-005
 - **Speech-to-Text**: OpenAI Whisper
 - **Vector Search**: Firestore Native Vector Search (COSINE)
 
 ### Infrastructure
+
 - **Hosting**: Vercel
 - **Search**: Algolia
 - **Voice AI Ready**: ElevenLabs Conversational AI
@@ -253,6 +270,7 @@ Open [http://localhost:3000](http://localhost:3000)
 ## 📊 Data Models
 
 ### Request (Lost Item Report)
+
 ```typescript
 {
   id: string
@@ -274,6 +292,7 @@ Open [http://localhost:3000](http://localhost:3000)
 ```
 
 ### LostItem (Found Item)
+
 ```typescript
 {
   id: string
@@ -295,14 +314,15 @@ Open [http://localhost:3000](http://localhost:3000)
 ```
 
 ### Match
+
 ```typescript
 {
-  lostId: string
-  distance: number       // COSINE distance (0-2)
-  confidence: number     // Percentage (0-100)
-  rank: number
-  status: string
-  createdAt: string
+  lostId: string;
+  distance: number; // COSINE distance (0-2)
+  confidence: number; // Percentage (0-100)
+  rank: number;
+  status: string;
+  createdAt: string;
 }
 ```
 
@@ -324,6 +344,7 @@ Open [http://localhost:3000](http://localhost:3000)
 1. Create agent at [elevenlabs.io](https://elevenlabs.io)
 2. Configure webhook: `https://yourdomain.com/api/voice/search`
 3. System prompt:
+
 ```
 You are MavFind assistant. Ask what they lost.
 When they describe it, call the webhook.
@@ -334,6 +355,7 @@ Offer to send details via SMS.
 ## 🛡️ Security Rules
 
 Firestore rules ensure:
+
 - Users can only read/delete their own requests
 - Admins can access all data
 - All writes through server APIs
@@ -370,21 +392,25 @@ npm run deploy
 ### Common Issues
 
 **Vector Search Not Working**
+
 - Check Firestore vector index is created
 - Verify embeddings are 768 dimensions
 - Ensure Firebase Blaze plan is active
 
 **AI Extraction Fails**
+
 - Verify Gemini API key is valid
 - Check image format (HEIC conversion working?)
 - Review console logs for errors
 
 **Matches Always 93%**
+
 - This means `distanceResultField` isn't working
 - Synthetic distances are being used as fallback
 - Update Firebase SDK or adjust formula
 
 **Voice Search Errors**
+
 - Check `/api/voice/search` endpoint
 - Verify Vertex AI credentials
 - Test embedding generation
