@@ -34,16 +34,58 @@ export async function POST(req: NextRequest) {
     }
 
     // Extract data using AI from both description and images
-    const aiData = await extractAttributesFromMultipleSources(
-      finalDescription || undefined,
-      imageFiles.length > 0 ? imageFiles : undefined
-    );
+    let aiData;
+    try {
+      console.log("Starting AI analysis...", {
+        hasDescription: !!finalDescription,
+        imageCount: imageFiles.length,
+        descriptionLength: finalDescription?.length || 0
+      });
+      
+      aiData = await extractAttributesFromMultipleSources(
+        finalDescription || undefined,
+        imageFiles.length > 0 ? imageFiles : undefined
+      );
+      
+      console.log("AI analysis completed:", aiData);
+    } catch (error) {
+      console.error("AI analysis failed:", error);
+      
+      // If it's an API configuration error, return a specific error
+      if (error instanceof Error && error.message.includes("AI service configuration")) {
+        return NextResponse.json(
+          { error: "AI service is currently unavailable. Please try again later." },
+          { status: 503 }
+        );
+      }
+      
+      // For other AI errors, use fallback data
+      aiData = {
+        title: "Item",
+        category: "other",
+        attributes: {
+          genericDescription: finalDescription || undefined,
+        },
+      };
+      
+      console.log("Using fallback AI data:", aiData);
+    }
 
     // Upload images
-    const imageUrls =
-      imageFiles.length > 0
-        ? await uploadMultipleImages(imageFiles, "requests")
-        : [];
+    let imageUrls: string[] = [];
+    if (imageFiles.length > 0) {
+      try {
+        console.log(`Uploading ${imageFiles.length} images...`);
+        imageUrls = await uploadMultipleImages(imageFiles, "requests");
+        console.log("Images uploaded successfully:", imageUrls);
+      } catch (error) {
+        console.error("Image upload failed:", error);
+        return NextResponse.json(
+          { error: "Failed to upload images. Please try again." },
+          { status: 500 }
+        );
+      }
+    }
 
     // Create request document with AI-extracted data
     const now = new Date().toISOString();
@@ -76,7 +118,24 @@ export async function POST(req: NextRequest) {
     requestData.attributes = filteredAttributes;
     requestData.genericDescription = filteredAttributes.genericDescription;
 
-    const requestId = await createRequest(requestData);
+    let requestId;
+    try {
+      console.log("Creating request document...", {
+        title: requestData.title,
+        category: requestData.category,
+        hasImages: imageUrls.length > 0,
+        hasDescription: !!requestData.description
+      });
+      
+      requestId = await createRequest(requestData);
+      console.log("Request created successfully:", requestId);
+    } catch (error) {
+      console.error("Failed to create request:", error);
+      return NextResponse.json(
+        { error: "Failed to save request. Please try again." },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({ success: true, requestId }, { status: 201 });
   } catch (error) {

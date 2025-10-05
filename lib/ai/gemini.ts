@@ -37,6 +37,16 @@ export async function extractAttributesFromDescription(
   description: string
 ): Promise<AIExtractedData> {
   try {
+    // Validate input
+    if (!description || description.trim().length === 0) {
+      throw new Error("Description is empty or invalid");
+    }
+
+    // Check for API key
+    if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === "dummy-key") {
+      throw new Error("Gemini API key not configured");
+    }
+
     const model = genAI.getGenerativeModel({
       model: "gemini-2.0-flash",
       generationConfig: {
@@ -179,17 +189,26 @@ Respond ONLY with valid JSON in this exact structure:
 }
     `;
 
+    console.log("Sending description to Gemini for analysis...");
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
+    console.log("Gemini response for description:", text);
 
     // Extract JSON from the response
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
+      console.error("No JSON found in AI response:", text);
       throw new Error("Failed to extract JSON from AI response");
     }
 
-    const extracted = JSON.parse(jsonMatch[0]);
+    let extracted;
+    try {
+      extracted = JSON.parse(jsonMatch[0]);
+    } catch (parseError) {
+      console.error("JSON parse error:", parseError, "Raw JSON:", jsonMatch[0]);
+      throw new Error("Failed to parse JSON from AI response");
+    }
 
     // Validate category
     const category = VALID_CATEGORIES.includes(extracted.category)
@@ -222,11 +241,23 @@ Respond ONLY with valid JSON in this exact structure:
     };
   } catch (error) {
     console.error("Error extracting attributes with Gemini:", error);
-    // Return default values on error
+    
+    // If this is a specific API error, re-throw it
+    if (error instanceof Error) {
+      if (error.message.includes("API key") || 
+          error.message.includes("PERMISSION_DENIED") ||
+          error.message.includes("Authentication")) {
+        throw new Error(`AI service configuration error: ${error.message}`);
+      }
+    }
+    
+    // For other errors, return safe defaults with the original description
     return {
       title: "Item",
       category: "other",
-      attributes: {},
+      attributes: {
+        genericDescription: description || undefined,
+      },
     };
   }
 }

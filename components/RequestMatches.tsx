@@ -59,6 +59,7 @@ export default function RequestMatches({ requestId, className = "" }: RequestMat
 
   const fetchMatches = async () => {
     try {
+      console.log(`Fetching matches for request: ${requestId}`);
       const token = await user?.getIdToken();
       const res = await fetch(`/api/requests/${requestId}/matches`, {
         headers: {
@@ -66,15 +67,24 @@ export default function RequestMatches({ requestId, className = "" }: RequestMat
         },
       });
       
+      console.log(`Matches API response status: ${res.status}`);
+      
       if (res.ok) {
         const data = await res.json();
+        console.log('Matches API response:', data);
+        console.log(`Received ${data.matches?.length || 0} matches`);
+        
         // Sort matches by confidence (highest first) and assign ranking
         const sortedMatches = (data.matches || []).sort((a: Match, b: Match) => b.confidence - a.confidence);
         const rankedMatches = sortedMatches.map((match: Match, index: number) => ({
           ...match,
           confidenceRank: index + 1
         }));
+        console.log(`Processed ${rankedMatches.length} ranked matches`);
         setMatches(rankedMatches);
+      } else {
+        const errorData = await res.json();
+        console.error('Matches API error:', res.status, errorData);
       }
     } catch (error) {
       console.error("Error fetching matches:", error);
