@@ -95,20 +95,29 @@ export async function GET(
               category: lostItemData.attributes?.category,
               hasImages: !!lostItemData.images && lostItemData.images.length > 0
             });
-            
+
+            // Helper function to safely convert timestamps
+            const toISOString = (timestamp: any) => {
+              if (!timestamp) return undefined;
+              if (timestamp instanceof Date) return timestamp.toISOString();
+              if (typeof timestamp === 'string') return timestamp;
+              if (typeof timestamp?.toDate === 'function') return timestamp.toDate().toISOString();
+              return undefined;
+            };
+
             matches.push({
               id: matchDoc.id,
               confidence: matchData.confidence,
               distance: matchData.distance,
               rank: matchData.rank,
               status: matchData.status,
-              createdAt: matchData.createdAt?.toDate()?.toISOString(),
-              updatedAt: matchData.updatedAt?.toDate()?.toISOString(),
+              createdAt: toISOString(matchData.createdAt),
+              updatedAt: toISOString(matchData.updatedAt),
               lostItem: {
                 id: lostItemDoc.id,
                 ...lostItemData,
-                createdAt: lostItemData.createdAt?.toDate()?.toISOString(),
-                updatedAt: lostItemData.updatedAt?.toDate()?.toISOString(),
+                createdAt: toISOString(lostItemData.createdAt),
+                updatedAt: toISOString(lostItemData.updatedAt),
               }
             });
             console.log(`[DEBUG] Successfully processed match ${matchDoc.id}, total matches so far: ${matches.length}`);
