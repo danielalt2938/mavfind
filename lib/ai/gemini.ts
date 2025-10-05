@@ -114,7 +114,7 @@ Respond ONLY with valid JSON in this exact structure:
   "title": "short descriptive title",
   "category": "choose best category from the list above",
   "subcategory": "specific type or null",
-  "lostOrFound": "lost" | "found" | null,
+  "lostOrFound": "lost" | "found" | "Ongoing"| null,
   "location": {
     "building": "string or null",
     "roomOrArea": "string or null",
