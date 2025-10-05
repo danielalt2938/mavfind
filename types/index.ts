@@ -159,6 +159,7 @@ export interface AIExtractedData {
   title: string;
   category: ItemCategory;
   subcategory?: string;
+  genericDescription?: string;
   attributes: {
     brand?: string;
     model?: string;

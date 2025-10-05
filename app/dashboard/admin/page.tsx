@@ -681,7 +681,6 @@ export default function AdminDashboard() {
           onClose={() => setShowAddItemForm(false)}
           onSuccess={() => {
             setShowAddItemForm(false);
-            fetchData();
           }}
         />
       )}
