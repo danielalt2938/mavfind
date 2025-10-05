@@ -194,19 +194,45 @@ function ReportForm({
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const filesArray = Array.from(e.target.files);
-      setImages((prev) => [...prev, ...filesArray]);
 
-      // Generate previews
-      filesArray.forEach((file) => {
+      // Process each file, converting HEIC to JPEG if needed
+      for (const file of filesArray) {
+        let processedFile = file;
+
+        // Check if file is HEIC/HEIF and convert to JPEG
+        if (file.type === "image/heic" || file.type === "image/heif" || file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif')) {
+          try {
+            const heic2any = (await import('heic2any')).default;
+            const convertedBlob = await heic2any({
+              blob: file,
+              toType: "image/jpeg",
+              quality: 0.9
+            });
+
+            // Create a new File from the blob
+            const blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+            processedFile = new File([blob], file.name.replace(/\.heic$/i, '.jpg'), {
+              type: "image/jpeg",
+            });
+          } catch (error) {
+            console.error("Error converting HEIC:", error);
+            alert("Error converting HEIC image. Please try a different format.");
+            continue;
+          }
+        }
+
+        setImages((prev) => [...prev, processedFile]);
+
+        // Generate preview
         const reader = new FileReader();
         reader.onloadend = () => {
           setImagePreviews((prev) => [...prev, reader.result as string]);
         };
-        reader.readAsDataURL(file);
-      });
+        reader.readAsDataURL(processedFile);
+      }
     }
   };
 
@@ -439,37 +465,93 @@ function ReportForm({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-muted mb-2">
+            <label className="block text-sm font-medium text-muted mb-3">
               Images (optional)
             </label>
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleImageChange}
-              className="input-base"
-            />
+
+            <div className="relative">
+              <input
+                type="file"
+                accept="image/*,.heic,.heif"
+                multiple
+                onChange={handleImageChange}
+                id="image-upload"
+                className="hidden"
+              />
+              <label
+                htmlFor="image-upload"
+                className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-border hover:border-utaOrange/50 rounded-xl cursor-pointer transition-all hover:bg-bgElevated group"
+              >
+                <div className="flex flex-col items-center justify-center gap-2">
+                  <svg
+                    className="w-10 h-10 text-muted group-hover:text-utaOrange transition-colors"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                  <div className="text-center">
+                    <p className="text-sm font-medium text-muted group-hover:text-fg transition-colors">
+                      Click to upload images
+                    </p>
+                    <p className="text-xs text-muted mt-1">
+                      Supports JPG, PNG, HEIC, HEIF
+                    </p>
+                  </div>
+                </div>
+              </label>
+            </div>
 
             {imagePreviews.length > 0 && (
-              <div className="grid grid-cols-3 gap-4 mt-4">
-                {imagePreviews.map((preview, index) => (
-                  <div key={index} className="relative group">
-                    <img
-                      src={preview}
-                      alt={`Preview ${index + 1}`}
-                      className="w-full h-32 object-cover rounded-lg border border-border"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => removeImage(index)}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </div>
-                ))}
+              <div className="mt-6 space-y-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-medium text-muted">
+                    {imagePreviews.length} {imagePreviews.length === 1 ? 'image' : 'images'} selected
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setImages([]);
+                      setImagePreviews([]);
+                    }}
+                    className="text-xs text-red-400 hover:text-red-300 transition-colors font-medium"
+                  >
+                    Clear all
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                  {imagePreviews.map((preview, index) => (
+                    <div key={index} className="relative group aspect-square">
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-xl z-10" />
+                      <img
+                        src={preview}
+                        alt={`Preview ${index + 1}`}
+                        className="w-full h-full object-cover rounded-xl border-2 border-border hover:border-utaOrange/50 transition-all"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index)}
+                        className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-2 shadow-lg opacity-0 group-hover:opacity-100 transition-all hover:scale-110 z-20"
+                        title="Remove image"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                      <div className="absolute bottom-2 left-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                        <div className="text-xs text-white font-medium bg-black/50 backdrop-blur-sm px-2 py-1 rounded">
+                          Image {index + 1}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>

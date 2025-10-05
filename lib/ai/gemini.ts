@@ -230,6 +230,32 @@ export async function extractAttributesFromImage(
 ): Promise<Partial<AIExtractedData>> {
   try {
     console.log("Starting image analysis with Gemini Vision...");
+
+    // Convert HEIC to JPEG if needed
+    let processedImageBase64 = imageBase64;
+    let processedMimeType = mimeType;
+
+    if (mimeType === "image/heic" || mimeType === "image/heif") {
+      console.log("Converting HEIC/HEIF to JPEG...");
+      try {
+        const convert = require('heic-convert');
+        const inputBuffer = Buffer.from(imageBase64, 'base64');
+
+        const outputBuffer = await convert({
+          buffer: inputBuffer,
+          format: 'JPEG',
+          quality: 0.9
+        });
+
+        processedImageBase64 = outputBuffer.toString('base64');
+        processedMimeType = 'image/jpeg';
+        console.log("HEIC conversion successful");
+      } catch (conversionError) {
+        console.error("HEIC conversion failed:", conversionError);
+        throw new Error("Failed to convert HEIC image. Please use JPG or PNG format.");
+      }
+    }
+
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
     const prompt = `
@@ -279,13 +305,13 @@ Be thorough and extract ALL visible details. Use null for fields not visible.
 
     const imagePart = {
       inlineData: {
-        data: imageBase64,
-        mimeType,
+        data: processedImageBase64,
+        mimeType: processedMimeType,
       },
     };
 
     console.log(
-      `Sending image to Gemini (${mimeType}, ${imageBase64.length} chars base64)`
+      `Sending image to Gemini (${processedMimeType}, ${processedImageBase64.length} chars base64)`
     );
     const result = await model.generateContent([prompt, imagePart]);
     const response = await result.response;
