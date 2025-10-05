@@ -415,6 +415,9 @@ export async function extractAttributesFromMultipleSources(
     title: descriptionData.title || imageData.title || "Item",
     category: descriptionData.category || imageData.category || "other",
     subcategory: descriptionData.subcategory || imageData.subcategory,
+    genericDescription:
+    descriptionData.attributes.genericDescription ||
+    imageData.attributes?.genericDescription,
     attributes: {
       genericDescription:
         descriptionData.attributes.genericDescription ||
