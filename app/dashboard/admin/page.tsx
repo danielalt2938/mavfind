@@ -11,7 +11,7 @@ import {
   Hits,
   Configure,
   RefinementList,
-  ClearRefinements
+  ClearRefinements,
 } from "react-instantsearch";
 import ImageWithLoader from "@/components/ImageWithLoader";
 import { Fragment } from "react";
@@ -46,8 +46,11 @@ export default function AdminDashboard() {
   const { user, userRole, loading: authLoading, signOut } = useAuth();
   const router = useRouter();
 
-  const [selectedLocation, setSelectedLocation] = useState<string>("university_center");
-  const [activeTab, setActiveTab] = useState<"requests" | "inventory">("requests");
+  const [selectedLocation, setSelectedLocation] =
+    useState<string>("university_center");
+  const [activeTab, setActiveTab] = useState<"requests" | "inventory">(
+    "requests"
+  );
   const [showAddItemForm, setShowAddItemForm] = useState(false);
 
   // Data states
@@ -79,7 +82,9 @@ export default function AdminDashboard() {
   };
 
   const prevImage = () => {
-    setCurrentImageIndex((prev) => (prev - 1 + modalImages.length) % modalImages.length);
+    setCurrentImageIndex(
+      (prev) => (prev - 1 + modalImages.length) % modalImages.length
+    );
   };
 
   useEffect(() => {
@@ -197,7 +202,12 @@ export default function AdminDashboard() {
   };
 
   // Show loading during auth check or while fetching data
-  if (authLoading || !user || userRole !== "admin" || (user && userRole === "admin" && loading)) {
+  if (
+    authLoading ||
+    !user ||
+    userRole !== "admin" ||
+    (user && userRole === "admin" && loading)
+  ) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-bg">
         <div className="flex flex-col items-center gap-4">
@@ -207,7 +217,9 @@ export default function AdminDashboard() {
             {/* Inner pulse effect */}
             <div className="absolute inset-0 animate-pulse rounded-full h-16 w-16 border-4 border-utaOrange/20"></div>
           </div>
-          <p className="text-sm text-muted font-medium animate-pulse">Loading dashboard...</p>
+          <p className="text-sm text-muted font-medium animate-pulse">
+            Loading dashboard...
+          </p>
         </div>
       </div>
     );
@@ -218,24 +230,31 @@ export default function AdminDashboard() {
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 glass-panel border-b border-white/5">
         <div className="container-custom py-4 flex justify-between items-center">
-          <Link href="/" className="text-xl md:text-2xl font-display font-bold tracking-tight hover:text-utaOrange transition-colors">
+          <Link
+            href="/"
+            className="text-xl md:text-2xl font-display font-bold tracking-tight hover:text-utaOrange transition-colors"
+          >
             MavFind
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-6">
             <nav className="flex items-center gap-6">
-              <Link href="/inventory" className="text-sm font-medium text-muted hover:text-fg transition-colors">
+              <Link
+                href="/inventory"
+                className="text-sm font-medium text-muted hover:text-fg transition-colors"
+              >
                 Browse Items
               </Link>
-              <Link href="/dashboard/admin" className="text-sm font-medium text-fg">
+              <Link
+                href="/dashboard/admin"
+                className="text-sm font-medium text-fg"
+              >
                 Admin Panel
               </Link>
             </nav>
             <div className="flex items-center gap-3 pl-6 border-l border-border">
-              <span className="text-xs text-muted">
-                {user?.email}
-              </span>
+              <span className="text-xs text-muted">{user?.email}</span>
               <span className="text-xs bg-utaOrange text-white px-2.5 py-1 rounded-md font-bold">
                 ADMIN
               </span>
@@ -255,12 +274,32 @@ export default function AdminDashboard() {
             aria-label="Toggle menu"
           >
             {mobileMenuOpen ? (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             ) : (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               </svg>
             )}
           </button>
@@ -289,7 +328,9 @@ export default function AdminDashboard() {
                   <span className="text-xs bg-utaOrange text-white px-2.5 py-1 rounded-md font-bold">
                     ADMIN
                   </span>
-                  <span className="text-xs text-muted truncate">{user?.email}</span>
+                  <span className="text-xs text-muted truncate">
+                    {user?.email}
+                  </span>
                 </div>
                 <button
                   onClick={() => {
@@ -313,12 +354,15 @@ export default function AdminDashboard() {
             Admin Dashboard
           </h1>
           <p className="text-base md:text-xl text-muted mb-6 md:mb-8">
-            Manage lost & found inventory, review submissions, and help students reclaim their belongings.
+            Manage lost & found inventory, review submissions, and help students
+            reclaim their belongings.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
             <div className="flex-1 max-w-xs">
-              <label className="block text-sm font-medium text-muted mb-2">Location</label>
+              <label className="block text-sm font-medium text-muted mb-2">
+                Location
+              </label>
               <select
                 value={selectedLocation}
                 onChange={(e) => setSelectedLocation(e.target.value)}
@@ -341,15 +385,11 @@ export default function AdminDashboard() {
         {stats && (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
             <div className="card-base p-6 hover-lift">
-              <div className="text-sm font-medium text-muted mb-2">
-                Pending
-              </div>
+              <div className="text-sm font-medium text-muted mb-2">Pending</div>
               <div className="text-4xl font-bold tracking-tight mb-1">
                 {stats.pendingRequests}
               </div>
-              <div className="text-xs text-muted">
-                Awaiting review
-              </div>
+              <div className="text-xs text-muted">Awaiting review</div>
             </div>
             <div className="card-base p-6 hover-lift">
               <div className="text-sm font-medium text-muted mb-2">
@@ -358,9 +398,7 @@ export default function AdminDashboard() {
               <div className="text-4xl font-bold tracking-tight mb-1">
                 {stats.totalRequests}
               </div>
-              <div className="text-xs text-muted">
-                Total submissions
-              </div>
+              <div className="text-xs text-muted">Total submissions</div>
             </div>
             <div className="card-base p-6 hover-lift">
               <div className="text-sm font-medium text-muted mb-2">
@@ -369,9 +407,7 @@ export default function AdminDashboard() {
               <div className="text-4xl font-bold tracking-tight mb-1">
                 {stats.foundItems}
               </div>
-              <div className="text-xs text-muted">
-                Items in stock
-              </div>
+              <div className="text-xs text-muted">Items in stock</div>
             </div>
             <div className="card-base p-6 hover-lift">
               <div className="text-sm font-medium text-muted mb-2">
@@ -380,9 +416,7 @@ export default function AdminDashboard() {
               <div className="text-4xl font-bold tracking-tight mb-1">
                 {stats.claimedItems}
               </div>
-              <div className="text-xs text-muted">
-                Successfully claimed
-              </div>
+              <div className="text-xs text-muted">Successfully claimed</div>
             </div>
           </div>
         )}
@@ -418,14 +452,20 @@ export default function AdminDashboard() {
           {activeTab === "requests" ? (
             <InstantSearch
               searchClient={searchClient}
-              indexName={process.env.NEXT_PUBLIC_ALGOLIA_INDEX_NAME_REQUEST || "mavfind_lost_items_requests"}
+              indexName={
+                process.env.NEXT_PUBLIC_ALGOLIA_INDEX_NAME_REQUEST ||
+                "mavfind_lost_items_requests"
+              }
             >
               <div className="p-6 space-y-6">
                 {/* Search Header */}
                 <div className="flex items-start justify-between gap-4 mb-2">
                   <div className="flex-1">
                     <h3 className="text-2xl font-bold mb-2">Search Requests</h3>
-                    <p className="text-sm text-muted">Find and manage lost item requests with powerful search and filters</p>
+                    <p className="text-sm text-muted">
+                      Find and manage lost item requests with powerful search
+                      and filters
+                    </p>
                   </div>
                 </div>
 
@@ -436,10 +476,14 @@ export default function AdminDashboard() {
                     classNames={{
                       root: "w-full",
                       form: "relative",
-                      input: "input-base w-full pl-14 pr-12 py-4 text-lg rounded-2xl border-2 border-border hover:border-utaOrange/30 focus:border-utaOrange transition-all shadow-lg",
-                      submit: "absolute left-5 top-1/2 -translate-y-1/2 text-muted group-hover:text-utaOrange transition-colors",
-                      reset: "absolute right-5 top-1/2 -translate-y-1/2 text-muted hover:text-utaOrange transition-colors",
-                      loadingIndicator: "absolute right-5 top-1/2 -translate-y-1/2",
+                      input:
+                        "input-base w-full pl-14 pr-12 py-4 text-lg rounded-2xl border-2 border-border hover:border-utaOrange/30 focus:border-utaOrange transition-all shadow-lg",
+                      submit:
+                        "absolute left-5 top-1/2 -translate-y-1/2 text-muted group-hover:text-utaOrange transition-colors",
+                      reset:
+                        "absolute right-5 top-1/2 -translate-y-1/2 text-muted hover:text-utaOrange transition-colors",
+                      loadingIndicator:
+                        "absolute right-5 top-1/2 -translate-y-1/2",
                     }}
                   />
                   <div className="absolute -bottom-2 left-0 right-0 h-2 bg-gradient-to-b from-utaOrange/10 to-transparent opacity-0 group-focus-within:opacity-100 transition-opacity rounded-b-2xl"></div>
@@ -448,7 +492,9 @@ export default function AdminDashboard() {
                 {/* Enhanced Filters */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-bgElevated rounded-2xl border border-border">
                   <div>
-                    <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-3">Category</label>
+                    <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-3">
+                      Category
+                    </label>
                     <RefinementList
                       attribute="category"
                       limit={10}
@@ -457,50 +503,66 @@ export default function AdminDashboard() {
                         root: "space-y-2",
                         list: "space-y-2",
                         item: "flex items-center gap-2 text-sm",
-                        label: "flex items-center gap-2 cursor-pointer hover:text-utaOrange transition-colors w-full",
-                        checkbox: "w-4 h-4 rounded border-2 border-border checked:bg-utaOrange checked:border-utaOrange",
-                        count: "ml-auto text-xs px-2 py-0.5 rounded-full bg-bgElevated text-muted font-medium",
+                        label:
+                          "flex items-center gap-2 cursor-pointer hover:text-utaOrange transition-colors w-full",
+                        checkbox:
+                          "w-4 h-4 rounded border-2 border-border checked:bg-utaOrange checked:border-utaOrange",
+                        count:
+                          "ml-auto text-xs px-2 py-0.5 rounded-full bg-bgElevated text-muted font-medium",
                         showMore: "text-xs text-utaOrange hover:underline mt-2",
                       }}
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-3">Lost/Found</label>
+                    <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-3">
+                      Lost/Found
+                    </label>
                     <RefinementList
                       attribute="lostOrFound"
                       classNames={{
                         root: "space-y-2",
                         list: "space-y-2",
                         item: "flex items-center gap-2 text-sm",
-                        label: "flex items-center gap-2 cursor-pointer hover:text-utaOrange transition-colors w-full",
-                        checkbox: "w-4 h-4 rounded border-2 border-border checked:bg-utaOrange checked:border-utaOrange",
-                        count: "ml-auto text-xs px-2 py-0.5 rounded-full bg-bgElevated text-muted font-medium",
+                        label:
+                          "flex items-center gap-2 cursor-pointer hover:text-utaOrange transition-colors w-full",
+                        checkbox:
+                          "w-4 h-4 rounded border-2 border-border checked:bg-utaOrange checked:border-utaOrange",
+                        count:
+                          "ml-auto text-xs px-2 py-0.5 rounded-full bg-bgElevated text-muted font-medium",
                       }}
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-3">Status</label>
+                    <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-3">
+                      Status
+                    </label>
                     <RefinementList
                       attribute="status"
                       classNames={{
                         root: "space-y-2",
                         list: "space-y-2",
                         item: "flex items-center gap-2 text-sm",
-                        label: "flex items-center gap-2 cursor-pointer hover:text-utaOrange transition-colors w-full",
-                        checkbox: "w-4 h-4 rounded border-2 border-border checked:bg-utaOrange checked:border-utaOrange",
-                        count: "ml-auto text-xs px-2 py-0.5 rounded-full bg-bgElevated text-muted font-medium",
+                        label:
+                          "flex items-center gap-2 cursor-pointer hover:text-utaOrange transition-colors w-full",
+                        checkbox:
+                          "w-4 h-4 rounded border-2 border-border checked:bg-utaOrange checked:border-utaOrange",
+                        count:
+                          "ml-auto text-xs px-2 py-0.5 rounded-full bg-bgElevated text-muted font-medium",
                       }}
                     />
                   </div>
 
                   <div className="flex flex-col justify-between">
-                    <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-3">Actions</label>
+                    <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-3">
+                      Actions
+                    </label>
                     <ClearRefinements
                       classNames={{
                         root: "w-full",
-                        button: "btn-secondary w-full py-2.5 rounded-xl text-sm font-semibold hover:bg-utaOrange hover:text-white transition-all",
+                        button:
+                          "btn-secondary w-full py-2.5 rounded-xl text-sm font-semibold hover:bg-utaOrange hover:text-white transition-all",
                         disabledButton: "opacity-50 cursor-not-allowed",
                       }}
                       translations={{
@@ -535,14 +597,22 @@ export default function AdminDashboard() {
           ) : (
             <InstantSearch
               searchClient={searchClient}
-              indexName={process.env.NEXT_PUBLIC_ALGOLIA_INDEX_NAME_INVENTORY || "mavfind_lost_items"}
+              indexName={
+                process.env.NEXT_PUBLIC_ALGOLIA_INDEX_NAME_INVENTORY ||
+                "mavfind_lost_items"
+              }
             >
               <div className="p-6 space-y-6">
                 {/* Search Header */}
                 <div className="flex items-start justify-between gap-4 mb-2">
                   <div className="flex-1">
-                    <h3 className="text-2xl font-bold mb-2">Search Inventory</h3>
-                    <p className="text-sm text-muted">Find and manage found items with powerful search and filters</p>
+                    <h3 className="text-2xl font-bold mb-2">
+                      Search Inventory
+                    </h3>
+                    <p className="text-sm text-muted">
+                      Find and manage found items with powerful search and
+                      filters
+                    </p>
                   </div>
                 </div>
 
@@ -553,10 +623,14 @@ export default function AdminDashboard() {
                     classNames={{
                       root: "w-full",
                       form: "relative",
-                      input: "input-base w-full pl-14 pr-12 py-4 text-lg rounded-2xl border-2 border-border hover:border-utaOrange/30 focus:border-utaOrange transition-all shadow-lg",
-                      submit: "absolute left-5 top-1/2 -translate-y-1/2 text-muted group-hover:text-utaOrange transition-colors",
-                      reset: "absolute right-5 top-1/2 -translate-y-1/2 text-muted hover:text-utaOrange transition-colors",
-                      loadingIndicator: "absolute right-5 top-1/2 -translate-y-1/2",
+                      input:
+                        "input-base w-full pl-14 pr-12 py-4 text-lg rounded-2xl border-2 border-border hover:border-utaOrange/30 focus:border-utaOrange transition-all shadow-lg",
+                      submit:
+                        "absolute left-5 top-1/2 -translate-y-1/2 text-muted group-hover:text-utaOrange transition-colors",
+                      reset:
+                        "absolute right-5 top-1/2 -translate-y-1/2 text-muted hover:text-utaOrange transition-colors",
+                      loadingIndicator:
+                        "absolute right-5 top-1/2 -translate-y-1/2",
                     }}
                   />
                   <div className="absolute -bottom-2 left-0 right-0 h-2 bg-gradient-to-b from-utaOrange/10 to-transparent opacity-0 group-focus-within:opacity-100 transition-opacity rounded-b-2xl"></div>
@@ -565,7 +639,9 @@ export default function AdminDashboard() {
                 {/* Enhanced Filters */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 p-4 bg-bgElevated rounded-2xl border border-border">
                   <div>
-                    <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-3">Category</label>
+                    <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-3">
+                      Category
+                    </label>
                     <RefinementList
                       attribute="category"
                       limit={10}
@@ -574,65 +650,86 @@ export default function AdminDashboard() {
                         root: "space-y-2",
                         list: "space-y-2",
                         item: "flex items-center gap-2 text-sm",
-                        label: "flex items-center gap-2 cursor-pointer hover:text-utaOrange transition-colors w-full",
-                        checkbox: "w-4 h-4 rounded border-2 border-border checked:bg-utaOrange checked:border-utaOrange",
-                        count: "ml-auto text-xs px-2 py-0.5 rounded-full bg-bgElevated text-muted font-medium",
+                        label:
+                          "flex items-center gap-2 cursor-pointer hover:text-utaOrange transition-colors w-full",
+                        checkbox:
+                          "w-4 h-4 rounded border-2 border-border checked:bg-utaOrange checked:border-utaOrange",
+                        count:
+                          "ml-auto text-xs px-2 py-0.5 rounded-full bg-bgElevated text-muted font-medium",
                         showMore: "text-xs text-utaOrange hover:underline mt-2",
                       }}
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-3">Lost/Found</label>
+                    <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-3">
+                      Lost/Found
+                    </label>
                     <RefinementList
                       attribute="lostOrFound"
                       classNames={{
                         root: "space-y-2",
                         list: "space-y-2",
                         item: "flex items-center gap-2 text-sm",
-                        label: "flex items-center gap-2 cursor-pointer hover:text-utaOrange transition-colors w-full",
-                        checkbox: "w-4 h-4 rounded border-2 border-border checked:bg-utaOrange checked:border-utaOrange",
-                        count: "ml-auto text-xs px-2 py-0.5 rounded-full bg-bgElevated text-muted font-medium",
+                        label:
+                          "flex items-center gap-2 cursor-pointer hover:text-utaOrange transition-colors w-full",
+                        checkbox:
+                          "w-4 h-4 rounded border-2 border-border checked:bg-utaOrange checked:border-utaOrange",
+                        count:
+                          "ml-auto text-xs px-2 py-0.5 rounded-full bg-bgElevated text-muted font-medium",
                       }}
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-3">Location</label>
+                    <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-3">
+                      Location
+                    </label>
                     <RefinementList
                       attribute="locationId"
                       classNames={{
                         root: "space-y-2",
                         list: "space-y-2",
                         item: "flex items-center gap-2 text-sm",
-                        label: "flex items-center gap-2 cursor-pointer hover:text-utaOrange transition-colors w-full",
-                        checkbox: "w-4 h-4 rounded border-2 border-border checked:bg-utaOrange checked:border-utaOrange",
-                        count: "ml-auto text-xs px-2 py-0.5 rounded-full bg-bgElevated text-muted font-medium",
+                        label:
+                          "flex items-center gap-2 cursor-pointer hover:text-utaOrange transition-colors w-full",
+                        checkbox:
+                          "w-4 h-4 rounded border-2 border-border checked:bg-utaOrange checked:border-utaOrange",
+                        count:
+                          "ml-auto text-xs px-2 py-0.5 rounded-full bg-bgElevated text-muted font-medium",
                       }}
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-3">Status</label>
+                    <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-3">
+                      Status
+                    </label>
                     <RefinementList
                       attribute="status"
                       classNames={{
                         root: "space-y-2",
                         list: "space-y-2",
                         item: "flex items-center gap-2 text-sm",
-                        label: "flex items-center gap-2 cursor-pointer hover:text-utaOrange transition-colors w-full",
-                        checkbox: "w-4 h-4 rounded border-2 border-border checked:bg-utaOrange checked:border-utaOrange",
-                        count: "ml-auto text-xs px-2 py-0.5 rounded-full bg-bgElevated text-muted font-medium",
+                        label:
+                          "flex items-center gap-2 cursor-pointer hover:text-utaOrange transition-colors w-full",
+                        checkbox:
+                          "w-4 h-4 rounded border-2 border-border checked:bg-utaOrange checked:border-utaOrange",
+                        count:
+                          "ml-auto text-xs px-2 py-0.5 rounded-full bg-bgElevated text-muted font-medium",
                       }}
                     />
                   </div>
 
                   <div className="flex flex-col justify-between">
-                    <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-3">Actions</label>
+                    <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-3">
+                      Actions
+                    </label>
                     <ClearRefinements
                       classNames={{
                         root: "w-full",
-                        button: "btn-secondary w-full py-2.5 rounded-xl text-sm font-semibold hover:bg-utaOrange hover:text-white transition-all",
+                        button:
+                          "btn-secondary w-full py-2.5 rounded-xl text-sm font-semibold hover:bg-utaOrange hover:text-white transition-all",
                         disabledButton: "opacity-50 cursor-not-allowed",
                       }}
                       translations={{
@@ -707,8 +804,11 @@ function RequestHitComponent({
 }) {
   const images = hit.images || [];
   const firstImage = images.length > 0 ? images[0] : null;
-  const description = hit.description || hit.genericDescription || "";
-  const truncatedDesc = description.length > 100 ? description.substring(0, 100) + "..." : description;
+  const description = hit.genericDescription || "";
+  const truncatedDesc =
+    description.length > 100
+      ? description.substring(0, 100) + "..."
+      : description;
   const timeAgo = getTimeAgo(hit.createdAt);
 
   return (
@@ -726,8 +826,18 @@ function RequestHitComponent({
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center border-b border-border">
-            <svg className="w-12 h-12 text-muted/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            <svg
+              className="w-12 h-12 text-muted/30"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
             </svg>
           </div>
         )}
@@ -737,8 +847,18 @@ function RequestHitComponent({
         </div>
         {images.length > 1 && (
           <div className="absolute bottom-2 right-2 px-2 py-1 rounded-lg bg-black/60 backdrop-blur-sm text-white text-xs font-semibold flex items-center gap-1">
-            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            <svg
+              className="w-3 h-3"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
             </svg>
             {images.length}
           </div>
@@ -749,7 +869,9 @@ function RequestHitComponent({
       <div className="p-3 space-y-2">
         {/* Title */}
         <div>
-          <label className="text-[10px] uppercase tracking-wider font-bold text-muted/70 mb-0.5 block">Title</label>
+          <label className="text-[10px] uppercase tracking-wider font-bold text-muted/70 mb-0.5 block">
+            Title
+          </label>
           <h3 className="font-semibold text-sm line-clamp-2 min-h-[2.5rem]">
             {hit.title || "Untitled Request"}
           </h3>
@@ -757,7 +879,9 @@ function RequestHitComponent({
 
         {/* Description */}
         <div>
-          <label className="text-[10px] uppercase tracking-wider font-bold text-muted/70 mb-0.5 block">Description</label>
+          <label className="text-[10px] uppercase tracking-wider font-bold text-muted/70 mb-0.5 block">
+            Description
+          </label>
           <p className="text-xs text-muted line-clamp-2 min-h-[2.25rem]">
             {truncatedDesc || "No description"}
           </p>
@@ -766,13 +890,17 @@ function RequestHitComponent({
         {/* Category & Time */}
         <div className="pt-2 border-t border-border space-y-1.5">
           <div className="flex items-center justify-between">
-            <label className="text-[10px] uppercase tracking-wider font-bold text-muted/70">Category</label>
+            <label className="text-[10px] uppercase tracking-wider font-bold text-muted/70">
+              Category
+            </label>
             <span className="text-xs px-2 py-0.5 rounded-md bg-utaOrange/10 text-utaOrange font-semibold capitalize">
               {hit.category || hit.attributes?.category || "Unknown"}
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <label className="text-[10px] uppercase tracking-wider font-bold text-muted/70">Added</label>
+            <label className="text-[10px] uppercase tracking-wider font-bold text-muted/70">
+              Added
+            </label>
             <span className="text-xs text-muted font-medium">{timeAgo}</span>
           </div>
         </div>
@@ -810,8 +938,11 @@ function InventoryHitComponent({
 }) {
   const images = hit.images || [];
   const firstImage = images.length > 0 ? images[0] : null;
-  const description = hit.description || hit.genericDescription || "";
-  const truncatedDesc = description.length > 100 ? description.substring(0, 100) + "..." : description;
+  const description = hit.genericDescription || "";
+  const truncatedDesc =
+    description.length > 100
+      ? description.substring(0, 100) + "..."
+      : description;
   const timeAgo = getTimeAgo(hit.createdAt);
 
   return (
@@ -829,8 +960,18 @@ function InventoryHitComponent({
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center border-b border-border">
-            <svg className="w-12 h-12 text-muted/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            <svg
+              className="w-12 h-12 text-muted/30"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
             </svg>
           </div>
         )}
@@ -840,8 +981,18 @@ function InventoryHitComponent({
         </div>
         {images.length > 1 && (
           <div className="absolute bottom-2 right-2 px-2 py-1 rounded-lg bg-black/60 backdrop-blur-sm text-white text-xs font-semibold flex items-center gap-1">
-            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            <svg
+              className="w-3 h-3"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
             </svg>
             {images.length}
           </div>
@@ -852,7 +1003,9 @@ function InventoryHitComponent({
       <div className="p-3 space-y-2">
         {/* Title */}
         <div>
-          <label className="text-[10px] uppercase tracking-wider font-bold text-muted/70 mb-0.5 block">Title</label>
+          <label className="text-[10px] uppercase tracking-wider font-bold text-muted/70 mb-0.5 block">
+            Title
+          </label>
           <h3 className="font-semibold text-sm line-clamp-2 min-h-[2.5rem]">
             {hit.title || "Untitled Item"}
           </h3>
@@ -860,7 +1013,9 @@ function InventoryHitComponent({
 
         {/* Description */}
         <div>
-          <label className="text-[10px] uppercase tracking-wider font-bold text-muted/70 mb-0.5 block">Description</label>
+          <label className="text-[10px] uppercase tracking-wider font-bold text-muted/70 mb-0.5 block">
+            Description
+          </label>
           <p className="text-xs text-muted line-clamp-2 min-h-[2.25rem]">
             {truncatedDesc || "No description"}
           </p>
@@ -869,20 +1024,26 @@ function InventoryHitComponent({
         {/* Category & Time */}
         <div className="pt-2 border-t border-border space-y-1.5">
           <div className="flex items-center justify-between">
-            <label className="text-[10px] uppercase tracking-wider font-bold text-muted/70">Category</label>
+            <label className="text-[10px] uppercase tracking-wider font-bold text-muted/70">
+              Category
+            </label>
             <span className="text-xs px-2 py-0.5 rounded-md bg-utaOrange/10 text-utaOrange font-semibold capitalize">
               {hit.category || hit.attributes?.category || "Unknown"}
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <label className="text-[10px] uppercase tracking-wider font-bold text-muted/70">Added</label>
+            <label className="text-[10px] uppercase tracking-wider font-bold text-muted/70">
+              Added
+            </label>
             <span className="text-xs text-muted font-medium">{timeAgo}</span>
           </div>
         </div>
 
         {/* Status Update */}
         <div className="pt-2">
-          <label className="text-[10px] uppercase tracking-wider font-bold text-muted/70 mb-1.5 block">Status</label>
+          <label className="text-[10px] uppercase tracking-wider font-bold text-muted/70 mb-1.5 block">
+            Status
+          </label>
           <select
             value={hit.status}
             onChange={(e) => onUpdateStatus(hit.objectID, e.target.value)}
@@ -976,8 +1137,18 @@ function ImageModal({
         className="fixed top-4 right-4 z-[110] p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all hover:scale-110"
         aria-label="Close"
       >
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+        <svg
+          className="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M6 18L18 6M6 6l12 12"
+          />
         </svg>
       </button>
 
@@ -995,8 +1166,18 @@ function ImageModal({
           className="fixed left-4 top-1/2 -translate-y-1/2 z-[110] p-4 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all hover:scale-110 hidden md:flex items-center justify-center"
           aria-label="Previous image"
         >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          <svg
+            className="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
           </svg>
         </button>
       )}
@@ -1008,8 +1189,18 @@ function ImageModal({
           className="fixed right-4 top-1/2 -translate-y-1/2 z-[110] p-4 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all hover:scale-110 hidden md:flex items-center justify-center"
           aria-label="Next image"
         >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          <svg
+            className="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 5l7 7-7 7"
+            />
           </svg>
         </button>
       )}
@@ -1035,8 +1226,18 @@ function ImageModal({
             className="p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all"
             aria-label="Previous image"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
             </svg>
           </button>
           <button
@@ -1044,8 +1245,18 @@ function ImageModal({
             className="p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all"
             aria-label="Next image"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
             </svg>
           </button>
         </div>
@@ -1072,7 +1283,11 @@ function ImageModal({
                   : "border-white/20 hover:border-white/40 opacity-60 hover:opacity-100"
               }`}
             >
-              <img src={img} alt={`Thumbnail ${idx + 1}`} className="w-full h-full object-cover" />
+              <img
+                src={img}
+                alt={`Thumbnail ${idx + 1}`}
+                className="w-full h-full object-cover"
+              />
             </button>
           ))}
         </div>
@@ -1108,22 +1323,35 @@ function AddFoundItemForm({
         let processedFile = file;
 
         // Check if file is HEIC/HEIF and convert to JPEG
-        if (file.type === "image/heic" || file.type === "image/heif" || file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif')) {
+        if (
+          file.type === "image/heic" ||
+          file.type === "image/heif" ||
+          file.name.toLowerCase().endsWith(".heic") ||
+          file.name.toLowerCase().endsWith(".heif")
+        ) {
           try {
-            const heic2any = (await import('heic2any')).default;
+            const heic2any = (await import("heic2any")).default;
             const convertedBlob = await heic2any({
               blob: file,
               toType: "image/jpeg",
-              quality: 0.9
+              quality: 0.9,
             });
 
-            const blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
-            processedFile = new File([blob], file.name.replace(/\.heic$/i, '.jpg'), {
-              type: "image/jpeg",
-            });
+            const blob = Array.isArray(convertedBlob)
+              ? convertedBlob[0]
+              : convertedBlob;
+            processedFile = new File(
+              [blob],
+              file.name.replace(/\.heic$/i, ".jpg"),
+              {
+                type: "image/jpeg",
+              }
+            );
           } catch (error) {
             console.error("Error converting HEIC:", error);
-            alert("Error converting HEIC image. Please try a different format.");
+            alert(
+              "Error converting HEIC image. Please try a different format."
+            );
             continue;
           }
         }
@@ -1256,13 +1484,16 @@ function AddFoundItemForm({
               <div className="animate-spin rounded-full h-16 w-16 border-4 border-utaOrange border-t-transparent mx-auto mb-6"></div>
               <h3 className="text-xl font-bold mb-2">Processing item...</h3>
               <p className="text-sm text-muted max-w-sm">
-                We're analyzing your submission with AI to categorize and match the item.
+                We're analyzing your submission with AI to categorize and match
+                the item.
               </p>
             </div>
           </div>
         )}
 
-        <h2 className="text-3xl font-bold mb-6 tracking-tight">Add Found Item</h2>
+        <h2 className="text-3xl font-bold mb-6 tracking-tight">
+          Add Found Item
+        </h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
@@ -1302,18 +1533,34 @@ function AddFoundItemForm({
                 onClick={isRecording ? stopRecording : startRecording}
                 className={`absolute right-3 top-3 p-3 rounded-xl transition-all duration-300 ${
                   isRecording
-                    ? 'bg-red-500 text-white scale-110 shadow-lg shadow-red-500/50'
-                    : 'bg-bgElevated hover:bg-utaOrange/20 text-muted hover:text-fg hover:scale-105'
+                    ? "bg-red-500 text-white scale-110 shadow-lg shadow-red-500/50"
+                    : "bg-bgElevated hover:bg-utaOrange/20 text-muted hover:text-fg hover:scale-105"
                 }`}
                 title={isRecording ? "Stop recording" : "Record description"}
               >
                 {isRecording ? (
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clipRule="evenodd" />
+                  <svg
+                    className="w-5 h-5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 ) : (
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clipRule="evenodd" />
+                  <svg
+                    className="w-5 h-5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 )}
               </button>
@@ -1327,7 +1574,9 @@ function AddFoundItemForm({
                       <span className="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-red-400 opacity-75"></span>
                       <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
                     </div>
-                    <span className="text-sm text-red-400 font-medium">Recording...</span>
+                    <span className="text-sm text-red-400 font-medium">
+                      Recording...
+                    </span>
                   </div>
                   <button
                     type="button"
@@ -1360,7 +1609,9 @@ function AddFoundItemForm({
               <div className="mt-3 p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl">
                 <div className="flex items-center gap-3">
                   <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-400 border-t-transparent"></div>
-                  <span className="text-sm text-blue-400 font-medium">Transcribing audio...</span>
+                  <span className="text-sm text-blue-400 font-medium">
+                    Transcribing audio...
+                  </span>
                 </div>
               </div>
             )}
@@ -1414,7 +1665,8 @@ function AddFoundItemForm({
               <div className="mt-6 space-y-3">
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-medium text-muted">
-                    {imagePreviews.length} {imagePreviews.length === 1 ? 'image' : 'images'} selected
+                    {imagePreviews.length}{" "}
+                    {imagePreviews.length === 1 ? "image" : "images"} selected
                   </p>
                   <button
                     type="button"
