@@ -9,7 +9,7 @@ export default function AdminDashboard() {
   const { user, userRole, loading: authLoading, signOut } = useAuth();
   const router = useRouter();
 
-  const [selectedLocation, setSelectedLocation] = useState<string>("loc1");
+  const [selectedLocation, setSelectedLocation] = useState<string>("university_center");
   const [activeTab, setActiveTab] = useState<"requests" | "inventory">("requests");
   const [showAddItemForm, setShowAddItemForm] = useState(false);
 
@@ -186,8 +186,8 @@ export default function AdminDashboard() {
             onChange={(e) => setSelectedLocation(e.target.value)}
             className="input-base max-w-xs"
           >
-            <option value="loc1">Main Campus</option>
-            <option value="loc2">North Office</option>
+            <option value="university_center">University Center</option>
+            <option value="central_library">Central Library</option>
           </select>
         </div>
 
@@ -492,9 +492,57 @@ function AddFoundItemForm({
   onSuccess: () => void;
 }) {
   const { user } = useAuth();
+  const [location, setLocation] = useState(selectedLocation);
   const [description, setDescription] = useState("");
   const [images, setImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
+
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const filesArray = Array.from(e.target.files);
+
+      // Process each file, converting HEIC to JPEG if needed
+      for (const file of filesArray) {
+        let processedFile = file;
+
+        // Check if file is HEIC/HEIF and convert to JPEG
+        if (file.type === "image/heic" || file.type === "image/heif" || file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif')) {
+          try {
+            const heic2any = (await import('heic2any')).default;
+            const convertedBlob = await heic2any({
+              blob: file,
+              toType: "image/jpeg",
+              quality: 0.9
+            });
+
+            const blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+            processedFile = new File([blob], file.name.replace(/\.heic$/i, '.jpg'), {
+              type: "image/jpeg",
+            });
+          } catch (error) {
+            console.error("Error converting HEIC:", error);
+            alert("Error converting HEIC image. Please try a different format.");
+            continue;
+          }
+        }
+
+        setImages((prev) => [...prev, processedFile]);
+
+        // Generate preview
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setImagePreviews((prev) => [...prev, reader.result as string]);
+        };
+        reader.readAsDataURL(processedFile);
+      }
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setImages((prev) => prev.filter((_, i) => i !== index));
+    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -503,7 +551,7 @@ function AddFoundItemForm({
     try {
       const token = await user?.getIdToken();
       const formData = new FormData();
-      formData.append("locationId", selectedLocation);
+      formData.append("locationId", location);
       formData.append("description", description);
       images.forEach((img) => formData.append("images", img));
 
@@ -529,58 +577,160 @@ function AddFoundItemForm({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
-        <h2 className="text-2xl font-bold mb-4">Add a Lost Item</h2>
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-2xl max-w-2xl w-full p-8 max-h-[90vh] overflow-y-auto relative shadow-2xl">
+        {/* Loading Overlay */}
+        {submitting && (
+          <div className="absolute inset-0 bg-white/95 backdrop-blur-sm rounded-2xl flex items-center justify-center z-50">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-600 border-t-transparent mx-auto mb-6"></div>
+              <h3 className="text-xl font-bold mb-2">Processing item...</h3>
+              <p className="text-sm text-gray-600 max-w-sm">
+                We're analyzing your submission with AI to categorize and match the item.
+              </p>
+            </div>
+          </div>
+        )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <h2 className="text-3xl font-bold mb-6 text-gray-900">Add Found Item</h2>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium mb-2">
-              Location: <span className="font-bold">{selectedLocation === "loc1" ? "Main Campus" : "North Office"}</span>
+            <label className="block text-sm font-medium text-gray-700 mb-3">
+              Office Location <span className="text-red-500">*</span>
             </label>
+            <select
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              required
+              className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:border-purple-600 focus:ring-2 focus:ring-purple-600/20 transition-all"
+            >
+              <option value="university_center">University Center</option>
+              <option value="central_library">Central Library</option>
+            </select>
+            <p className="text-xs text-gray-500 mt-2">
+              Select the office where this item is currently stored
+            </p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">
-              Description
+            <label className="block text-sm font-medium text-gray-700 mb-3">
+              Description <span className="text-red-500">*</span>
             </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               required
               rows={4}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2"
-              placeholder="Describe the item found..."
+              className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:border-purple-600 focus:ring-2 focus:ring-purple-600/20 transition-all"
+              placeholder="Describe the found item in detail..."
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-3">
               Images (optional)
             </label>
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={(e) =>
-                setImages(e.target.files ? Array.from(e.target.files) : [])
-              }
-              className="w-full border border-gray-300 rounded-lg px-4 py-2"
-            />
+
+            <div className="relative">
+              <input
+                type="file"
+                accept="image/*,.heic,.heif"
+                multiple
+                onChange={handleImageChange}
+                id="admin-image-upload"
+                className="hidden"
+              />
+              <label
+                htmlFor="admin-image-upload"
+                className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 hover:border-purple-500 rounded-xl cursor-pointer transition-all hover:bg-purple-50 group"
+              >
+                <div className="flex flex-col items-center justify-center gap-2">
+                  <svg
+                    className="w-10 h-10 text-gray-400 group-hover:text-purple-600 transition-colors"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                  <div className="text-center">
+                    <p className="text-sm font-medium text-gray-600 group-hover:text-gray-900 transition-colors">
+                      Click to upload images
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Supports JPG, PNG, HEIC, HEIF
+                    </p>
+                  </div>
+                </div>
+              </label>
+            </div>
+
+            {imagePreviews.length > 0 && (
+              <div className="mt-6 space-y-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-medium text-gray-700">
+                    {imagePreviews.length} {imagePreviews.length === 1 ? 'image' : 'images'} selected
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setImages([]);
+                      setImagePreviews([]);
+                    }}
+                    className="text-xs text-red-600 hover:text-red-700 transition-colors font-medium"
+                  >
+                    Clear all
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                  {imagePreviews.map((preview, index) => (
+                    <div key={index} className="relative group aspect-square">
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-xl z-10" />
+                      <img
+                        src={preview}
+                        alt={`Preview ${index + 1}`}
+                        className="w-full h-full object-cover rounded-xl border-2 border-gray-200 hover:border-purple-500 transition-all"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index)}
+                        className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-2 shadow-lg opacity-0 group-hover:opacity-100 transition-all hover:scale-110 z-20"
+                        title="Remove image"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                      <div className="absolute bottom-2 left-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                        <div className="text-xs text-white font-medium bg-black/50 backdrop-blur-sm px-2 py-1 rounded">
+                          Image {index + 1}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="flex gap-4 pt-4">
             <button
               type="submit"
               disabled={submitting}
-              className="flex-1 bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 disabled:bg-gray-400"
+              className="flex-1 bg-purple-600 text-white py-3 rounded-xl hover:bg-purple-700 disabled:bg-gray-400 font-medium transition-all hover:shadow-lg disabled:cursor-not-allowed"
             >
               {submitting ? "Adding..." : "Add to Inventory"}
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400"
+              className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl hover:bg-gray-300 font-medium transition-all"
             >
               Cancel
             </button>
