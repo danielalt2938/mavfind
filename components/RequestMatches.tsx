@@ -59,20 +59,25 @@ export default function RequestMatches({ requestId, className = "" }: RequestMat
 
   const fetchMatches = async () => {
     try {
-      console.log(`Fetching matches for request: ${requestId}`);
+      console.log(`[RequestMatches] Fetching matches for request: ${requestId}`);
+      console.log(`[RequestMatches] User exists:`, !!user);
+      console.log(`[RequestMatches] User ID:`, user?.uid);
+      
       const token = await user?.getIdToken();
+      console.log(`[RequestMatches] Got token:`, !!token);
+      
       const res = await fetch(`/api/requests/${requestId}/matches`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
       
-      console.log(`Matches API response status: ${res.status}`);
+      console.log(`[RequestMatches] API response status: ${res.status}`);
       
       if (res.ok) {
         const data = await res.json();
-        console.log('Matches API response:', data);
-        console.log(`Received ${data.matches?.length || 0} matches`);
+        console.log('[RequestMatches] API response data:', data);
+        console.log(`[RequestMatches] Received ${data.matches?.length || 0} matches`);
         
         // Sort matches by confidence (highest first) and assign ranking
         const sortedMatches = (data.matches || []).sort((a: Match, b: Match) => b.confidence - a.confidence);
@@ -80,14 +85,28 @@ export default function RequestMatches({ requestId, className = "" }: RequestMat
           ...match,
           confidenceRank: index + 1
         }));
-        console.log(`Processed ${rankedMatches.length} ranked matches`);
+        console.log(`[RequestMatches] Processed ${rankedMatches.length} ranked matches`);
         setMatches(rankedMatches);
       } else {
         const errorData = await res.json();
-        console.error('Matches API error:', res.status, errorData);
+        console.error('[RequestMatches] API error:', res.status, errorData);
+        
+        // Also try the debug API to see if matches exist
+        try {
+          console.log(`[RequestMatches] Trying debug API for request: ${requestId}`);
+          const debugRes = await fetch(`/api/debug/matches/${requestId}`);
+          if (debugRes.ok) {
+            const debugData = await debugRes.json();
+            console.log('[RequestMatches] Debug API response:', debugData);
+          } else {
+            console.error('[RequestMatches] Debug API also failed:', debugRes.status);
+          }
+        } catch (debugError) {
+          console.error('[RequestMatches] Debug API error:', debugError);
+        }
       }
     } catch (error) {
-      console.error("Error fetching matches:", error);
+      console.error("[RequestMatches] Error fetching matches:", error);
     } finally {
       setLoading(false);
     }

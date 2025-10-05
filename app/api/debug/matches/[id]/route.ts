@@ -41,7 +41,7 @@ export async function GET(
           };
         } catch (error) {
           lostItemData = {
-            error: error.message,
+            error: error instanceof Error ? error.message : 'Unknown error',
             lostRefPath: matchData.lostRef.path
           };
         }
@@ -79,7 +79,7 @@ export async function GET(
   } catch (error) {
     console.error("Debug API error:", error);
     return NextResponse.json(
-      { error: "Debug API error", details: error.message },
+      { error: "Debug API error", details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }
