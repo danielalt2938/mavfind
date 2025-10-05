@@ -723,6 +723,8 @@ function AddFoundItemForm({
   const [images, setImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -770,6 +772,75 @@ function AddFoundItemForm({
     setImagePreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const startRecording = async () => {
+    if (isRecording) {
+      setIsRecording(false);
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      const chunks: Blob[] = [];
+
+      mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(chunks, { type: "audio/webm" });
+
+        setIsTranscribing(true);
+        try {
+          const formData = new FormData();
+          formData.append("audio", audioBlob, "recording.webm");
+
+          const res = await fetch("/api/transcribe", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            setDescription((prev) => {
+              const separator = prev ? " " : "";
+              return prev + separator + data.text;
+            });
+          } else {
+            alert("Failed to transcribe audio");
+          }
+        } catch (error) {
+          console.error("Transcription error:", error);
+          alert("Error transcribing audio");
+        } finally {
+          setIsTranscribing(false);
+        }
+
+        stream.getTracks().forEach((track) => track.stop());
+        setIsRecording(false);
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+
+      (window as any).currentRecorder = mediaRecorder;
+
+      setTimeout(() => {
+        if (mediaRecorder.state === "recording") {
+          mediaRecorder.stop();
+        }
+      }, 30000);
+    } catch (error) {
+      console.error("Microphone access denied:", error);
+      alert("Microphone access required for voice input");
+    }
+  };
+
+  const stopRecording = () => {
+    const recorder = (window as any).currentRecorder;
+    if (recorder && recorder.state === "recording") {
+      recorder.stop();
+    }
+    setIsRecording(false);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
@@ -804,57 +875,126 @@ function AddFoundItemForm({
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl max-w-2xl w-full p-8 max-h-[90vh] overflow-y-auto relative shadow-2xl">
+      <div className="card-base max-w-2xl w-full p-8 max-h-[90vh] overflow-y-auto relative shadow-2xl">
         {/* Loading Overlay */}
         {submitting && (
-          <div className="absolute inset-0 bg-white/95 backdrop-blur-sm rounded-2xl flex items-center justify-center z-50">
+          <div className="absolute inset-0 bg-bg/95 backdrop-blur-sm rounded-2xl flex items-center justify-center z-50">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-600 border-t-transparent mx-auto mb-6"></div>
+              <div className="animate-spin rounded-full h-16 w-16 border-4 border-utaOrange border-t-transparent mx-auto mb-6"></div>
               <h3 className="text-xl font-bold mb-2">Processing item...</h3>
-              <p className="text-sm text-gray-600 max-w-sm">
+              <p className="text-sm text-muted max-w-sm">
                 We're analyzing your submission with AI to categorize and match the item.
               </p>
             </div>
           </div>
         )}
 
-        <h2 className="text-3xl font-bold mb-6 text-gray-900">Add Found Item</h2>
+        <h2 className="text-3xl font-bold mb-6 tracking-tight">Add Found Item</h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
-              Office Location <span className="text-red-500">*</span>
+            <label className="block text-sm font-medium text-muted mb-3">
+              Office Location <span className="text-utaOrange">*</span>
             </label>
             <select
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               required
-              className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:border-purple-600 focus:ring-2 focus:ring-purple-600/20 transition-all"
+              className="input-base w-full"
             >
               <option value="university_center">University Center</option>
               <option value="central_library">Central Library</option>
             </select>
-            <p className="text-xs text-gray-500 mt-2">
+            <p className="text-xs text-muted mt-2">
               Select the office where this item is currently stored
             </p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
-              Description <span className="text-red-500">*</span>
+            <label className="block text-sm font-medium text-muted mb-3">
+              Description <span className="text-utaOrange">*</span>
             </label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              required
-              rows={4}
-              className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:border-purple-600 focus:ring-2 focus:ring-purple-600/20 transition-all"
-              placeholder="Describe the found item in detail..."
-            />
+            <div className="relative">
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                required
+                rows={4}
+                className="input-base w-full pr-14"
+                placeholder="Describe the found item in detail..."
+                disabled={isRecording}
+              />
+              <button
+                type="button"
+                onClick={isRecording ? stopRecording : startRecording}
+                className={`absolute right-3 top-3 p-3 rounded-xl transition-all duration-300 ${
+                  isRecording
+                    ? 'bg-red-500 text-white scale-110 shadow-lg shadow-red-500/50'
+                    : 'bg-bgElevated hover:bg-utaOrange/20 text-muted hover:text-fg hover:scale-105'
+                }`}
+                title={isRecording ? "Stop recording" : "Record description"}
+              >
+                {isRecording ? (
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clipRule="evenodd" />
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clipRule="evenodd" />
+                  </svg>
+                )}
+              </button>
+            </div>
+
+            {isRecording && (
+              <div className="mt-3 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="relative flex items-center justify-center">
+                      <span className="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-red-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                    </div>
+                    <span className="text-sm text-red-400 font-medium">Recording...</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={stopRecording}
+                    className="text-xs text-red-400 hover:text-red-300 transition-colors underline"
+                  >
+                    Stop
+                  </button>
+                </div>
+                <div className="flex items-center justify-center gap-1 h-12">
+                  {[...Array(20)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="w-1 bg-red-400 rounded-full animate-pulse"
+                      style={{
+                        height: `${Math.random() * 100}%`,
+                        animationDelay: `${i * 0.05}s`,
+                        animationDuration: `${0.5 + Math.random() * 0.5}s`,
+                      }}
+                    />
+                  ))}
+                </div>
+                <p className="text-xs text-center text-muted mt-2">
+                  Speak clearly into your microphone
+                </p>
+              </div>
+            )}
+
+            {isTranscribing && (
+              <div className="mt-3 p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl">
+                <div className="flex items-center gap-3">
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-400 border-t-transparent"></div>
+                  <span className="text-sm text-blue-400 font-medium">Transcribing audio...</span>
+                </div>
+              </div>
+            )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
+            <label className="block text-sm font-medium text-muted mb-3">
               Images (optional)
             </label>
 
@@ -869,11 +1009,11 @@ function AddFoundItemForm({
               />
               <label
                 htmlFor="admin-image-upload"
-                className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 hover:border-purple-500 rounded-xl cursor-pointer transition-all hover:bg-purple-50 group"
+                className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-border hover:border-utaOrange/50 rounded-xl cursor-pointer transition-all hover:bg-bgElevated group"
               >
                 <div className="flex flex-col items-center justify-center gap-2">
                   <svg
-                    className="w-10 h-10 text-gray-400 group-hover:text-purple-600 transition-colors"
+                    className="w-10 h-10 text-muted group-hover:text-utaOrange transition-colors"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -886,10 +1026,10 @@ function AddFoundItemForm({
                     />
                   </svg>
                   <div className="text-center">
-                    <p className="text-sm font-medium text-gray-600 group-hover:text-gray-900 transition-colors">
+                    <p className="text-sm font-medium text-muted group-hover:text-fg transition-colors">
                       Click to upload images
                     </p>
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-muted mt-1">
                       Supports JPG, PNG, HEIC, HEIF
                     </p>
                   </div>
@@ -900,7 +1040,7 @@ function AddFoundItemForm({
             {imagePreviews.length > 0 && (
               <div className="mt-6 space-y-3">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium text-gray-700">
+                  <p className="text-sm font-medium text-muted">
                     {imagePreviews.length} {imagePreviews.length === 1 ? 'image' : 'images'} selected
                   </p>
                   <button
@@ -909,7 +1049,7 @@ function AddFoundItemForm({
                       setImages([]);
                       setImagePreviews([]);
                     }}
-                    className="text-xs text-red-600 hover:text-red-700 transition-colors font-medium"
+                    className="text-xs text-red-400 hover:text-red-300 transition-colors font-medium"
                   >
                     Clear all
                   </button>
@@ -921,7 +1061,7 @@ function AddFoundItemForm({
                       <img
                         src={preview}
                         alt={`Preview ${index + 1}`}
-                        className="w-full h-full object-cover rounded-xl border-2 border-gray-200 hover:border-purple-500 transition-all"
+                        className="w-full h-full object-cover rounded-xl border-2 border-border hover:border-utaOrange/50 transition-all"
                       />
                       <button
                         type="button"
@@ -949,14 +1089,14 @@ function AddFoundItemForm({
             <button
               type="submit"
               disabled={submitting}
-              className="flex-1 bg-purple-600 text-white py-3 rounded-xl hover:bg-purple-700 disabled:bg-gray-400 font-medium transition-all hover:shadow-lg disabled:cursor-not-allowed"
+              className="flex-1 btn-primary py-3 rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {submitting ? "Adding..." : "Add to Inventory"}
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl hover:bg-gray-300 font-medium transition-all"
+              className="flex-1 btn-secondary py-3 rounded-2xl"
             >
               Cancel
             </button>
