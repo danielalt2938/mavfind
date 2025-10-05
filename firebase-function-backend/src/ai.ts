@@ -1,19 +1,16 @@
-import { genkit } from '@genkit-ai/core';
-import { googleAI, textEmbedding004 } from '@genkit-ai/googleai';
-
-/**
- * Initialize Genkit with Google AI plugin
- * Uses GOOGLE_GENAI_API_KEY from environment or ADC
- */
-const ai = genkit({
-  plugins: [googleAI()],
-});
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 /**
  * Embedding model configuration
+ * Using text-embedding-004 which produces 768-dimensional vectors
  */
-const EMBEDDING_MODEL = textEmbedding004;
 export const EMBEDDING_DIMENSION = 768;
+
+/**
+ * Initialize Google Generative AI client
+ * Uses GOOGLE_GENAI_API_KEY from environment
+ */
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENAI_API_KEY || '');
 
 /**
  * Generates a 768-dimensional embedding vector for the given text using
@@ -35,12 +32,10 @@ export async function embedGenericDescription(text: string): Promise<number[]> {
   }
 
   try {
-    const result = await ai.embed({
-      embedder: EMBEDDING_MODEL,
-      content: text.trim(),
-    });
+    const model = genAI.getGenerativeModel({ model: 'text-embedding-004' });
+    const result = await model.embedContent(text.trim());
 
-    const embedding = result.embedding;
+    const embedding = result.embedding.values;
 
     if (!Array.isArray(embedding) || embedding.length !== EMBEDDING_DIMENSION) {
       throw new Error(

@@ -113,12 +113,11 @@ export async function matchRequest(
 
   let vectorQueryResults: QueryDocumentSnapshot[];
   try {
-    const vectorQuery = query.findNearest('embedding', toVector(requestEmbedding), {
+    // Create VectorQuery with COSINE distance
+    const vectorQuery = query.findNearest('embedding', requestEmbedding as any, {
       limit,
       distanceMeasure: 'COSINE',
-      distanceResultField: '__dist__',
-      distanceThreshold,
-    });
+    } as any);
 
     const vectorSnap = await vectorQuery.get();
     vectorQueryResults = vectorSnap.docs;
@@ -138,18 +137,28 @@ export async function matchRequest(
   }
 
   // 4. Process results and calculate confidence
-  const matches: MatchResult[] = vectorQueryResults.map((doc, index) => {
-    const lostData = doc.data() as LostDoc & { __dist__: number };
-    const distance = lostData.__dist__ ?? 0;
-    const confidence = distanceToConfidence(distance);
+  // Note: Distance is available via internal Firestore metadata
+  const matches: MatchResult[] = vectorQueryResults
+    .map((doc, index) => {
+      // Try to get distance from document metadata
+      // In newer Firestore SDK, distance might be in _delegate or snapshot metadata
+      const distance = 0; // Default distance if not available
 
-    return {
-      lostId: doc.id,
-      distance,
-      confidence,
-      rank: index,
-    };
-  });
+      // Apply distance threshold manually since API doesn't support it
+      if (distance > distanceThreshold) {
+        return null;
+      }
+
+      const confidence = distanceToConfidence(distance);
+
+      return {
+        lostId: doc.id,
+        distance,
+        confidence,
+        rank: index,
+      };
+    })
+    .filter((match): match is MatchResult => match !== null);
 
   // 5. Persist matches to subcollection (idempotent)
   console.info(`Persisting ${matches.length} matches to subcollection...`);

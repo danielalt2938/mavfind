@@ -1,13 +1,13 @@
 import { onRequest } from 'firebase-functions/v2/https';
-import type { Request, Response } from 'firebase-functions/v2/https';
-import { matchRequest } from '../../src/matchRequest.js';
-import type { MatchRequestOptions } from '../../src/types.js';
+import type { Request } from 'firebase-functions/v2/https';
+import { matchRequest } from './matchRequest.js';
+import type { MatchRequestOptions } from './types.js';
 import {
   RequestNotFoundError,
   MissingDescriptionError,
   EmbeddingDimensionMismatchError,
   VectorIndexMissingError,
-} from '../../src/types.js';
+} from './types.js';
 
 /**
  * Validates the request body for matchRequest endpoint
@@ -127,7 +127,7 @@ export const matchRequestHttp = onRequest(
     timeoutSeconds: 540,
     maxInstances: 10,
   },
-  async (req: Request, res: Response) => {
+  async (req: Request, res: any) => {
     const startTime = Date.now();
 
     // Set CORS headers manually for more control

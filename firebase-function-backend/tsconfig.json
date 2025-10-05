@@ -7,8 +7,8 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "strict": true,
-    "outDir": "dist",
-    "rootDir": ".",
+    "outDir": "lib",
+    "rootDir": "src",
     "resolveJsonModule": true,
     "forceConsistentCasingInFileNames": true,
     "allowSyntheticDefaultImports": true,
@@ -17,13 +17,11 @@
     "sourceMap": true
   },
   "include": [
-    "src/**/*",
-    "functions/**/*",
-    "scripts/**/*"
+    "src/**/*"
   ],
   "exclude": [
     "node_modules",
-    "dist",
+    "lib",
     "**/*.test.ts"
   ]
 }
