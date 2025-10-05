@@ -5,13 +5,41 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import algoliasearch from "algoliasearch/lite";
-import { InstantSearch, SearchBox, Hits, Configure } from "react-instantsearch";
+import {
+  InstantSearch,
+  SearchBox,
+  Hits,
+  Configure,
+  RefinementList,
+  ClearRefinements
+} from "react-instantsearch";
 import ImageWithLoader from "@/components/ImageWithLoader";
 
 const searchClient = algoliasearch(
   process.env.NEXT_PUBLIC_ALGOLIA_APP_ID!,
   process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_API_KEY!
 );
+
+// Helper function to format time ago
+function getTimeAgo(timestamp: string | number): string {
+  const date = new Date(timestamp);
+  const now = new Date();
+  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+  if (seconds < 60) return "Just now";
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d ago`;
+  const weeks = Math.floor(days / 7);
+  if (weeks < 4) return `${weeks}w ago`;
+  const months = Math.floor(days / 30);
+  if (months < 12) return `${months}mo ago`;
+  const years = Math.floor(days / 365);
+  return `${years}y ago`;
+}
 
 export default function AdminDashboard() {
   const { user, userRole, loading: authLoading, signOut } = useAuth();
@@ -26,10 +54,6 @@ export default function AdminDashboard() {
   const [foundItems, setFoundItems] = useState<any[]>([]);
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-
-  // Search states
-  const [useSearchRequests, setUseSearchRequests] = useState(false);
-  const [useSearchInventory, setUseSearchInventory] = useState(false);
 
   useEffect(() => {
     if (!authLoading) {
@@ -56,7 +80,7 @@ export default function AdminDashboard() {
       // Fetch requests, found items, and stats in parallel
       const [requestsRes, itemsRes, statsRes] = await Promise.all([
         fetch(`/api/admin/requests`, { headers }), // Fetch all requests
-        fetch(`/api/admin/lost/items?locationId=${selectedLocation}`, { headers }),
+        fetch(`/api/admin/lost/items`, { headers }), // Fetch all inventory items
         fetch(`/api/admin/stats?locationId=${selectedLocation}`, { headers }),
       ]);
 
@@ -299,31 +323,105 @@ export default function AdminDashboard() {
         {/* Content */}
         <div className="card-base overflow-hidden">
           {activeTab === "requests" ? (
-            useSearchRequests ? (
-              <InstantSearch
-                searchClient={searchClient}
-                indexName={process.env.NEXT_PUBLIC_ALGOLIA_INDEX_NAME_REQUEST || "mavfind_lost_items_requests"}
-              >
-                <div className="p-6 border-b border-border">
+            <InstantSearch
+              searchClient={searchClient}
+              indexName={process.env.NEXT_PUBLIC_ALGOLIA_INDEX_NAME_REQUEST || "mavfind_lost_items_requests"}
+            >
+              <div className="p-6 space-y-6">
+                {/* Search Header */}
+                <div className="flex items-start justify-between gap-4 mb-2">
+                  <div className="flex-1">
+                    <h3 className="text-2xl font-bold mb-2">Search Requests</h3>
+                    <p className="text-sm text-muted">Find and manage lost item requests with powerful search and filters</p>
+                  </div>
+                </div>
+
+                {/* Enhanced Search Box */}
+                <div className="relative group">
                   <SearchBox
-                    placeholder="Search requests..."
+                    placeholder="Search by title, description, category, color, brand..."
                     classNames={{
                       root: "w-full",
                       form: "relative",
-                      input: "input-base w-full pl-12 pr-4",
-                      submit: "absolute left-4 top-1/2 -translate-y-1/2",
-                      reset: "absolute right-4 top-1/2 -translate-y-1/2",
-                      loadingIndicator: "absolute right-4 top-1/2 -translate-y-1/2",
+                      input: "input-base w-full pl-14 pr-12 py-4 text-lg rounded-2xl border-2 border-border hover:border-utaOrange/30 focus:border-utaOrange transition-all shadow-lg",
+                      submit: "absolute left-5 top-1/2 -translate-y-1/2 text-muted group-hover:text-utaOrange transition-colors",
+                      reset: "absolute right-5 top-1/2 -translate-y-1/2 text-muted hover:text-utaOrange transition-colors",
+                      loadingIndicator: "absolute right-5 top-1/2 -translate-y-1/2",
                     }}
                   />
-                  <button
-                    onClick={() => setUseSearchRequests(false)}
-                    className="mt-3 text-sm text-muted hover:text-fg transition-colors"
-                  >
-                    ← Back to all requests
-                  </button>
+                  <div className="absolute -bottom-2 left-0 right-0 h-2 bg-gradient-to-b from-utaOrange/10 to-transparent opacity-0 group-focus-within:opacity-100 transition-opacity rounded-b-2xl"></div>
                 </div>
-                <Configure hitsPerPage={50} />
+
+                {/* Enhanced Filters */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-bgElevated rounded-2xl border border-border">
+                  <div>
+                    <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-3">Category</label>
+                    <RefinementList
+                      attribute="category"
+                      limit={10}
+                      showMore={true}
+                      classNames={{
+                        root: "space-y-2",
+                        list: "space-y-2",
+                        item: "flex items-center gap-2 text-sm",
+                        label: "flex items-center gap-2 cursor-pointer hover:text-utaOrange transition-colors w-full",
+                        checkbox: "w-4 h-4 rounded border-2 border-border checked:bg-utaOrange checked:border-utaOrange",
+                        count: "ml-auto text-xs px-2 py-0.5 rounded-full bg-bgElevated text-muted font-medium",
+                        showMore: "text-xs text-utaOrange hover:underline mt-2",
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-3">Lost/Found</label>
+                    <RefinementList
+                      attribute="lostOrFound"
+                      classNames={{
+                        root: "space-y-2",
+                        list: "space-y-2",
+                        item: "flex items-center gap-2 text-sm",
+                        label: "flex items-center gap-2 cursor-pointer hover:text-utaOrange transition-colors w-full",
+                        checkbox: "w-4 h-4 rounded border-2 border-border checked:bg-utaOrange checked:border-utaOrange",
+                        count: "ml-auto text-xs px-2 py-0.5 rounded-full bg-bgElevated text-muted font-medium",
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-3">Status</label>
+                    <RefinementList
+                      attribute="status"
+                      classNames={{
+                        root: "space-y-2",
+                        list: "space-y-2",
+                        item: "flex items-center gap-2 text-sm",
+                        label: "flex items-center gap-2 cursor-pointer hover:text-utaOrange transition-colors w-full",
+                        checkbox: "w-4 h-4 rounded border-2 border-border checked:bg-utaOrange checked:border-utaOrange",
+                        count: "ml-auto text-xs px-2 py-0.5 rounded-full bg-bgElevated text-muted font-medium",
+                      }}
+                    />
+                  </div>
+
+                  <div className="flex flex-col justify-between">
+                    <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-3">Actions</label>
+                    <ClearRefinements
+                      classNames={{
+                        root: "w-full",
+                        button: "btn-secondary w-full py-2.5 rounded-xl text-sm font-semibold hover:bg-utaOrange hover:text-white transition-all",
+                        disabledButton: "opacity-50 cursor-not-allowed",
+                      }}
+                      translations={{
+                        resetButtonText: "Clear Filters",
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <Configure hitsPerPage={50} />
+
+              {/* Results - Card Grid */}
+              <div className="p-6 pt-0">
                 <Hits
                   hitComponent={({ hit }) => (
                     <RequestHitComponent
@@ -333,83 +431,143 @@ export default function AdminDashboard() {
                     />
                   )}
                   classNames={{
-                    root: "divide-y divide-border",
-                    list: "divide-y divide-border",
-                    item: "hover:bg-bgElevated transition-colors",
+                    root: "",
+                    list: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6",
+                    item: "",
                   }}
                 />
-              </InstantSearch>
-            ) : (
-              <>
-                <div className="p-6 border-b border-border">
-                  <button
-                    onClick={() => setUseSearchRequests(true)}
-                    className="btn-secondary px-4 py-2 rounded-xl text-sm"
-                  >
-                    🔍 Search Requests
-                  </button>
-                </div>
-                <RequestsTable
-                  requests={requests}
-                  onApprove={handleApprove}
-                  onReject={handleReject}
-                />
-              </>
-            )
-          ) : useSearchInventory ? (
+              </div>
+            </InstantSearch>
+          ) : (
             <InstantSearch
               searchClient={searchClient}
               indexName={process.env.NEXT_PUBLIC_ALGOLIA_INDEX_NAME_INVENTORY || "mavfind_lost_items"}
             >
-              <div className="p-6 border-b border-border">
-                <SearchBox
-                  placeholder="Search inventory..."
+              <div className="p-6 space-y-6">
+                {/* Search Header */}
+                <div className="flex items-start justify-between gap-4 mb-2">
+                  <div className="flex-1">
+                    <h3 className="text-2xl font-bold mb-2">Search Inventory</h3>
+                    <p className="text-sm text-muted">Find and manage found items with powerful search and filters</p>
+                  </div>
+                </div>
+
+                {/* Enhanced Search Box */}
+                <div className="relative group">
+                  <SearchBox
+                    placeholder="Search by title, description, category, color, brand..."
+                    classNames={{
+                      root: "w-full",
+                      form: "relative",
+                      input: "input-base w-full pl-14 pr-12 py-4 text-lg rounded-2xl border-2 border-border hover:border-utaOrange/30 focus:border-utaOrange transition-all shadow-lg",
+                      submit: "absolute left-5 top-1/2 -translate-y-1/2 text-muted group-hover:text-utaOrange transition-colors",
+                      reset: "absolute right-5 top-1/2 -translate-y-1/2 text-muted hover:text-utaOrange transition-colors",
+                      loadingIndicator: "absolute right-5 top-1/2 -translate-y-1/2",
+                    }}
+                  />
+                  <div className="absolute -bottom-2 left-0 right-0 h-2 bg-gradient-to-b from-utaOrange/10 to-transparent opacity-0 group-focus-within:opacity-100 transition-opacity rounded-b-2xl"></div>
+                </div>
+
+                {/* Enhanced Filters */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 p-4 bg-bgElevated rounded-2xl border border-border">
+                  <div>
+                    <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-3">Category</label>
+                    <RefinementList
+                      attribute="category"
+                      limit={10}
+                      showMore={true}
+                      classNames={{
+                        root: "space-y-2",
+                        list: "space-y-2",
+                        item: "flex items-center gap-2 text-sm",
+                        label: "flex items-center gap-2 cursor-pointer hover:text-utaOrange transition-colors w-full",
+                        checkbox: "w-4 h-4 rounded border-2 border-border checked:bg-utaOrange checked:border-utaOrange",
+                        count: "ml-auto text-xs px-2 py-0.5 rounded-full bg-bgElevated text-muted font-medium",
+                        showMore: "text-xs text-utaOrange hover:underline mt-2",
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-3">Lost/Found</label>
+                    <RefinementList
+                      attribute="lostOrFound"
+                      classNames={{
+                        root: "space-y-2",
+                        list: "space-y-2",
+                        item: "flex items-center gap-2 text-sm",
+                        label: "flex items-center gap-2 cursor-pointer hover:text-utaOrange transition-colors w-full",
+                        checkbox: "w-4 h-4 rounded border-2 border-border checked:bg-utaOrange checked:border-utaOrange",
+                        count: "ml-auto text-xs px-2 py-0.5 rounded-full bg-bgElevated text-muted font-medium",
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-3">Location</label>
+                    <RefinementList
+                      attribute="locationId"
+                      classNames={{
+                        root: "space-y-2",
+                        list: "space-y-2",
+                        item: "flex items-center gap-2 text-sm",
+                        label: "flex items-center gap-2 cursor-pointer hover:text-utaOrange transition-colors w-full",
+                        checkbox: "w-4 h-4 rounded border-2 border-border checked:bg-utaOrange checked:border-utaOrange",
+                        count: "ml-auto text-xs px-2 py-0.5 rounded-full bg-bgElevated text-muted font-medium",
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-3">Status</label>
+                    <RefinementList
+                      attribute="status"
+                      classNames={{
+                        root: "space-y-2",
+                        list: "space-y-2",
+                        item: "flex items-center gap-2 text-sm",
+                        label: "flex items-center gap-2 cursor-pointer hover:text-utaOrange transition-colors w-full",
+                        checkbox: "w-4 h-4 rounded border-2 border-border checked:bg-utaOrange checked:border-utaOrange",
+                        count: "ml-auto text-xs px-2 py-0.5 rounded-full bg-bgElevated text-muted font-medium",
+                      }}
+                    />
+                  </div>
+
+                  <div className="flex flex-col justify-between">
+                    <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-3">Actions</label>
+                    <ClearRefinements
+                      classNames={{
+                        root: "w-full",
+                        button: "btn-secondary w-full py-2.5 rounded-xl text-sm font-semibold hover:bg-utaOrange hover:text-white transition-all",
+                        disabledButton: "opacity-50 cursor-not-allowed",
+                      }}
+                      translations={{
+                        resetButtonText: "Clear Filters",
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <Configure hitsPerPage={50} />
+
+              {/* Results - Card Grid */}
+              <div className="p-6 pt-0">
+                <Hits
+                  hitComponent={({ hit }) => (
+                    <InventoryHitComponent
+                      hit={hit}
+                      onUpdateStatus={handleUpdateItemStatus}
+                    />
+                  )}
                   classNames={{
-                    root: "w-full",
-                    form: "relative",
-                    input: "input-base w-full pl-12 pr-4",
-                    submit: "absolute left-4 top-1/2 -translate-y-1/2",
-                    reset: "absolute right-4 top-1/2 -translate-y-1/2",
-                    loadingIndicator: "absolute right-4 top-1/2 -translate-y-1/2",
+                    root: "",
+                    list: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6",
+                    item: "",
                   }}
                 />
-                <button
-                  onClick={() => setUseSearchInventory(false)}
-                  className="mt-3 text-sm text-muted hover:text-fg transition-colors"
-                >
-                  ← Back to all items
-                </button>
               </div>
-              <Configure hitsPerPage={50} filters={`locationId:${selectedLocation}`} />
-              <Hits
-                hitComponent={({ hit }) => (
-                  <InventoryHitComponent
-                    hit={hit}
-                    onUpdateStatus={handleUpdateItemStatus}
-                  />
-                )}
-                classNames={{
-                  root: "divide-y divide-border",
-                  list: "divide-y divide-border",
-                  item: "hover:bg-bgElevated transition-colors",
-                }}
-              />
             </InstantSearch>
-          ) : (
-            <>
-              <div className="p-6 border-b border-border">
-                <button
-                  onClick={() => setUseSearchInventory(true)}
-                  className="btn-secondary px-4 py-2 rounded-xl text-sm"
-                >
-                  🔍 Search Inventory
-                </button>
-              </div>
-              <InventoryTable
-                items={foundItems}
-                onUpdateStatus={handleUpdateItemStatus}
-              />
-            </>
           )}
         </div>
       </div>
@@ -429,7 +587,7 @@ export default function AdminDashboard() {
   );
 }
 
-// Hit components for Algolia search
+// Hit components for Algolia search - Card format
 function RequestHitComponent({
   hit,
   onApprove,
@@ -439,38 +597,80 @@ function RequestHitComponent({
   onApprove: (id: string) => void;
   onReject: (id: string) => void;
 }) {
+  const firstImage = hit.images && hit.images.length > 0 ? hit.images[0] : null;
+  const description = hit.description || hit.genericDescription || "";
+  const truncatedDesc = description.length > 100 ? description.substring(0, 100) + "..." : description;
+  const timeAgo = getTimeAgo(hit.createdAt);
+
   return (
-    <div className="px-6 py-4 flex flex-col md:flex-row md:items-center gap-4">
-      <div className="flex-1 min-w-0">
-        <div className="flex items-start justify-between gap-4 mb-2">
-          <div>
-            <span className="text-sm font-medium capitalize">
-              {hit.attributes?.category || "Unknown"}
-            </span>
-            <span className="text-sm text-muted ml-3">
-              {new Date(hit.createdAt).toLocaleDateString()}
-            </span>
+    <div className="card-base overflow-hidden hover-lift group">
+      {/* Image */}
+      <div className="relative w-full h-48 bg-bgElevated overflow-hidden">
+        {firstImage ? (
+          <ImageWithLoader
+            src={firstImage}
+            alt={hit.title || "Request image"}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center border-b border-border">
+            <svg className="w-16 h-16 text-muted/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
           </div>
+        )}
+        {/* Status Badge Overlay */}
+        <div className="absolute top-3 right-3">
           <StatusBadge status={hit.status} />
         </div>
-        <p className="text-sm text-fg line-clamp-2">{hit.description}</p>
       </div>
-      {hit.status === "submitted" && (
-        <div className="flex gap-2 shrink-0">
-          <button
-            onClick={() => onApprove(hit.objectID)}
-            className="px-3 py-1.5 rounded-lg bg-green-500/10 text-green-600 hover:bg-green-500/20 font-medium transition-colors text-sm"
-          >
-            Approve
-          </button>
-          <button
-            onClick={() => onReject(hit.objectID)}
-            className="px-3 py-1.5 rounded-lg bg-red-500/10 text-red-600 hover:bg-red-500/20 font-medium transition-colors text-sm"
-          >
-            Reject
-          </button>
+
+      {/* Content */}
+      <div className="p-5 space-y-3">
+        {/* Title */}
+        <h3 className="font-bold text-lg line-clamp-2 min-h-[3.5rem]">
+          {hit.title || "Untitled Request"}
+        </h3>
+
+        {/* Description */}
+        <p className="text-sm text-muted line-clamp-3 min-h-[4rem]">
+          {truncatedDesc || "No description provided"}
+        </p>
+
+        {/* Category & Time */}
+        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-border">
+          <span className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-utaOrange/10 text-utaOrange font-semibold capitalize">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+            </svg>
+            {hit.category || hit.attributes?.category || "Unknown"}
+          </span>
+          <span className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-white/5 text-muted font-medium">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {timeAgo}
+          </span>
         </div>
-      )}
+
+        {/* Actions */}
+        {hit.status === "submitted" && (
+          <div className="flex gap-2 pt-2">
+            <button
+              onClick={() => onApprove(hit.objectID)}
+              className="flex-1 px-4 py-2.5 rounded-xl bg-green-500/10 text-green-600 hover:bg-green-500 hover:text-white font-semibold transition-all text-sm"
+            >
+              Approve
+            </button>
+            <button
+              onClick={() => onReject(hit.objectID)}
+              className="flex-1 px-4 py-2.5 rounded-xl bg-red-500/10 text-red-600 hover:bg-red-500 hover:text-white font-semibold transition-all text-sm"
+            >
+              Reject
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -482,192 +682,76 @@ function InventoryHitComponent({
   hit: any;
   onUpdateStatus: (id: string, status: string) => void;
 }) {
+  const firstImage = hit.images && hit.images.length > 0 ? hit.images[0] : null;
+  const description = hit.description || hit.genericDescription || "";
+  const truncatedDesc = description.length > 100 ? description.substring(0, 100) + "..." : description;
+  const timeAgo = getTimeAgo(hit.createdAt);
+
   return (
-    <div className="px-6 py-4 flex flex-col md:flex-row md:items-center gap-4">
-      <div className="flex-1 min-w-0">
-        <div className="flex items-start justify-between gap-4 mb-2">
-          <div>
-            <span className="text-sm font-medium capitalize">
-              {hit.attributes?.category || "Unknown"}
-            </span>
-            <span className="text-sm text-muted ml-3">
-              {new Date(hit.createdAt).toLocaleDateString()}
-            </span>
+    <div className="card-base overflow-hidden hover-lift group">
+      {/* Image */}
+      <div className="relative w-full h-48 bg-bgElevated overflow-hidden">
+        {firstImage ? (
+          <ImageWithLoader
+            src={firstImage}
+            alt={hit.title || "Item image"}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center border-b border-border">
+            <svg className="w-16 h-16 text-muted/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
           </div>
+        )}
+        {/* Status Badge Overlay */}
+        <div className="absolute top-3 right-3">
           <ItemStatusBadge status={hit.status} />
         </div>
-        <p className="text-sm text-fg line-clamp-2">{hit.description}</p>
       </div>
-      <div className="shrink-0">
-        <select
-          value={hit.status}
-          onChange={(e) => onUpdateStatus(hit.objectID, e.target.value)}
-          className="input-base py-2 px-3 text-sm"
-        >
-          <option value="found">Found</option>
-          <option value="claimed">Claimed</option>
-          <option value="archived">Archived</option>
-        </select>
+
+      {/* Content */}
+      <div className="p-5 space-y-3">
+        {/* Title */}
+        <h3 className="font-bold text-lg line-clamp-2 min-h-[3.5rem]">
+          {hit.title || "Untitled Item"}
+        </h3>
+
+        {/* Description */}
+        <p className="text-sm text-muted line-clamp-3 min-h-[4rem]">
+          {truncatedDesc || "No description provided"}
+        </p>
+
+        {/* Category & Time */}
+        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-border">
+          <span className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-utaOrange/10 text-utaOrange font-semibold capitalize">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+            </svg>
+            {hit.category || hit.attributes?.category || "Unknown"}
+          </span>
+          <span className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-white/5 text-muted font-medium">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {timeAgo}
+          </span>
+        </div>
+
+        {/* Status Update */}
+        <div className="pt-2">
+          <label className="block text-xs font-semibold text-muted mb-2 uppercase tracking-wider">Update Status</label>
+          <select
+            value={hit.status}
+            onChange={(e) => onUpdateStatus(hit.objectID, e.target.value)}
+            className="input-base w-full py-2.5 px-4 text-sm font-medium"
+          >
+            <option value="found">Found</option>
+            <option value="claimed">Claimed</option>
+            <option value="archived">Archived</option>
+          </select>
+        </div>
       </div>
-    </div>
-  );
-}
-
-function RequestsTable({
-  requests,
-  onApprove,
-  onReject,
-}: {
-  requests: any[];
-  onApprove: (id: string) => void;
-  onReject: (id: string) => void;
-}) {
-  if (requests.length === 0) {
-    return (
-      <div className="p-12 text-center">
-        <div className="text-6xl mb-4 opacity-20">📋</div>
-        <p className="text-lg text-muted">No requests yet.</p>
-        <p className="text-sm text-muted mt-2">New submissions will appear here.</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="overflow-x-auto">
-      <table className="w-full">
-        <thead className="border-b border-border">
-          <tr>
-            <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">
-              Date
-            </th>
-            <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">
-              Category
-            </th>
-            <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">
-              Description
-            </th>
-            <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">
-              Status
-            </th>
-            <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">
-              Actions
-            </th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-border">
-          {requests.map((request) => (
-            <tr key={request.id} className="hover:bg-bgElevated transition-colors">
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-muted">
-                {new Date(request.createdAt).toLocaleDateString()}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium capitalize">
-                {request.attributes.category}
-              </td>
-              <td className="px-6 py-4 text-sm text-fg max-w-md">
-                <div className="line-clamp-2">
-                  {request.description}
-                </div>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <StatusBadge status={request.status} />
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm">
-                {request.status === "submitted" && (
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => onApprove(request.id)}
-                      className="px-3 py-1.5 rounded-lg bg-green-500/10 text-green-600 hover:bg-green-500/20 font-medium transition-colors"
-                    >
-                      Approve
-                    </button>
-                    <button
-                      onClick={() => onReject(request.id)}
-                      className="px-3 py-1.5 rounded-lg bg-red-500/10 text-red-600 hover:bg-red-500/20 font-medium transition-colors"
-                    >
-                      Reject
-                    </button>
-                  </div>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-function InventoryTable({
-  items,
-  onUpdateStatus,
-}: {
-  items: any[];
-  onUpdateStatus: (id: string, status: string) => void;
-}) {
-  if (items.length === 0) {
-    return (
-      <div className="p-12 text-center">
-        <div className="text-6xl mb-4 opacity-20">📦</div>
-        <p className="text-lg text-muted">Inventory empty.</p>
-        <p className="text-sm text-muted mt-2">Add found items to get started.</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="overflow-x-auto">
-      <table className="w-full">
-        <thead className="border-b border-border">
-          <tr>
-            <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">
-              Date Found
-            </th>
-            <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">
-              Category
-            </th>
-            <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">
-              Description
-            </th>
-            <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">
-              Status
-            </th>
-            <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">
-              Actions
-            </th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-border">
-          {items.map((item) => (
-            <tr key={item.id} className="hover:bg-bgElevated transition-colors">
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-muted">
-                {new Date(item.createdAt).toLocaleDateString()}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium capitalize">
-                {item.attributes.category}
-              </td>
-              <td className="px-6 py-4 text-sm text-fg max-w-md">
-                <div className="line-clamp-2">
-                  {item.description}
-                </div>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <ItemStatusBadge status={item.status} />
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm">
-                <select
-                  value={item.status}
-                  onChange={(e) => onUpdateStatus(item.id, e.target.value)}
-                  className="input-base py-2 px-3 text-sm"
-                >
-                  <option value="found">Found</option>
-                  <option value="claimed">Claimed</option>
-                  <option value="archived">Archived</option>
-                </select>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
     </div>
   );
 }

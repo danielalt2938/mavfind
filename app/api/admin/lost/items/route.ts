@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAuthToken } from "@/lib/auth/server";
 import { getLocationLostItems } from "@/lib/firebase/firestore";
+import { getFirestoreDb } from "@/lib/firebase/admin";
 
 export async function GET(req: NextRequest) {
   try {
@@ -16,14 +17,20 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const locationId = searchParams.get("locationId");
 
-    if (!locationId) {
-      return NextResponse.json(
-        { error: "Location ID is required" },
-        { status: 400 }
-      );
+    // If locationId is provided, filter by location
+    // Otherwise, return all items
+    let items;
+    if (locationId) {
+      items = await getLocationLostItems(locationId);
+    } else {
+      // Fetch all lost items across all locations
+      const db = getFirestoreDb();
+      const snapshot = await db.collection("lost").orderBy("createdAt", "desc").get();
+      items = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
     }
-
-    const items = await getLocationLostItems(locationId);
 
     return NextResponse.json({ items }, { status: 200 });
   } catch (error) {

@@ -114,6 +114,7 @@ Respond ONLY with valid JSON in this exact structure:
   "title": "short descriptive title",
   "category": "choose best category from the list above",
   "subcategory": "specific type or null",
+  "genericDescription": "EXTREMELY detailed comprehensive description including ALL mentioned details, be as verbose as possible or null",
   "lostOrFound": "lost" | "found" | "Ongoing"| null,
   "location": {
     "building": "string or null",
@@ -137,7 +138,6 @@ Respond ONLY with valid JSON in this exact structure:
   },
   "verificationQuestions": ["string", "string", "string"] | null,
   "attributes": {
-    "genericDescription": "EXTREMELY detailed comprehensive description including ALL mentioned details, be as verbose as possible or null",
     "brand": "brand name or null",
     "model": "model name or null",
     "color": "color or null",
@@ -238,21 +238,23 @@ export async function extractAttributesFromImage(
     if (mimeType === "image/heic" || mimeType === "image/heif") {
       console.log("Converting HEIC/HEIF to JPEG...");
       try {
-        const convert = require('heic-convert');
-        const inputBuffer = Buffer.from(imageBase64, 'base64');
+        const convert = require("heic-convert");
+        const inputBuffer = Buffer.from(imageBase64, "base64");
 
         const outputBuffer = await convert({
           buffer: inputBuffer,
-          format: 'JPEG',
-          quality: 0.9
+          format: "JPEG",
+          quality: 0.9,
         });
 
-        processedImageBase64 = outputBuffer.toString('base64');
-        processedMimeType = 'image/jpeg';
+        processedImageBase64 = outputBuffer.toString("base64");
+        processedMimeType = "image/jpeg";
         console.log("HEIC conversion successful");
       } catch (conversionError) {
         console.error("HEIC conversion failed:", conversionError);
-        throw new Error("Failed to convert HEIC image. Please use JPG or PNG format.");
+        throw new Error(
+          "Failed to convert HEIC image. Please use JPG or PNG format."
+        );
       }
     }
 
