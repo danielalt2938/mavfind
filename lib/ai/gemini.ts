@@ -37,7 +37,12 @@ export async function extractAttributesFromDescription(
   description: string
 ): Promise<AIExtractedData> {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.0-flash",
+      generationConfig: {
+        temperature: 0.4,
+      },
+    });
 
     const prompt = `
     You are an AI assistant that extracts structured information from lost and found item descriptions for a college campus.
@@ -258,7 +263,12 @@ export async function extractAttributesFromImage(
       }
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.0-flash",
+      generationConfig: {
+        temperature: 0.4,
+      },
+    });
 
     const prompt = `
 Analyze this image of a lost or found item on a college campus and extract structured information:
