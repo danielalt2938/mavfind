@@ -21,7 +21,7 @@ export const onRequestCreated = onDocumentCreated(
 
     try {
       const result = await matchRequest(requestId, {
-        limit: 10,
+        limit: 3,
         distanceThreshold: 0.6,
       });
 
@@ -36,10 +36,41 @@ export const onRequestCreated = onDocumentCreated(
 );
 
 /**
+ * Processes requests in batches with concurrent matching limits
+ */
+async function processRequestsBatch(
+  requests: FirebaseFirestore.QueryDocumentSnapshot[],
+  lostId: string,
+  batchSize: number = 5
+): Promise<void> {
+  for (let i = 0; i < requests.length; i += batchSize) {
+    const batch = requests.slice(i, i + batchSize);
+    
+    console.info(`Processing batch ${Math.floor(i / batchSize) + 1} (${batch.length} requests)`);
+    
+    const matchPromises = batch.map(async (requestDoc) => {
+      try {
+        const result = await matchRequest(requestDoc.id, {
+          limit: 3,
+          distanceThreshold: 0.6,
+        });
+        console.info(`Matched request ${requestDoc.id} against new lost item ${lostId}`);
+        return result;
+      } catch (error: any) {
+        console.error(`Failed to match request ${requestDoc.id}:`, error);
+        return null;
+      }
+    });
+
+    await Promise.all(matchPromises);
+  }
+}
+
+/**
  * Firestore trigger that runs matching when a new lost item is created
  *
  * Triggers on: lost/{lostId}
- * Action: Automatically matches all requests against the new lost item
+ * Action: Automatically matches all requests against the new lost item using batch processing
  */
 export const onLostItemCreated = onDocumentCreated(
   {
@@ -51,33 +82,27 @@ export const onLostItemCreated = onDocumentCreated(
   async (event) => {
     const lostId = event.params.lostId;
 
-    console.info(`New lost item created: ${lostId}, triggering matching for all requests...`);
+    console.info(`New lost item created: ${lostId}, triggering batch matching for all requests...`);
 
     try {
-      // Get all requests
       const { db } = await import('./db.js');
-      const requestsSnapshot = await db.collection('requests').get();
+      
+      // Fetch all requests with safety limit to prevent excessive processing
+      const requestsQuery = db.collection('requests')
+        .limit(1000); // Safety limit to prevent excessive processing
 
+      const requestsSnapshot = await requestsQuery.get();
       console.info(`Found ${requestsSnapshot.size} requests to match`);
 
-      // Match each request (the matchRequest function will consider the new lost item)
-      const matchPromises = requestsSnapshot.docs.map(async (requestDoc) => {
-        try {
-          const result = await matchRequest(requestDoc.id, {
-            limit: 10,
-            distanceThreshold: 0.6,
-          });
-          console.info(`Matched request ${requestDoc.id} against new lost item ${lostId}`);
-          return result;
-        } catch (error: any) {
-          console.error(`Failed to match request ${requestDoc.id}:`, error);
-          return null;
-        }
-      });
+      if (requestsSnapshot.empty) {
+        console.info('No requests found, skipping matching');
+        return;
+      }
 
-      await Promise.all(matchPromises);
+      // Process in batches with concurrent limits
+      await processRequestsBatch(requestsSnapshot.docs, lostId, 5);
 
-      console.info(`Completed matching all requests against new lost item ${lostId}`);
+      console.info(`Completed batch matching all requests against new lost item ${lostId}`);
     } catch (error: any) {
       console.error(`Failed to process new lost item ${lostId}:`, error);
       // Don't throw - allow the trigger to complete even if matching fails

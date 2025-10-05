@@ -42,9 +42,8 @@ export function distanceToConfidence(distance: number): number {
  * 2. Build a Firestore query on `lost` collection with optional prefilters
  * 3. Execute KNN search using findNearest with COSINE distance
  * 4. Convert distances to confidence scores
- * 5. Persist matches to `requests/{id}/matches/{lostId}` subcollection
- * 6. Update existing matches if distance changed (idempotent)
- * 7. Return summary with match details
+ * 5. Delete all existing matches and persist new matches to `requests/{id}/matches/{lostId}` subcollection
+ * 6. Return summary with match details
  *
  * @param requestId - ID of the request document to match
  * @param options - Optional parameters for matching
@@ -160,45 +159,38 @@ export async function matchRequest(
     })
     .filter((match): match is MatchResult => match !== null);
 
-  // 5. Persist matches to subcollection (idempotent)
-  console.info(`Persisting ${matches.length} matches to subcollection...`);
+  // 5. Replace all matches: delete existing and add new ones
+  console.info(`Replacing all matches with ${matches.length} new matches...`);
   const matchesRef = requestRef.collection('matches');
 
-  await Promise.all(
-    matches.map(async (match) => {
-      const matchDocRef = matchesRef.doc(match.lostId);
-      const existingMatchSnap = await matchDocRef.get();
+  // Delete all existing matches first
+  const existingMatches = await matchesRef.get();
+  if (!existingMatches.empty) {
+    console.info(`Deleting ${existingMatches.size} existing matches`);
+    const deletePromises = existingMatches.docs.map(doc => doc.ref.delete());
+    await Promise.all(deletePromises);
+  }
 
-      const matchData: MatchDoc = {
-        lostRef: db.collection('lost').doc(match.lostId),
-        distance: match.distance,
-        confidence: match.confidence,
-        rank: match.rank,
-        status: 'pending',
-        createdAt: existingMatchSnap.exists
-          ? (existingMatchSnap.data() as MatchDoc).createdAt
-          : serverTimestamp() as any,
-        updatedAt: serverTimestamp() as any,
-      };
+  // Add new matches
+  if (matches.length > 0) {
+    console.info(`Creating ${matches.length} new matches`);
+    await Promise.all(
+      matches.map(async (match) => {
+        const matchDocRef = matchesRef.doc(match.lostId);
+        const matchData: MatchDoc = {
+          lostRef: db.collection('lost').doc(match.lostId),
+          distance: match.distance,
+          confidence: match.confidence,
+          rank: match.rank,
+          status: 'pending',
+          createdAt: serverTimestamp() as any,
+          updatedAt: serverTimestamp() as any,
+        };
 
-      // Idempotency: only update if distance or rank changed
-      if (existingMatchSnap.exists) {
-        const existing = existingMatchSnap.data() as MatchDoc;
-        if (
-          existing.distance !== match.distance ||
-          existing.rank !== match.rank
-        ) {
-          console.info(`Updating match ${match.lostId} (distance changed)`);
-          await matchDocRef.set(matchData, { merge: true });
-        } else {
-          console.info(`Match ${match.lostId} unchanged, skipping update`);
-        }
-      } else {
-        console.info(`Creating new match ${match.lostId}`);
         await matchDocRef.set(matchData);
-      }
-    })
-  );
+      })
+    );
+  }
 
   console.info(`Successfully matched request ${requestId}`);
 
