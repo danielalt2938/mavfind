@@ -70,7 +70,11 @@ export default function UserDashboard() {
   };
 
   const handleDeleteRequest = async (requestId: string) => {
-    if (!confirm("Are you sure you want to delete this request? This action cannot be undone.")) {
+    if (
+      !confirm(
+        "Are you sure you want to delete this request? This action cannot be undone."
+      )
+    ) {
       return;
     }
 
@@ -136,12 +140,12 @@ export default function UserDashboard() {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-6">
             <nav className="flex items-center gap-6">
-              <Link
+              {/* <Link
                 href="/inventory"
                 className="text-sm font-medium text-muted hover:text-fg transition-colors"
               >
                 Browse Items
-              </Link>
+              </Link> */}
               <Link
                 href="/dashboard/user"
                 className="text-sm font-medium text-fg"
@@ -202,13 +206,13 @@ export default function UserDashboard() {
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-border">
             <div className="container-custom py-4 space-y-4">
-              <Link
+              {/* <Link
                 href="/inventory"
                 className="block text-sm font-medium text-muted hover:text-fg transition-colors py-2"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Browse Items
-              </Link>
+              </Link> */}
               <Link
                 href="/dashboard/user"
                 className="block text-sm font-medium text-fg py-2"
@@ -494,17 +498,17 @@ function ReportForm({
   const hasSensitiveItem = () => {
     const lowerDesc = description.toLowerCase();
     const sensitiveKeywords = [
-      'credit card',
-      'debit card',
-      'wallet',
-      'phone',
-      'mobile',
-      'iphone',
-      'android',
-      'cell phone',
-      'smartphone',
+      "credit card",
+      "debit card",
+      "wallet",
+      "phone",
+      "mobile",
+      "iphone",
+      "android",
+      "cell phone",
+      "smartphone",
     ];
-    return sensitiveKeywords.some(keyword => lowerDesc.includes(keyword));
+    return sensitiveKeywords.some((keyword) => lowerDesc.includes(keyword));
   };
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -756,12 +760,25 @@ function ReportForm({
                     Lost a Credit Card, Wallet, or Phone?
                   </p>
                   <p className="text-xs text-red-300 leading-relaxed mb-3">
-                    For security reasons, <span className="font-semibold">do not submit a request here</span>. These items require immediate reporting to UTA Police.
+                    For security reasons,{" "}
+                    <span className="font-semibold">
+                      do not submit a request here
+                    </span>
+                    . These items require immediate reporting to UTA Police.
                   </p>
                   <div className="bg-red-500/10 rounded-lg p-3 border border-red-500/20">
-                    <p className="text-xs font-semibold text-red-400 mb-2">Contact UTA Police:</p>
+                    <p className="text-xs font-semibold text-red-400 mb-2">
+                      Contact UTA Police:
+                    </p>
                     <p className="text-xs text-fg">
-                      📞 <a href="tel:817-272-3003" className="text-red-400 hover:text-red-300 underline font-semibold">817-272-3003</a> (Emergency: 911)
+                      📞{" "}
+                      <a
+                        href="tel:817-272-3003"
+                        className="text-red-400 hover:text-red-300 underline font-semibold"
+                      >
+                        817-272-3003
+                      </a>{" "}
+                      (Emergency: 911)
                       <br />
                       📍 Meadow Run Hall, 701 Planetarium Pl
                       <br />

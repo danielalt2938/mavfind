@@ -32,7 +32,9 @@ export default function InventoryPage() {
             <div className="animate-spin rounded-full h-16 w-16 border-4 border-border border-t-utaOrange"></div>
             <div className="absolute inset-0 animate-pulse rounded-full h-16 w-16 border-4 border-utaOrange/20"></div>
           </div>
-          <p className="text-sm text-muted font-medium animate-pulse">Loading...</p>
+          <p className="text-sm text-muted font-medium animate-pulse">
+            Loading...
+          </p>
         </div>
       </div>
     );
@@ -43,11 +45,23 @@ export default function InventoryPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-bg">
         <div className="card-base p-12 text-center max-w-md">
-          <svg className="w-16 h-16 mx-auto mb-4 text-muted/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          <svg
+            className="w-16 h-16 mx-auto mb-4 text-muted/30"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1.5}
+              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+            />
           </svg>
           <h2 className="text-2xl font-bold mb-2">Sign In Required</h2>
-          <p className="text-muted mb-6">You need to be signed in to browse the inventory.</p>
+          <p className="text-muted mb-6">
+            You need to be signed in to browse the inventory.
+          </p>
           <Link href="/auth/signin">
             <Button size="lg">Sign In</Button>
           </Link>
@@ -64,13 +78,13 @@ export default function InventoryPage() {
     const checkRole = async () => {
       try {
         const token = await user.getIdToken();
-        const res = await fetch('/api/auth/user-role', {
+        const res = await fetch("/api/auth/user-role", {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
         setUserRole(data.role);
       } catch (error) {
-        console.error('Error checking role:', error);
+        console.error("Error checking role:", error);
       } finally {
         setRoleLoading(false);
       }
@@ -86,22 +100,36 @@ export default function InventoryPage() {
             <div className="animate-spin rounded-full h-16 w-16 border-4 border-border border-t-utaOrange"></div>
             <div className="absolute inset-0 animate-pulse rounded-full h-16 w-16 border-4 border-utaOrange/20"></div>
           </div>
-          <p className="text-sm text-muted font-medium animate-pulse">Loading...</p>
+          <p className="text-sm text-muted font-medium animate-pulse">
+            Loading...
+          </p>
         </div>
       </div>
     );
   }
 
   // Restrict to admin only
-  if (userRole !== 'admin') {
+  if (userRole !== "admin") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-bg">
         <div className="card-base p-12 text-center max-w-md">
-          <svg className="w-16 h-16 mx-auto mb-4 text-red-500/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          <svg
+            className="w-16 h-16 mx-auto mb-4 text-red-500/30"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1.5}
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+            />
           </svg>
           <h2 className="text-2xl font-bold mb-2">Admin Access Only</h2>
-          <p className="text-muted mb-6">This page is restricted to administrators.</p>
+          <p className="text-muted mb-6">
+            This page is restricted to administrators.
+          </p>
           <Link href="/">
             <Button size="lg">Go Home</Button>
           </Link>
@@ -125,9 +153,9 @@ export default function InventoryPage() {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-6">
             <nav className="flex items-center gap-6">
-              <Link href="/inventory" className="text-base font-medium text-fg">
+              {/* <Link href="/inventory" className="text-base font-medium text-fg">
                 Browse Items
-              </Link>
+              </Link> */}
               <Link
                 href="/dashboard/user"
                 className="text-base font-medium text-muted hover:text-fg transition-colors"
@@ -196,13 +224,13 @@ export default function InventoryPage() {
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-border">
             <div className="container-custom py-4 space-y-4">
-              <Link
+              {/* <Link
                 href="/inventory"
                 className="block text-sm font-medium text-fg py-2"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Browse Items
-              </Link>
+              </Link> */}
               <Link
                 href="/dashboard/user"
                 className="block text-sm font-medium text-muted hover:text-fg transition-colors py-2"
@@ -249,7 +277,8 @@ export default function InventoryPage() {
             Lost Inventory
           </h1>
           <p className="text-lg text-muted mb-8">
-            Browse through all lost items found across campus. See something that's yours?
+            Browse through all lost items found across campus. See something
+            that's yours?
           </p>
 
           <InstantSearch
@@ -347,22 +376,23 @@ function InventoryHit({ hit }: { hit: any }) {
 
         <p className="text-muted leading-relaxed mb-4">
           {hit.genericDescription
-            ? (hit.genericDescription.length > 70
-                ? hit.genericDescription.substring(0, 70) + '...'
-                : hit.genericDescription)
-            : 'No description available'}
+            ? hit.genericDescription.length > 70
+              ? hit.genericDescription.substring(0, 70) + "..."
+              : hit.genericDescription
+            : "No description available"}
         </p>
 
         <div className="text-xs text-muted/70 pt-3 border-t border-white/5">
-          {new Date(hit.createdAt).toLocaleString('en-US', {
-            timeZone: 'America/Chicago',
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: 'numeric',
-            minute: '2-digit',
-            hour12: true
-          })} CST
+          {new Date(hit.createdAt).toLocaleString("en-US", {
+            timeZone: "America/Chicago",
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "numeric",
+            minute: "2-digit",
+            hour12: true,
+          })}{" "}
+          CST
         </div>
       </div>
     </motion.div>

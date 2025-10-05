@@ -237,12 +237,12 @@ export default function AdminDashboard() {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-6">
             <nav className="flex items-center gap-6">
-              <Link
+              {/* <Link
                 href="/inventory"
                 className="text-sm font-medium text-muted hover:text-fg transition-colors"
               >
                 Browse Items
-              </Link>
+              </Link> */}
               <Link
                 href="/dashboard/admin"
                 className="text-sm font-medium text-fg"
@@ -306,13 +306,13 @@ export default function AdminDashboard() {
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-border">
             <div className="container-custom py-4 space-y-4">
-              <Link
+              {/* <Link
                 href="/inventory"
                 className="block text-sm font-medium text-muted hover:text-fg transition-colors py-2"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Browse Items
-              </Link>
+              </Link> */}
               <Link
                 href="/dashboard/admin"
                 className="block text-sm font-medium text-fg py-2"
