@@ -215,15 +215,15 @@ export default function UserDashboard() {
             </button>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {requests.map((request: any) => {
               const images = request.images || [];
               const firstImage = images.length > 0 ? images[0] : null;
 
               return (
-                <div key={request.id} className="card-base overflow-hidden hover-lift h-full">
-                  {/* Image Section - Always shown */}
-                  <div className="relative w-full h-48 bg-bgElevated overflow-hidden">
+                <div key={request.id} className="card-base overflow-hidden hover-lift h-full flex flex-col">
+                  {/* Image Section */}
+                  <div className="relative w-full h-32 bg-bgElevated overflow-hidden flex-shrink-0">
                     {firstImage ? (
                       <img
                         src={firstImage}
@@ -231,83 +231,62 @@ export default function UserDashboard() {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center border-b border-border">
-                        <svg className="w-16 h-16 text-muted/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="w-full h-full flex items-center justify-center">
+                        <svg className="w-10 h-10 text-muted/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
                       </div>
                     )}
-                    <div className="absolute top-2 right-2">
+                    <div className="absolute top-1.5 right-1.5">
                       <StatusBadge status={request.status} />
                     </div>
                     {images.length > 1 && (
-                      <div className="absolute bottom-2 right-2 px-2 py-1 rounded-lg bg-black/60 backdrop-blur-sm text-white text-xs font-semibold flex items-center gap-1">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
+                      <div className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded-md bg-black/60 backdrop-blur-sm text-white text-xs font-semibold">
                         {images.length}
                       </div>
                     )}
                   </div>
 
                   {/* Content Section */}
-                  <div className="p-6">
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="flex-1">
-                        <h3 className="text-xl font-bold mb-2 capitalize">
-                          {request.attributes?.subcategory || request.attributes?.category || "Uncategorized"}
-                        </h3>
-                      </div>
-                    </div>
+                  <div className="p-3 flex-1 flex flex-col">
+                    <h3 className="text-sm font-bold mb-1 capitalize line-clamp-1">
+                      {request.attributes?.subcategory || request.attributes?.category || "Uncategorized"}
+                    </h3>
 
-                    <p className="text-muted leading-relaxed mb-4" style={{
-                      display: '-webkit-box',
-                      WebkitLineClamp: 3,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden'
-                    }}>
+                    <p className="text-xs text-muted leading-relaxed mb-2 line-clamp-2 flex-1">
                       {request.attributes?.genericDescription || request.description || "No description"}
                     </p>
 
-                    <div className="text-xs text-muted/70 mb-4 pt-3 border-t border-white/5">
-                      Reported {new Date(request.createdAt).toLocaleString('en-US', {
+                    <div className="text-xs text-muted/70 mb-2 pt-2 border-t border-white/5">
+                      {new Date(request.createdAt).toLocaleString('en-US', {
                         timeZone: 'America/Chicago',
-                        year: 'numeric',
                         month: 'short',
                         day: 'numeric',
-                        hour: 'numeric',
-                        minute: '2-digit',
-                        hour12: true
-                      })} CST
+                      })}
                     </div>
 
                     {/* Matches Button */}
                     <Link
                       href={`/dashboard/user/requests/${request.id}`}
-                      className="block mt-4 pt-4 border-t border-white/5"
+                      className="block"
                     >
-                      <div className="flex items-center justify-between p-4 bg-bgElevated hover:bg-white/5 rounded-xl transition-all group">
-                        <div className="flex items-center gap-3">
-                          <svg className="w-5 h-5 text-utaOrange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="flex items-center justify-between p-2 bg-bgElevated hover:bg-white/5 rounded-lg transition-all group">
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          <svg className="w-4 h-4 text-utaOrange flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                           </svg>
-                          <div>
-                            <p className="text-sm font-semibold text-fg">
-                              {matchCounts[request.id] === undefined ? (
-                                <span className="text-muted">Loading matches...</span>
-                              ) : matchCounts[request.id] === 0 ? (
-                                "No matches yet"
-                              ) : (
-                                "Potential matches found"
-                              )}
-                            </p>
-                            {matchCounts[request.id] > 0 && (
-                              <p className="text-xs text-muted mt-1">Click to view details</p>
+                          <p className="text-xs font-medium text-fg truncate">
+                            {matchCounts[request.id] === undefined ? (
+                              <span className="text-muted">Loading...</span>
+                            ) : matchCounts[request.id] === 0 ? (
+                              "No matches"
+                            ) : (
+                              "Matches"
                             )}
-                          </div>
+                          </p>
                         </div>
                         <svg
-                          className="w-5 h-5 text-muted group-hover:text-fg group-hover:translate-x-1 transition-all"
+                          className="w-3 h-3 text-muted group-hover:text-fg group-hover:translate-x-0.5 transition-all flex-shrink-0"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"

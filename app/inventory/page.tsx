@@ -283,42 +283,13 @@ function InventoryHit({ hit }: { hit: any }) {
 
       {/* Content Section */}
       <div className="p-6">
-        <div className="flex justify-between items-start mb-4">
-          <div className="flex-1">
-            <h3 className="text-xl font-bold mb-1 capitalize">
-              <Highlight attribute="category" hit={hit} />
-            </h3>
-            {hit.brand && (
-              <p className="text-sm text-muted">
-                <Highlight attribute="brand" hit={hit} />
-              </p>
-            )}
-          </div>
-        </div>
-
-        <p className="text-muted leading-relaxed mb-4" style={{
-          display: '-webkit-box',
-          WebkitLineClamp: 3,
-          WebkitBoxOrient: 'vertical',
-          overflow: 'hidden'
-        }}>
-          <Highlight attribute="genericDescription" hit={hit} />
+        <p className="text-muted leading-relaxed mb-4">
+          {hit.genericDescription
+            ? (hit.genericDescription.length > 70
+                ? hit.genericDescription.substring(0, 70) + '...'
+                : hit.genericDescription)
+            : 'No description available'}
         </p>
-
-        <div className="space-y-1 mb-4">
-          {hit.color && (
-            <div className="text-sm text-muted">
-              <span className="text-fg font-medium">Color:</span>{" "}
-              <Highlight attribute="color" hit={hit} />
-            </div>
-          )}
-          {hit.model && (
-            <div className="text-sm text-muted">
-              <span className="text-fg font-medium">Model:</span>{" "}
-              <Highlight attribute="model" hit={hit} />
-            </div>
-          )}
-        </div>
 
         <div className="text-xs text-muted/70 pt-3 border-t border-white/5">
           {new Date(hit.createdAt).toLocaleString('en-US', {
