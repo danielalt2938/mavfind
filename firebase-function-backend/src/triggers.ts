@@ -1,5 +1,6 @@
 import { onDocumentCreated } from 'firebase-functions/v2/firestore';
 import { matchRequest } from './matchRequest.js';
+import { ensureEmbedding } from './indexers.js';
 
 /**
  * Firestore trigger that runs matching when a new request is created
@@ -87,6 +88,20 @@ export const onLostItemCreated = onDocumentCreated(
     try {
       const { db } = await import('./db.js');
       
+      // Generate embedding for the new lost item first
+      console.info(`Generating embedding for new lost item ${lostId}...`);
+      const lostRef = db.collection('lost').doc(lostId);
+      const lostSnap = await lostRef.get();
+      
+      if (!lostSnap.exists) {
+        console.error(`Lost item ${lostId} not found`);
+        return;
+      }
+      
+      const lostData = lostSnap.data();
+      await ensureEmbedding(lostRef, lostData);
+      console.info(`Successfully generated embedding for lost item ${lostId}`);
+      
       // Fetch all requests with safety limit to prevent excessive processing
       const requestsQuery = db.collection('requests')
         .limit(1000); // Safety limit to prevent excessive processing
@@ -98,12 +113,6 @@ export const onLostItemCreated = onDocumentCreated(
         console.info('No requests found, skipping matching');
         return;
       }
-
-      // Wait 90 seconds for embeddings to be generated before matching
-      console.info(`Waiting 90 seconds for embeddings to be generated before matching...`);
-      await new Promise(resolve => setTimeout(resolve, 90000));
-
-      console.info(`Starting delayed matching after embedding generation period`);
 
       // Process in batches with concurrent limits
       await processRequestsBatch(requestsSnapshot.docs, lostId, 5);
