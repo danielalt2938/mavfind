@@ -841,7 +841,7 @@ function RequestHitComponent({
         </div>
 
         {/* Actions */}
-        {hit.status === "submitted" && (
+        {/* {hit.status === "submitted" && (
           <div className="flex gap-1.5 pt-2">
             <button
               onClick={() => onApprove(hit.objectID)}
@@ -856,7 +856,7 @@ function RequestHitComponent({
               Reject
             </button>
           </div>
-        )}
+        )} */}
 
         {/* Delete Button */}
         <div className="pt-2">
