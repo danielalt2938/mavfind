@@ -79,7 +79,9 @@ export default function UserDashboard() {
             {/* Inner pulse effect */}
             <div className="absolute inset-0 animate-pulse rounded-full h-16 w-16 border-4 border-utaOrange/20"></div>
           </div>
-          <p className="text-sm text-muted font-medium animate-pulse">Loading your reports...</p>
+          <p className="text-sm text-muted font-medium animate-pulse">
+            Loading your reports...
+          </p>
         </div>
       </div>
     );
@@ -90,24 +92,31 @@ export default function UserDashboard() {
       {/* Header */}
       <header className="glass-panel sticky top-0 z-50 border-b border-white/5">
         <div className="container-custom py-4 flex justify-between items-center">
-          <Link href="/" className="text-xl md:text-2xl font-display font-bold tracking-tight hover:text-utaOrange transition-colors">
+          <Link
+            href="/"
+            className="text-xl md:text-2xl font-display font-bold tracking-tight hover:text-utaOrange transition-colors"
+          >
             MavFind
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-6">
             <nav className="flex items-center gap-6">
-              <Link href="/inventory" className="text-sm font-medium text-muted hover:text-fg transition-colors">
+              <Link
+                href="/inventory"
+                className="text-sm font-medium text-muted hover:text-fg transition-colors"
+              >
                 Browse Items
               </Link>
-              <Link href="/dashboard/user" className="text-sm font-medium text-fg">
+              <Link
+                href="/dashboard/user"
+                className="text-sm font-medium text-fg"
+              >
                 My Reports
               </Link>
             </nav>
             <div className="flex items-center gap-3 pl-6 border-l border-border">
-              <span className="text-xs text-muted">
-                {user?.email}
-              </span>
+              <span className="text-xs text-muted">{user?.email}</span>
               <button
                 onClick={() => signOut()}
                 className="text-sm font-medium text-muted hover:text-fg transition-colors px-3 py-1.5 rounded-lg hover:bg-white/5"
@@ -124,12 +133,32 @@ export default function UserDashboard() {
             aria-label="Toggle menu"
           >
             {mobileMenuOpen ? (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             ) : (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               </svg>
             )}
           </button>
@@ -154,7 +183,9 @@ export default function UserDashboard() {
                 My Reports
               </Link>
               <div className="pt-4 border-t border-border space-y-3">
-                <span className="text-xs text-muted block truncate">{user?.email}</span>
+                <span className="text-xs text-muted block truncate">
+                  {user?.email}
+                </span>
                 <button
                   onClick={() => {
                     setMobileMenuOpen(false);
@@ -176,7 +207,9 @@ export default function UserDashboard() {
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight mb-2">
               My Reports
             </h1>
-            <p className="text-sm md:text-base text-muted">Track your lost items and see potential matches we've found</p>
+            <p className="text-sm md:text-base text-muted">
+              Track your lost items and see potential matches we've found
+            </p>
           </div>
           <button
             onClick={() => setShowReportForm(true)}
@@ -201,11 +234,23 @@ export default function UserDashboard() {
         {requests.length === 0 ? (
           <div className="card-base p-12 text-center">
             <div className="mb-6">
-              <svg className="w-16 h-16 mx-auto mb-4 text-muted/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              <svg
+                className="w-16 h-16 mx-auto mb-4 text-muted/30"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
               </svg>
               <p className="text-lg font-semibold mb-2">No reports yet</p>
-              <p className="text-sm text-muted">Lost something? Report it and we'll help you find it.</p>
+              <p className="text-sm text-muted">
+                Lost something? Report it and we'll help you find it.
+              </p>
             </div>
             <button
               onClick={() => setShowReportForm(true)}
@@ -221,7 +266,10 @@ export default function UserDashboard() {
               const firstImage = images.length > 0 ? images[0] : null;
 
               return (
-                <div key={request.id} className="card-base overflow-hidden hover-lift h-full flex flex-col">
+                <div
+                  key={request.id}
+                  className="card-base overflow-hidden hover-lift h-full flex flex-col"
+                >
                   {/* Image Section */}
                   <div className="relative w-full h-32 bg-bgElevated overflow-hidden flex-shrink-0">
                     {firstImage ? (
@@ -232,8 +280,18 @@ export default function UserDashboard() {
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <svg className="w-10 h-10 text-muted/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        <svg
+                          className="w-10 h-10 text-muted/30"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={1.5}
+                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                          />
                         </svg>
                       </div>
                     )}
@@ -250,18 +308,22 @@ export default function UserDashboard() {
                   {/* Content Section */}
                   <div className="p-3 flex-1 flex flex-col">
                     <h3 className="text-sm font-bold mb-1 capitalize line-clamp-1">
-                      {request.attributes?.subcategory || request.attributes?.category || "Uncategorized"}
+                      {request.attributes?.subcategory ||
+                        request.attributes?.category ||
+                        "Uncategorized"}
                     </h3>
 
                     <p className="text-xs text-muted leading-relaxed mb-2 line-clamp-2 flex-1">
-                      {request.attributes?.genericDescription || request.description || "No description"}
+                      {request.attributes?.genericDescription ||
+                        request.description ||
+                        "No description"}
                     </p>
 
                     <div className="text-xs text-muted/70 mb-2 pt-2 border-t border-white/5">
-                      {new Date(request.createdAt).toLocaleString('en-US', {
-                        timeZone: 'America/Chicago',
-                        month: 'short',
-                        day: 'numeric',
+                      {new Date(request.createdAt).toLocaleString("en-US", {
+                        timeZone: "America/Chicago",
+                        month: "short",
+                        day: "numeric",
                       })}
                     </div>
 
@@ -272,14 +334,26 @@ export default function UserDashboard() {
                     >
                       <div className="flex items-center justify-between p-2 bg-bgElevated hover:bg-white/5 rounded-lg transition-all group">
                         <div className="flex items-center gap-2 flex-1 min-w-0">
-                          <svg className="w-4 h-4 text-utaOrange flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                          <svg
+                            className="w-4 h-4 text-utaOrange flex-shrink-0"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M13 10V3L4 14h7v7l9-11h-7z"
+                            />
                           </svg>
                           <p className="text-xs font-medium text-fg truncate">
                             {matchCounts[request.id] === undefined ? (
                               <span className="text-muted">Loading...</span>
                             ) : matchCounts[request.id] === 0 ? (
-                              "No matches"
+                              <span className="text-muted">
+                                Search ongoing, check later
+                              </span>
                             ) : (
                               "Matches"
                             )}
@@ -291,7 +365,12 @@ export default function UserDashboard() {
                           stroke="currentColor"
                           viewBox="0 0 24 24"
                         >
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 5l7 7-7 7"
+                          />
                         </svg>
                       </div>
                     </Link>
@@ -359,23 +438,36 @@ function ReportForm({
         let processedFile = file;
 
         // Check if file is HEIC/HEIF and convert to JPEG
-        if (file.type === "image/heic" || file.type === "image/heif" || file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif')) {
+        if (
+          file.type === "image/heic" ||
+          file.type === "image/heif" ||
+          file.name.toLowerCase().endsWith(".heic") ||
+          file.name.toLowerCase().endsWith(".heif")
+        ) {
           try {
-            const heic2any = (await import('heic2any')).default;
+            const heic2any = (await import("heic2any")).default;
             const convertedBlob = await heic2any({
               blob: file,
               toType: "image/jpeg",
-              quality: 0.9
+              quality: 0.9,
             });
 
             // Create a new File from the blob
-            const blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
-            processedFile = new File([blob], file.name.replace(/\.heic$/i, '.jpg'), {
-              type: "image/jpeg",
-            });
+            const blob = Array.isArray(convertedBlob)
+              ? convertedBlob[0]
+              : convertedBlob;
+            processedFile = new File(
+              [blob],
+              file.name.replace(/\.heic$/i, ".jpg"),
+              {
+                type: "image/jpeg",
+              }
+            );
           } catch (error) {
             console.error("Error converting HEIC:", error);
-            alert("Error converting HEIC image. Please try a different format.");
+            alert(
+              "Error converting HEIC image. Please try a different format."
+            );
             continue;
           }
         }
@@ -520,28 +612,47 @@ function ReportForm({
           <div className="absolute inset-0 bg-bg/95 backdrop-blur-sm rounded-2xl flex items-center justify-center z-50">
             <div className="text-center">
               <div className="animate-spin rounded-full h-16 w-16 border-4 border-utaOrange border-t-transparent mx-auto mb-6"></div>
-              <h3 className="text-xl font-bold mb-2">Processing your report...</h3>
+              <h3 className="text-xl font-bold mb-2">
+                Processing your report...
+              </h3>
               <p className="text-sm text-muted max-w-sm">
-                We're analyzing your item with AI and searching for potential matches. This may take a moment.
+                We're analyzing your item with AI and searching for potential
+                matches. This may take a moment.
               </p>
             </div>
           </div>
         )}
 
-        <h2 className="text-3xl font-extrabold tracking-tight mb-6">Report Lost Item</h2>
+        <h2 className="text-3xl font-extrabold tracking-tight mb-6">
+          Report Lost Item
+        </h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Helpful Tips */}
           <div className="p-4 bg-utaOrange/10 border border-utaOrange/20 rounded-xl">
             <div className="flex items-start gap-3">
-              <svg className="w-5 h-5 text-utaOrange flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+              <svg
+                className="w-5 h-5 text-utaOrange flex-shrink-0 mt-0.5"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                  clipRule="evenodd"
+                />
               </svg>
               <div className="flex-1">
-                <p className="text-sm font-semibold text-fg mb-2">Be specific to improve matches!</p>
+                <p className="text-sm font-semibold text-fg mb-2">
+                  Be specific to improve matches!
+                </p>
                 <p className="text-xs text-muted leading-relaxed">
-                  Include: <span className="text-fg font-medium">brand, color, size, model, distinguishing features</span> (scratches, stickers, accessories).
-                  Where and when you lost it helps too!
+                  Include:{" "}
+                  <span className="text-fg font-medium">
+                    brand, color, size, model, distinguishing features
+                  </span>{" "}
+                  (scratches, stickers, accessories). Where and when you lost it
+                  helps too!
                 </p>
               </div>
             </div>
@@ -570,18 +681,34 @@ function ReportForm({
                 onClick={isRecording ? stopRecording : startRecording}
                 className={`absolute right-3 top-3 p-3 rounded-xl transition-all duration-300 ${
                   isRecording
-                    ? 'bg-red-500 text-white scale-110 shadow-lg shadow-red-500/50'
-                    : 'bg-bgElevated hover:bg-utaBlue/20 text-muted hover:text-fg hover:scale-105'
+                    ? "bg-red-500 text-white scale-110 shadow-lg shadow-red-500/50"
+                    : "bg-bgElevated hover:bg-utaBlue/20 text-muted hover:text-fg hover:scale-105"
                 }`}
                 title={isRecording ? "Stop recording" : "Record description"}
               >
                 {isRecording ? (
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clipRule="evenodd" />
+                  <svg
+                    className="w-5 h-5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 ) : (
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clipRule="evenodd" />
+                  <svg
+                    className="w-5 h-5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 )}
               </button>
@@ -594,7 +721,9 @@ function ReportForm({
                       <span className="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-red-400 opacity-75"></span>
                       <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
                     </div>
-                    <span className="text-sm text-red-400 font-medium">Recording in progress...</span>
+                    <span className="text-sm text-red-400 font-medium">
+                      Recording in progress...
+                    </span>
                   </div>
                   <button
                     type="button"
@@ -630,7 +759,9 @@ function ReportForm({
               <div className="mt-3 p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl">
                 <div className="flex items-center gap-3">
                   <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-400 border-t-transparent"></div>
-                  <span className="text-sm text-blue-400 font-medium">Transcribing audio...</span>
+                  <span className="text-sm text-blue-400 font-medium">
+                    Transcribing audio...
+                  </span>
                 </div>
               </div>
             )}
@@ -684,7 +815,8 @@ function ReportForm({
               <div className="mt-6 space-y-3">
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-medium text-muted">
-                    {imagePreviews.length} {imagePreviews.length === 1 ? 'image' : 'images'} selected
+                    {imagePreviews.length}{" "}
+                    {imagePreviews.length === 1 ? "image" : "images"} selected
                   </p>
                   <button
                     type="button"
@@ -719,7 +851,7 @@ function ReportForm({
               disabled={submitting}
               className="flex-1 btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {submitting ? "Submitting..." : "Submit"}
+              {submitting ? "Submitting..." : "Put Request"}
             </button>
             <button
               type="button"

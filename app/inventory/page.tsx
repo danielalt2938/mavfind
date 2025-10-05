@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Button, Badge } from "@/components/ui";
@@ -50,6 +50,60 @@ export default function InventoryPage() {
           <p className="text-muted mb-6">You need to be signed in to browse the inventory.</p>
           <Link href="/auth/signin">
             <Button size="lg">Sign In</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Check if user is admin
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [roleLoading, setRoleLoading] = useState(true);
+
+  useEffect(() => {
+    const checkRole = async () => {
+      try {
+        const token = await user.getIdToken();
+        const res = await fetch('/api/auth/user-role', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        setUserRole(data.role);
+      } catch (error) {
+        console.error('Error checking role:', error);
+      } finally {
+        setRoleLoading(false);
+      }
+    };
+    checkRole();
+  }, [user]);
+
+  if (roleLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-bg">
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-border border-t-utaOrange"></div>
+            <div className="absolute inset-0 animate-pulse rounded-full h-16 w-16 border-4 border-utaOrange/20"></div>
+          </div>
+          <p className="text-sm text-muted font-medium animate-pulse">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Restrict to admin only
+  if (userRole !== 'admin') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-bg">
+        <div className="card-base p-12 text-center max-w-md">
+          <svg className="w-16 h-16 mx-auto mb-4 text-red-500/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <h2 className="text-2xl font-bold mb-2">Admin Access Only</h2>
+          <p className="text-muted mb-6">This page is restricted to administrators.</p>
+          <Link href="/">
+            <Button size="lg">Go Home</Button>
           </Link>
         </div>
       </div>

@@ -120,6 +120,11 @@ export async function updateRequestStatus(
   await db.collection(COLLECTIONS.REQUESTS).doc(requestId).update(updateData);
 }
 
+export async function deleteRequest(requestId: string): Promise<void> {
+  const db = getFirestoreDb();
+  await db.collection(COLLECTIONS.REQUESTS).doc(requestId).delete();
+}
+
 // Lost Item Operations
 export async function createLostItem(
   lostItem: Omit<LostItem, "id">
@@ -146,6 +151,11 @@ export async function updateLostItemStatus(
     status,
     updatedAt: new Date().toISOString(),
   });
+}
+
+export async function deleteLostItem(lostId: string): Promise<void> {
+  const db = getFirestoreDb();
+  await db.collection(COLLECTIONS.LOST).doc(lostId).delete();
 }
 
 export async function getLocationLostItems(

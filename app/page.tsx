@@ -25,14 +25,6 @@ export default function Home() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-6">
-            <nav className="flex items-center gap-6">
-              <Link
-                href="/inventory"
-                className="text-base font-medium text-muted hover:text-fg transition-colors"
-              >
-                Browse Items
-              </Link>
-            </nav>
             {user ? (
               <div className="flex items-center gap-3 pl-6 border-l border-border">
                 <span className="text-xs text-muted">{user.email}</span>
@@ -94,13 +86,6 @@ export default function Home() {
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-border">
             <div className="container-custom py-4 space-y-4">
-              <Link
-                href="/inventory"
-                className="block text-sm font-medium text-muted hover:text-fg transition-colors py-2"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Browse Items
-              </Link>
               {user ? (
                 <div className="pt-4 border-t border-border space-y-3">
                   <span className="text-xs text-muted block truncate">
