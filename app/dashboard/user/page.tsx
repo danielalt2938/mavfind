@@ -234,13 +234,13 @@ export default function UserDashboard() {
                     <div className="flex justify-between items-start mb-4">
                       <div className="flex-1">
                         <h3 className="text-xl font-bold mb-2 capitalize">
-                          {request.attributes?.category || "Uncategorized"}
+                          {request.subcategory || "Uncategorized"}
                         </h3>
                       </div>
                     </div>
 
                     <p className="text-muted leading-relaxed mb-4 line-clamp-3">
-                      {request.description || request.genericDescription || "No description"}
+                      { request.genericDescription ||request.description || "No description"}
                     </p>
 
                     <div className="text-xs text-muted/70 pt-3 border-t border-white/5">

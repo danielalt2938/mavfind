@@ -99,6 +99,12 @@ export const onLostItemCreated = onDocumentCreated(
         return;
       }
 
+      // Wait 90 seconds for embeddings to be generated before matching
+      console.info(`Waiting 90 seconds for embeddings to be generated before matching...`);
+      await new Promise(resolve => setTimeout(resolve, 90000));
+
+      console.info(`Starting delayed matching after embedding generation period`);
+
       // Process in batches with concurrent limits
       await processRequestsBatch(requestsSnapshot.docs, lostId, 5);
 
