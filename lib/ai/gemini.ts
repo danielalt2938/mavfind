@@ -349,6 +349,7 @@ Be thorough and extract ALL visible details. Use null for fields not visible.
       title: extracted.title || undefined,
       category,
       subcategory: extracted.subcategory || undefined,
+      genericDescription: extracted.attributes?.genericDescription || undefined,
       attributes: {
         genericDescription:
           extracted.attributes?.genericDescription || undefined,
