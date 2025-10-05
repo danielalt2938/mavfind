@@ -19,11 +19,12 @@ export async function POST(req: NextRequest) {
     const aiData = await extractAttributesFromMultipleSources(transcript);
 
     // 2. Import Firebase functions to search
-    const { db } = await import("@/lib/firebase/admin");
+    const { getFirestoreDb } = await import("@/lib/firebase/admin");
     const { embedGenericDescription } = await import(
       "@/firebase-function-backend/src/ai"
     );
 
+    const db = getFirestoreDb();
     const genericDesc =
       aiData.attributes?.genericDescription || transcript;
 
@@ -37,7 +38,7 @@ export async function POST(req: NextRequest) {
       limit: 3,
       distanceMeasure: "COSINE",
       distanceResultField: "vector_distance",
-    });
+    } as any);
 
     const results = await vectorQuery.get();
 

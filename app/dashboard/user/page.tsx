@@ -489,6 +489,23 @@ function ReportForm({
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
 
+  // Check if description mentions sensitive items
+  const hasSensitiveItem = () => {
+    const lowerDesc = description.toLowerCase();
+    const sensitiveKeywords = [
+      'credit card',
+      'debit card',
+      'wallet',
+      'phone',
+      'mobile',
+      'iphone',
+      'android',
+      'cell phone',
+      'smartphone',
+    ];
+    return sensitiveKeywords.some(keyword => lowerDesc.includes(keyword));
+  };
+
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const filesArray = Array.from(e.target.files);
@@ -717,6 +734,43 @@ function ReportForm({
               </div>
             </div>
           </div>
+
+          {/* Warning for sensitive items */}
+          {hasSensitiveItem() && (
+            <div className="p-4 bg-red-500/10 border-2 border-red-500/30 rounded-xl animate-in fade-in duration-300">
+              <div className="flex items-start gap-3">
+                <svg
+                  className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <div className="flex-1">
+                  <p className="text-sm font-bold text-red-400 mb-2">
+                    Lost a Credit Card, Wallet, or Phone?
+                  </p>
+                  <p className="text-xs text-red-300 leading-relaxed mb-3">
+                    For security reasons, <span className="font-semibold">do not submit a request here</span>. These items require immediate reporting to UTA Police.
+                  </p>
+                  <div className="bg-red-500/10 rounded-lg p-3 border border-red-500/20">
+                    <p className="text-xs font-semibold text-red-400 mb-2">Contact UTA Police:</p>
+                    <p className="text-xs text-fg">
+                      📞 <a href="tel:817-272-3003" className="text-red-400 hover:text-red-300 underline font-semibold">817-272-3003</a> (Emergency: 911)
+                      <br />
+                      📍 Meadow Run Hall, 701 Planetarium Pl
+                      <br />
+                      🕐 Available 24/7
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div>
             <div className="flex items-center justify-between mb-2">

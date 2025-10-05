@@ -1433,6 +1433,13 @@ function AddFoundItemForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate that at least one image is uploaded
+    if (images.length === 0) {
+      alert("Please upload at least one image of the found item");
+      return;
+    }
+
     setSubmitting(true);
 
     try {
@@ -1638,8 +1645,11 @@ function AddFoundItemForm({
 
           <div>
             <label className="block text-sm font-medium text-muted mb-3">
-              Images (optional)
+              Images <span className="text-utaOrange">*</span>
             </label>
+            <p className="text-xs text-muted mb-3">
+              At least one image is required to help identify the item
+            </p>
 
             <div className="relative">
               <input
