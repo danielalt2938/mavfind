@@ -307,11 +307,14 @@ export default function UserDashboard() {
 
                   {/* Content Section */}
                   <div className="p-3 flex-1 flex flex-col">
-                    <h3 className="text-sm font-bold mb-1 capitalize line-clamp-1">
-                      {request.attributes?.subcategory ||
-                        request.attributes?.category ||
-                        "Uncategorized"}
-                    </h3>
+                    {/* Category Badge */}
+                    {(request.category || request.attributes?.category) && (
+                      <div className="mb-2">
+                        <span className="inline-block text-xs px-2 py-0.5 rounded-md bg-utaOrange/10 text-utaOrange font-semibold capitalize">
+                          {request.category || request.attributes?.category}
+                        </span>
+                      </div>
+                    )}
 
                     <p className="text-xs text-muted leading-relaxed mb-2 line-clamp-2 flex-1">
                       {request.attributes?.genericDescription ||

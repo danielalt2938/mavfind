@@ -547,19 +547,13 @@ function BestMatchCard({
               </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3">
+            {/* Action Button */}
+            <div>
               <button
                 onClick={onViewDetails}
-                className="btn-primary px-8 py-3 rounded-xl text-base font-semibold"
+                className="btn-primary px-8 py-3 rounded-xl text-base font-semibold w-full sm:w-auto"
               >
-                View Full Details & Claim
-              </button>
-              <button
-                onClick={onViewDetails}
-                className="btn-secondary px-8 py-3 rounded-xl text-base"
-              >
-                Contact Info
+                View Pickup Location & Details
               </button>
             </div>
           </div>
@@ -877,34 +871,39 @@ function MatchDetailsModal({
                 </div>
               </div>
 
-              {/* Pickup Information */}
-              <div className="bg-utaOrange/5 border border-utaOrange/20 rounded-xl p-4">
-                <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                  <svg
-                    className="w-5 h-5 text-utaOrange"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                  </svg>
-                  Pickup Location
-                </h3>
-                <div className="space-y-3">
+              {/* Pickup Information - Enhanced */}
+              <div className="bg-gradient-to-br from-utaOrange/10 to-utaBlue/10 border-2 border-utaOrange/30 rounded-xl p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 bg-utaOrange/20 rounded-lg">
+                    <svg
+                      className="w-6 h-6 text-utaOrange"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                    </svg>
+                  </div>
                   <div>
-                    <span className="text-sm font-medium text-muted">Location:</span>
-                    <p className="text-fg font-medium">
+                    <h3 className="text-lg font-bold text-fg">Visit This Location to Claim</h3>
+                    <p className="text-sm text-muted">Bring a valid ID to verify ownership</p>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <div className="bg-bg/50 rounded-lg p-4 border border-white/5">
+                    <span className="text-sm font-medium text-muted block mb-1">Pickup Location:</span>
+                    <p className="text-lg font-bold text-utaOrange">
                       {formatLocationName(match.lostItem.locationId)}
                     </p>
                   </div>
@@ -983,13 +982,10 @@ function MatchDetailsModal({
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-white/5 mt-8">
-            <button onClick={onClose} className="btn-secondary flex-1 py-3">
+          {/* Action Button */}
+          <div className="pt-6 border-t border-white/5 mt-8">
+            <button onClick={onClose} className="btn-secondary w-full py-3">
               Close
-            </button>
-            <button className="btn-primary flex-1 py-3">
-              I Want to Claim This Item
             </button>
           </div>
         </div>
