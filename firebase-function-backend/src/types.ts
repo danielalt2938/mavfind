@@ -6,6 +6,7 @@ import type { DocumentReference, Timestamp } from 'firebase-admin/firestore';
 export interface RequestDoc {
   id: string;
   userId: string;
+  userEmail?: string;
   category?: string;
   campus?: string;
   attributes?: {
