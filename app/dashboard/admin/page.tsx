@@ -342,7 +342,7 @@ export default function AdminDashboard() {
                 : "bg-bgElevated text-muted hover:text-fg hover:bg-white/10"
             }`}
           >
-            Inventory
+            Lost Inventory
           </button>
         </div>
 
@@ -506,7 +506,7 @@ export default function AdminDashboard() {
                 <div className="flex items-start justify-between gap-4 mb-2">
                   <div className="flex-1">
                     <h3 className="text-2xl font-bold mb-2">
-                      Search Inventory
+                      Search Lost Inventory
                     </h3>
                     <p className="text-sm text-muted">
                       Find and manage found items with powerful search and
@@ -766,22 +766,12 @@ function RequestHitComponent({
 
       {/* Content */}
       <div className="p-3 space-y-2">
-        {/* Title */}
-        <div>
-          <label className="text-[10px] uppercase tracking-wider font-bold text-muted/70 mb-0.5 block">
-            Title
-          </label>
-          <h3 className="font-semibold text-sm line-clamp-2 min-h-[2.5rem]">
-            {hit.title || "Untitled Request"}
-          </h3>
-        </div>
-
         {/* Description */}
         <div>
           <label className="text-[10px] uppercase tracking-wider font-bold text-muted/70 mb-0.5 block">
             Description
           </label>
-          <p className="text-xs text-muted line-clamp-2 min-h-[2.25rem]">
+          <p className="text-xs text-muted line-clamp-3 min-h-[3rem]">
             {truncatedDesc || "No description"}
           </p>
         </div>
@@ -900,22 +890,12 @@ function InventoryHitComponent({
 
       {/* Content */}
       <div className="p-3 space-y-2">
-        {/* Title */}
-        <div>
-          <label className="text-[10px] uppercase tracking-wider font-bold text-muted/70 mb-0.5 block">
-            Title
-          </label>
-          <h3 className="font-semibold text-sm line-clamp-2 min-h-[2.5rem]">
-            {hit.title || "Untitled Item"}
-          </h3>
-        </div>
-
         {/* Description */}
         <div>
           <label className="text-[10px] uppercase tracking-wider font-bold text-muted/70 mb-0.5 block">
             Description
           </label>
-          <p className="text-xs text-muted line-clamp-2 min-h-[2.25rem]">
+          <p className="text-xs text-muted line-clamp-3 min-h-[3rem]">
             {truncatedDesc || "No description"}
           </p>
         </div>

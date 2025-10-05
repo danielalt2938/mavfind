@@ -192,10 +192,10 @@ export default function InventoryPage() {
           transition={{ duration: 0.5 }}
         >
           <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-3">
-            Found Items
+            Lost Inventory
           </h1>
           <p className="text-lg text-muted mb-8">
-            Browse through all items found across campus. See something that's yours?
+            Browse through all lost items found across campus. See something that's yours?
           </p>
 
           <InstantSearch

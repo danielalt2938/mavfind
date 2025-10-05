@@ -148,6 +148,7 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
           className="relative z-10 container-custom max-w-4xl"
+          style={{ marginTop: "100px" }}
         >
           <h1 className="text-6xl md:text-7xl font-extrabold tracking-tight mb-6 sm :mt-20">
             Find what's lost.
@@ -181,16 +182,16 @@ export default function Home() {
             className="mt-16 flex flex-col sm:flex-row gap-8 justify-center text-sm text-muted"
           >
             <div>
-              <div className="text-2xl font-bold text-fg mb-1">1,200+</div>
-              <div>Items reunited</div>
+              <div className="text-lg font-semibold text-fg mb-1">Thousands</div>
+              <div>of items reunited</div>
             </div>
             <div>
-              <div className="text-2xl font-bold text-fg mb-1">&lt;48hrs</div>
-              <div>Average match time</div>
+              <div className="text-lg font-semibold text-fg mb-1">Lightning fast</div>
+              <div>match times</div>
             </div>
             <div>
-              <div className="text-2xl font-bold text-fg mb-1">95%</div>
-              <div>Success rate</div>
+              <div className="text-lg font-semibold text-fg mb-1">Remarkably high</div>
+              <div>success rate</div>
             </div>
           </motion.div>
         </motion.div>
