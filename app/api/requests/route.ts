@@ -39,26 +39,32 @@ export async function POST(req: NextRequest) {
       console.log("Starting AI analysis...", {
         hasDescription: !!finalDescription,
         imageCount: imageFiles.length,
-        descriptionLength: finalDescription?.length || 0
+        descriptionLength: finalDescription?.length || 0,
       });
-      
+
       aiData = await extractAttributesFromMultipleSources(
         finalDescription || undefined,
         imageFiles.length > 0 ? imageFiles : undefined
       );
-      
+
       console.log("AI analysis completed:", aiData);
     } catch (error) {
       console.error("AI analysis failed:", error);
-      
+
       // If it's an API configuration error, return a specific error
-      if (error instanceof Error && error.message.includes("AI service configuration")) {
+      if (
+        error instanceof Error &&
+        error.message.includes("AI service configuration")
+      ) {
         return NextResponse.json(
-          { error: "AI service is currently unavailable. Please try again later." },
+          {
+            error:
+              "AI service is currently unavailable. Please try again later.",
+          },
           { status: 503 }
         );
       }
-      
+
       // For other AI errors, use fallback data
       aiData = {
         title: "Item",
@@ -67,7 +73,7 @@ export async function POST(req: NextRequest) {
           genericDescription: finalDescription || undefined,
         },
       };
-      
+
       console.log("Using fallback AI data:", aiData);
     }
 
@@ -94,7 +100,7 @@ export async function POST(req: NextRequest) {
       description: finalDescription || "",
       category: aiData.category,
       images: imageUrls,
-      locationId: "",  // Location not required for user requests
+      locationId: "", // Location not required for user requests
       ownerUid: user.uid,
       status: "submitted",
       createdAt: now,
@@ -116,7 +122,8 @@ export async function POST(req: NextRequest) {
       });
     }
     requestData.attributes = filteredAttributes;
-    requestData.genericDescription = filteredAttributes.genericDescription;
+    requestData.genericDescription =
+      filteredAttributes.genericDescription || finalDescription;
 
     let requestId;
     try {
@@ -124,9 +131,9 @@ export async function POST(req: NextRequest) {
         title: requestData.title,
         category: requestData.category,
         hasImages: imageUrls.length > 0,
-        hasDescription: !!requestData.description
+        hasDescription: !!requestData.description,
       });
-      
+
       requestId = await createRequest(requestData);
       console.log("Request created successfully:", requestId);
     } catch (error) {
